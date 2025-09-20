@@ -45,10 +45,11 @@
   width: 100%;
   background: transparent;
   color: var(--text-normal);
-  font-family: var(--font-monospace);
+  font-family: var(--font-monospace-theme);
   border: none;
   outline: none;
   overflow-x: hidden;
+  font-size: var(--font-text-size);
 }
 
 .typst-editor-container .cm-scroller {
@@ -89,13 +90,6 @@
   display: block;
 }
 
-.typst-editor-container .cm-editor {
-  height: 100%;
-  background: transparent;
-  font-size: var(--font-text-size);
-  font-family: var(--font-monospace-theme);
-}
-
 .typst-editor-container .cm-editor.cm-focused {
   outline: none;
 }
@@ -130,6 +124,18 @@
 .typst-editor-container .cm-cursor {
   border-left-color: var(--text-accent);
   border-left-width: 2px;
+}
+
+/* Editor readable width */
+.typst-readable-width .typst-editor-container .cm-content {
+  max-width: var(--file-line-width);
+  margin: 0 auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.typst-readable-width .typst-editor-container .cm-gutters {
+  padding-right: var(--file-margins);
 }
 
 /* Typst Reading Mode Styling */

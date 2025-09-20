@@ -1,12 +1,15 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import TypstForObsidian from "../main";
+import { TypstView } from "./TypstView";
 
 export interface TypstSettings {
   defaultMode: "source" | "reading";
+  editorReadableWidth: boolean;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
   defaultMode: "source",
+  editorReadableWidth: false,
 };
 
 export class TypstSettingTab extends PluginSettingTab {
@@ -37,6 +40,25 @@ export class TypstSettingTab extends PluginSettingTab {
           .onChange(async (value: "source" | "reading") => {
             this.plugin.settings.defaultMode = value;
             await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Editor readable width")
+      .setDesc(
+        "When enabled, limits the editor width for better readability and centers it"
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.editorReadableWidth)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.editorReadableWidth = value;
+            await this.plugin.saveSettings();
+            this.app.workspace.iterateAllLeaves((leaf) => {
+              if (leaf.view instanceof TypstView) {
+                leaf.view.onResize();
+              }
+            });
           })
       );
   }

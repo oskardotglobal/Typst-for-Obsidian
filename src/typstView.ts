@@ -31,6 +31,21 @@ export class TypstView extends TextFileView {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.addModeIcon();
+    this.applySettings();
+  }
+
+  onResize(): void {
+    super.onResize();
+    this.applySettings();
+  }
+
+  private applySettings(): void {
+    // Apply readable width setting
+    if (this.plugin.settings.editorReadableWidth) {
+      this.containerEl.addClass("typst-readable-width");
+    } else {
+      this.containerEl.removeClass("typst-readable-width");
+    }
   }
 
   onClose(): Promise<void> {
