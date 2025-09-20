@@ -1,6 +1,6 @@
 import { Notice } from "obsidian";
 import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs";
-``;
+
 export class TypstCompiler {
   private static instance: TypstCompiler | null = null;
   private initialized = false;
