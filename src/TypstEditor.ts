@@ -13,6 +13,8 @@ import {
   indentWithTab,
   history,
   historyKeymap,
+  undo,
+  redo,
 } from "@codemirror/commands";
 import { bracketMatching } from "@codemirror/language";
 import { closeBrackets } from "@codemirror/autocomplete";
@@ -66,7 +68,12 @@ export class TypstEditor {
       EditorState.allowMultipleSelections.of(true),
 
       // Key bindings
-      keymap.of([indentWithTab, ...defaultKeymap, ...searchKeymap]),
+      keymap.of([
+        indentWithTab,
+        ...historyKeymap,
+        ...defaultKeymap,
+        ...searchKeymap,
+      ]),
 
       // Theme
       ...(isDarkTheme ? [oneDark] : []),
@@ -113,6 +120,20 @@ export class TypstEditor {
 
   public focus(): void {
     this.editorView?.focus();
+  }
+
+  public undo(): boolean {
+    if (this.editorView) {
+      return undo(this.editorView);
+    }
+    return false;
+  }
+
+  public redo(): boolean {
+    if (this.editorView) {
+      return redo(this.editorView);
+    }
+    return false;
   }
 
   public destroy(): void {
