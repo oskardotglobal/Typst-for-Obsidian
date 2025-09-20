@@ -13,28 +13,34 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   defaultMode: "source",
   editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
-  customLayoutFunctions: `#set page(
-    width: 210mm,
-    height: auto,
-    margin: (x: 0cm, y: 0cm),
-    fill: none
-  )
-  #set text(
-    size: 16pt,
-    fill: rgb("%THEMECOLOR%")
-  )
-  #show math.equation: set text(fill: rgb("%THEMECOLOR%"))
-  #set par(
-    justify: true,
-    leading: 0.65em
-  )
-  #set block(fill: none)
-  #set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set box(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set line(stroke: rgb("%THEMECOLOR%"))`,
+  // prettier-ignore
+  customLayoutFunctions: 
+`#set page(
+  width: 210mm,
+  height: auto,
+  margin: (x: 0cm, y: 0cm),
+  fill: none
+)
+
+#set text(
+  size: 16pt,
+  fill: rgb("%THEMECOLOR%")
+)
+
+#show math.equation: set text(fill: rgb("%THEMECOLOR%"))
+
+#set par(
+  justify: true,
+  leading: 0.65em
+)
+
+#set block(fill: none)
+#set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set box(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set line(stroke: rgb("%THEMECOLOR%"))`,
 };
 
 export class TypstSettingTab extends PluginSettingTab {
@@ -47,10 +53,7 @@ export class TypstSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this;
-
     containerEl.empty();
-
-    containerEl.createEl("h2", { text: "Typst Plugin Settings" });
 
     new Setting(containerEl)
       .setName("Default file mode")

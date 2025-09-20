@@ -14,24 +14,28 @@ ${n.stack}`:r}function ee(n,t){let e=t(n.length*1,1)>>>0;return Ft().set(n,e/1),
         ${e}
       </div>
     `}clear(){this.fileContent="",this.typstEditor&&this.typstEditor.setContent("")}};var gr=require("obsidian");var G=require("obsidian"),oe=class extends G.Modal{constructor(e,r){super(e);this.fileName="";this.plugin=r}onOpen(){let{contentEl:e}=this;e.empty(),e.createEl("h2",{text:"Create New Typst File"}),new G.Setting(e).setName("File name").setDesc("Enter the name of the Typst file (without .typ extension)").addText(s=>{s.setPlaceholder("note").setValue(this.fileName).onChange(c=>{this.fileName=c}),s.inputEl.focus(),s.inputEl.select(),s.inputEl.addEventListener("keydown",c=>{c.key==="Enter"&&this.createFile()})});let r=e.createDiv("modal-button-container");r.createEl("button",{text:"Cancel"}).addEventListener("click",()=>{this.close()}),r.createEl("button",{text:"Create",cls:"mod-cta"}).addEventListener("click",()=>{this.createFile()})}async createFile(){if(!this.fileName.trim()){new G.Notice("Please enter a file name");return}try{let e=this.fileName.trim(),r=(0,G.normalizePath)(`${e}.typ`),i=this.app.vault.getAbstractFileByPath(r);if(i&&i instanceof G.TFile){new G.Notice("File already exists"),this.app.workspace.getLeaf(!0).openFile(i),this.close();return}let o=await this.app.vault.create(r,"",{});this.app.workspace.getLeaf(!0).openFile(o),this.close()}catch(e){console.error("Error creating Typst file:",e),new G.Notice("Error creating file")}}onClose(){let{contentEl:e}=this;e.empty()}};function fr(n){n.addCommand({id:"create-typst-file",name:"Create new Typst file",callback:()=>{new oe(n.app,n).open()}}),n.addCommand({id:"toggle-typst-mode",name:"Toggle between source and reading mode",checkCallback:t=>{let e=n.app.workspace.getActiveViewOfType(X);if(e instanceof X){if(!t){e.toggleMode();let r=e.getCurrentMode()}return!0}return t||new gr.Notice("Must be in a Typst (.typ) file"),!1}})}var _t=require("obsidian");var Ke={defaultMode:"source",editorReadableWidth:!1,useDefaultLayoutFunctions:!0,customLayoutFunctions:`#set page(
-    width: 210mm,
-    height: auto,
-    margin: (x: 0cm, y: 0cm),
-    fill: none
-  )
-  #set text(
-    size: 16pt,
-    fill: rgb("%THEMECOLOR%")
-  )
-  #show math.equation: set text(fill: rgb("%THEMECOLOR%"))
-  #set par(
-    justify: true,
-    leading: 0.65em
-  )
-  #set block(fill: none)
-  #set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set box(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
-  #set line(stroke: rgb("%THEMECOLOR%"))`},se=class extends _t.PluginSettingTab{constructor(e,r){super(e,r);this.plugin=r}display(){let{containerEl:e}=this;if(e.empty(),e.createEl("h2",{text:"Typst Plugin Settings"}),new _t.Setting(e).setName("Default file mode").setDesc("Choose whether Typst files open in source or reading mode by default").addDropdown(r=>r.addOption("source","Source mode").addOption("reading","Reading mode").setValue(this.plugin.settings.defaultMode).onChange(async i=>{this.plugin.settings.defaultMode=i,await this.plugin.saveSettings()})),new _t.Setting(e).setName("Editor readable width").setDesc("When enabled, limits the editor width for better readability and centers it").addToggle(r=>r.setValue(this.plugin.settings.editorReadableWidth).onChange(async i=>{this.plugin.settings.editorReadableWidth=i,await this.plugin.saveSettings(),this.app.workspace.iterateAllLeaves(o=>{o.view instanceof X&&o.view.onResize()})})),new _t.Setting(e).setName("Use default layout functions").setDesc("When enabled, wraps editor content with default page, text, and styling functions.").addToggle(r=>r.setValue(this.plugin.settings.useDefaultLayoutFunctions).onChange(async i=>{this.plugin.settings.useDefaultLayoutFunctions=i,await this.plugin.saveSettings(),this.display()})),this.plugin.settings.useDefaultLayoutFunctions){let r=new _t.Setting(e).setName("Custom layout functions").setDesc("Customize the default layout functions. Use %THEMECOLOR% as a placeholder for the current theme's text color."),i;r.addTextArea(o=>{i=o.inputEl,o.setPlaceholder("Enter Typst layout functions...").setValue(this.plugin.settings.customLayoutFunctions).onChange(async s=>{this.plugin.settings.customLayoutFunctions=s,await this.plugin.saveSettings()}),o.inputEl.addClass("typst-layout-textarea"),o.inputEl.rows=10}),r.addButton(o=>o.setButtonText("Reset to default").setIcon("rotate-ccw").setTooltip("Reset to default layout functions").onClick(async()=>{this.plugin.settings.customLayoutFunctions=Ke.customLayoutFunctions,await this.plugin.saveSettings(),i.value=this.plugin.settings.customLayoutFunctions}))}}};var ae=class extends ce.Plugin{async onload(){await this.loadSettings(),(0,ce.addIcon)("typst-file",ur),this.registerExtensions(["typ"],"typst-view"),this.registerView("typst-view",e=>new X(e,this)),fr(this),this.addSettingTab(new se(this.app,this)),this.registerEvent(this.app.workspace.on("css-change",()=>{this.onThemeChange()}))}onThemeChange(){this.app.workspace.iterateAllLeaves(e=>{e.view instanceof X&&e.view.recompileIfInReadingMode()})}onunload(){}async loadSettings(){this.settings=Object.assign({},Ke,await this.loadData())}async saveSettings(){await this.saveData(this.settings)}};
+  width: 210mm,
+  height: auto,
+  margin: (x: 0cm, y: 0cm),
+  fill: none
+)
+
+#set text(
+  size: 16pt,
+  fill: rgb("%THEMECOLOR%")
+)
+
+#show math.equation: set text(fill: rgb("%THEMECOLOR%"))
+
+#set par(
+  justify: true,
+  leading: 0.65em
+)
+
+#set block(fill: none)
+#set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set box(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set line(stroke: rgb("%THEMECOLOR%"))`},se=class extends _t.PluginSettingTab{constructor(e,r){super(e,r);this.plugin=r}display(){let{containerEl:e}=this;if(e.empty(),new _t.Setting(e).setName("Default file mode").setDesc("Choose whether Typst files open in source or reading mode by default").addDropdown(r=>r.addOption("source","Source mode").addOption("reading","Reading mode").setValue(this.plugin.settings.defaultMode).onChange(async i=>{this.plugin.settings.defaultMode=i,await this.plugin.saveSettings()})),new _t.Setting(e).setName("Editor readable width").setDesc("When enabled, limits the editor width for better readability and centers it").addToggle(r=>r.setValue(this.plugin.settings.editorReadableWidth).onChange(async i=>{this.plugin.settings.editorReadableWidth=i,await this.plugin.saveSettings(),this.app.workspace.iterateAllLeaves(o=>{o.view instanceof X&&o.view.onResize()})})),new _t.Setting(e).setName("Use default layout functions").setDesc("When enabled, wraps editor content with default page, text, and styling functions.").addToggle(r=>r.setValue(this.plugin.settings.useDefaultLayoutFunctions).onChange(async i=>{this.plugin.settings.useDefaultLayoutFunctions=i,await this.plugin.saveSettings(),this.display()})),this.plugin.settings.useDefaultLayoutFunctions){let r=new _t.Setting(e).setName("Custom layout functions").setDesc("Customize the default layout functions. Use %THEMECOLOR% as a placeholder for the current theme's text color."),i;r.addTextArea(o=>{i=o.inputEl,o.setPlaceholder("Enter Typst layout functions...").setValue(this.plugin.settings.customLayoutFunctions).onChange(async s=>{this.plugin.settings.customLayoutFunctions=s,await this.plugin.saveSettings()}),o.inputEl.addClass("typst-layout-textarea"),o.inputEl.rows=10}),r.addButton(o=>o.setButtonText("Reset to default").setIcon("rotate-ccw").setTooltip("Reset to default layout functions").onClick(async()=>{this.plugin.settings.customLayoutFunctions=Ke.customLayoutFunctions,await this.plugin.saveSettings(),i.value=this.plugin.settings.customLayoutFunctions}))}}};var ae=class extends ce.Plugin{async onload(){await this.loadSettings(),(0,ce.addIcon)("typst-file",ur),this.registerExtensions(["typ"],"typst-view"),this.registerView("typst-view",e=>new X(e,this)),fr(this),this.addSettingTab(new se(this.app,this)),this.registerEvent(this.app.workspace.on("css-change",()=>{this.onThemeChange()}))}onThemeChange(){this.app.workspace.iterateAllLeaves(e=>{e.view instanceof X&&e.view.recompileIfInReadingMode()})}onunload(){}async loadSettings(){this.settings=Object.assign({},Ke,await this.loadData())}async saveSettings(){await this.saveData(this.settings)}};
