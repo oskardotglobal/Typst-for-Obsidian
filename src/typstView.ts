@@ -1,4 +1,4 @@
-import { TextFileView, setIcon, WorkspaceLeaf, Notice } from "obsidian";
+import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
 import { TypstCompiler } from "./TypstCompiler";
 import TypstForObsidian from "../main";
@@ -34,10 +34,7 @@ export class TypstView extends TextFileView {
   }
 
   onClose(): Promise<void> {
-    if (this.typstEditor) {
-      this.typstEditor.destroy();
-      this.typstEditor = null;
-    }
+    this.cleanupEditor();
     return super.onClose();
   }
 
@@ -55,22 +52,9 @@ export class TypstView extends TextFileView {
 
   public async toggleMode(): Promise<void> {
     if (this.currentMode === "source") {
-      // Compile before switching to read mode
-      const currentContent = this.getViewData();
-      const compiler = TypstCompiler.getInstance();
-      const svg = await compiler.compileToSvg(currentContent);
-
-      if (!svg) {
-        return;
-      }
-
-      this.currentMode = "reading";
-      this.updateModeIcon();
-      this.showReadingMode(svg);
+      await this.switchToReadingMode();
     } else {
-      this.currentMode = "source";
-      this.updateModeIcon();
-      this.showSourceMode();
+      this.switchToSourceMode();
     }
   }
 
@@ -80,14 +64,35 @@ export class TypstView extends TextFileView {
 
   public async recompileIfInReadingMode(): Promise<void> {
     if (this.currentMode === "reading") {
-      const currentContent = this.getViewData();
-      const compiler = TypstCompiler.getInstance();
-      const svg = await compiler.compileToSvg(currentContent);
-
+      const svg = await this.compile();
       if (svg) {
         this.showReadingMode(svg);
       }
     }
+  }
+
+  private async switchToReadingMode(): Promise<void> {
+    const svg = await this.compile();
+    if (!svg) return;
+
+    this.setMode("reading");
+    this.showReadingMode(svg);
+  }
+
+  private switchToSourceMode(): void {
+    this.setMode("source");
+    this.showSourceMode();
+  }
+
+  private setMode(mode: "source" | "reading"): void {
+    this.currentMode = mode;
+    this.updateModeIcon();
+  }
+
+  private async compile(): Promise<string | null> {
+    const content = this.getViewData();
+    const compiler = TypstCompiler.getInstance();
+    return await compiler.compileToSvg(content);
   }
 
   private updateModeIcon(): void {
@@ -116,18 +121,19 @@ export class TypstView extends TextFileView {
     if (this.currentMode === "source") {
       this.showSourceMode();
     } else {
-      // Compile the content first
-      const compiler = TypstCompiler.getInstance();
-      const svg = await compiler.compileToSvg(data);
+      await this.loadReadingMode(data);
+    }
+  }
 
-      if (!svg) {
-        // Fall back to source mode
-        this.currentMode = "source";
-        this.updateModeIcon();
-        this.showSourceMode();
-      } else {
-        this.showReadingMode(svg);
-      }
+  private async loadReadingMode(data: string): Promise<void> {
+    const svg = await this.compile();
+
+    if (!svg) {
+      // Fall back to source mode
+      this.setMode("source");
+      this.showSourceMode();
+    } else {
+      this.showReadingMode(svg);
     }
   }
 
@@ -138,50 +144,49 @@ export class TypstView extends TextFileView {
     return this.fileContent;
   }
 
-  private showSourceMode(): void {
-    const contentEl = this.containerEl.querySelector(
-      ".view-content"
-    ) as HTMLElement;
-    if (contentEl) {
-      contentEl.empty();
+  private getContentElement(): HTMLElement | null {
+    return this.containerEl.querySelector(".view-content") as HTMLElement;
+  }
 
-      if (this.typstEditor) {
-        this.typstEditor.destroy();
-        this.typstEditor = null;
-      }
-
-      this.typstEditor = new TypstEditor(
-        contentEl,
-        this.app,
-        (content: string) => {
-          this.fileContent = content;
-          this.requestSave();
-        }
-      );
-
-      this.typstEditor.initialize(this.fileContent);
+  private cleanupEditor(): void {
+    if (this.typstEditor) {
+      this.typstEditor.destroy();
+      this.typstEditor = null;
     }
   }
 
-  private showReadingMode(svg?: string): void {
-    const contentEl = this.containerEl.querySelector(
-      ".view-content"
-    ) as HTMLElement;
-    if (contentEl) {
-      contentEl.empty();
+  private showSourceMode(): void {
+    const contentEl = this.getContentElement();
+    if (!contentEl) return;
 
-      if (this.typstEditor) {
-        this.typstEditor.destroy();
-        this.typstEditor = null;
+    contentEl.empty();
+    this.cleanupEditor();
+
+    this.typstEditor = new TypstEditor(
+      contentEl,
+      this.app,
+      (content: string) => {
+        this.fileContent = content;
+        this.requestSave();
       }
+    );
 
-      const readingDiv = contentEl.createDiv("typst-reading-mode");
-      readingDiv.innerHTML = `
-        <div class="typst-rendered-content">
-          ${svg}
-        </div>
-      `;
-    }
+    this.typstEditor.initialize(this.fileContent);
+  }
+
+  private showReadingMode(svg: string): void {
+    const contentEl = this.getContentElement();
+    if (!contentEl) return;
+
+    contentEl.empty();
+    this.cleanupEditor();
+
+    const readingDiv = contentEl.createDiv("typst-reading-mode");
+    readingDiv.innerHTML = `
+      <div class="typst-rendered-content">
+        ${svg}
+      </div>
+    `;
   }
 
   clear(): void {
