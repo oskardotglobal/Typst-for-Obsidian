@@ -65,12 +65,14 @@
   line-height: var(--line-height-normal);
   caret-color: var(--text-accent);
   font-family: var(--font-monospace);
+  min-height: 100%;
 }
 
 .typst-editor-container .cm-line {
   font-family: var(--font-monospace);
   font-size: var(--font-text-size);
   line-height: var(--line-height-normal);
+  padding: 0;
 }
 
 .typst-editor-container .cm-gutters {
@@ -92,25 +94,6 @@
 
 .typst-editor-container .cm-editor.cm-focused {
   outline: none;
-}
-
-.typst-editor-container .cm-content {
-  line-height: var(--line-height-normal);
-  caret-color: var(--text-accent);
-  min-height: 100%;
-}
-
-.typst-editor-container .cm-line {
-  padding: 0;
-}
-
-.typst-editor-container .cm-gutters {
-  background: transparent;
-  border: none;
-  color: var(--text-faint);
-  font-family: var(--font-ui);
-  min-width: 3.5ch;
-  padding-left: var(--size-4-3);
 }
 
 .typst-editor-container .cm-activeLine {
