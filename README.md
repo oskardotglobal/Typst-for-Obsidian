@@ -38,6 +38,9 @@ npm run build
 - [ ] "Live Preview" mode - render incremental document fragments for each 'block' of Typst (ts is not happening 😭🙏🥀)
 
 - settings/commands:
+
   - default preamble
   - export to pdf
   - change font size, preamble params as options
+
+- %THEMECOLOR%

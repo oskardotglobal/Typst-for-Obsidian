@@ -1,6 +1,7 @@
 import { Notice } from "obsidian";
 import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs";
 import { typstWebCompilerModule, typstWebRendererModule } from "./util";
+import { TypstSettings } from "./settings";
 
 export class TypstCompiler {
   private static instance: TypstCompiler | null = null;
@@ -35,41 +36,28 @@ export class TypstCompiler {
     }
   }
 
-  public async compileToSvg(content: string): Promise<string | null> {
+  public async compileToSvg(
+    content: string,
+    settings: TypstSettings
+  ): Promise<string | null> {
     try {
       await this.ensureInitialized();
 
       // Get the current theme text color
       const textColor = this.getThemeTextColor();
 
-      // Wrap content with page formatting
-      const wrappedContent = `
-        #set page(
-          width: 210mm,
-          height: auto,
-          margin: (x: 0cm, y: 0cm),
-          fill: none
-        )
-        #set text(
-          size: 16pt,
-          fill: rgb("${textColor}")
-        )
-        #show math.equation: set text(fill: rgb("${textColor}"))
-        #set par(
-          justify: true,
-          leading: 0.65em
-        )
-        #set block(fill: none)
-        #set rect(fill: none, stroke: rgb("${textColor}"))
-        #set box(fill: none, stroke: rgb("${textColor}"))
-        #set circle(fill: none, stroke: rgb("${textColor}"))
-        #set ellipse(fill: none, stroke: rgb("${textColor}"))
-        #set polygon(fill: none, stroke: rgb("${textColor}"))
-        #set line(stroke: rgb("${textColor}"))
-        ${content}`;
+      let finalContent = content;
+
+      // Add layout funcitons
+      if (settings.useDefaultLayoutFunctions) {
+        finalContent = settings.customLayoutFunctions + "\n" + content;
+      }
+
+      // Replace %THEMECOLOR% with theme text color
+      finalContent = finalContent.replace(/%THEMECOLOR%/g, textColor);
 
       const svg = await $typst.svg({
-        mainContent: wrappedContent,
+        mainContent: finalContent,
       });
 
       return svg;

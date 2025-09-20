@@ -107,7 +107,7 @@ export class TypstView extends TextFileView {
   private async compile(): Promise<string | null> {
     const content = this.getViewData();
     const compiler = TypstCompiler.getInstance();
-    return await compiler.compileToSvg(content);
+    return await compiler.compileToSvg(content, this.plugin.settings);
   }
 
   private updateModeIcon(): void {

@@ -18,6 +18,17 @@
   font-size: var(--font-ui-small);
 }
 
+/* Settings Styling */
+.typst-layout-textarea {
+  width: 100% !important;
+  max-width: none !important;
+  font-family: var(--font-monospace) !important;
+  font-size: var(--font-ui-small) !important;
+  min-height: var(--input-height) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 .modal-button-container button:hover {
   background: var(--background-modifier-hover);
 }
