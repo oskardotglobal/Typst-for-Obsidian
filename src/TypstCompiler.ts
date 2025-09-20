@@ -31,7 +31,7 @@ export class TypstCompiler {
       this.initialized = true;
     } catch (error) {
       console.error("Failed to initialize Typst compiler:", error);
-      new Notice("Failed to initialize Typst compiler");
+      new Notice("Failed to initialize Typst compiler.");
       throw error;
     }
   }
@@ -70,7 +70,6 @@ export class TypstCompiler {
       return svg;
     } catch (error) {
       console.error("Typst compilation failed:", error);
-      new Notice(`Typst compilation failed`);
       return null;
     }
   }

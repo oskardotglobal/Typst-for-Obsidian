@@ -1,4 +1,4 @@
-import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
+import { TextFileView, setIcon, WorkspaceLeaf, Notice } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
 import { TypstCompiler } from "./TypstCompiler";
 import TypstForObsidian from "../main";
@@ -104,7 +104,19 @@ export class TypstView extends TextFileView {
     if (this.currentMode === "source") {
       this.showSourceMode();
     } else {
-      this.showReadingMode();
+      // Compile the content first
+      const compiler = TypstCompiler.getInstance();
+      const svg = await compiler.compileToSvg(data);
+
+      if (!svg) {
+        // Fall back to source mode
+        this.currentMode = "source";
+        this.updateModeIcon();
+        this.showSourceMode();
+        new Notice("Typst compilation failed.");
+      } else {
+        this.showReadingMode(svg);
+      }
     }
   }
 
