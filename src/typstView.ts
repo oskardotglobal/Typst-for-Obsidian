@@ -78,6 +78,18 @@ export class TypstView extends TextFileView {
     return this.currentMode;
   }
 
+  public async recompileIfInReadingMode(): Promise<void> {
+    if (this.currentMode === "reading") {
+      const currentContent = this.getViewData();
+      const compiler = TypstCompiler.getInstance();
+      const svg = await compiler.compileToSvg(currentContent);
+
+      if (svg) {
+        this.showReadingMode(svg);
+      }
+    }
+  }
+
   private updateModeIcon(): void {
     if (!this.modeIconContainer) return;
 

@@ -155,17 +155,6 @@
   box-shadow: none;
 }
 
-.typst-reading-mode svg * {
-  fill: var(--text-normal);
-}
-
-.typst-reading-mode svg path[fill="#000000"],
-.typst-reading-mode svg path[fill="black"],
-.typst-reading-mode svg rect[fill="#000000"],
-.typst-reading-mode svg rect[fill="black"] {
-  fill: var(--text-normal) !important;
-}
-
 .typst-reading-mode svg + svg {
   margin-top: 0;
 }

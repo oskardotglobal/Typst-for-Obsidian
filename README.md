@@ -8,7 +8,7 @@ A plugin for that provides native support for files (.typ).
 
 - Open and edit .typ files directly in Obsidian
 - Code editor in source mode
-- Toggle between source and rendered reading modes (with upper right icon or hotkey)
+- Toggle between source and rendered reading modes (with upper right icon or ho`tkey)
 - Rendered content adapts to Obsidian theme
 
 ### Settings
@@ -36,3 +36,9 @@ npm run build
 - [ ] Add more features to code editor
 - [ ] Define Typst language for syntax highlight (???)
 - [ ] "Live Preview" mode - render incremental document fragments for each 'block' of Typst (ts is not happening 😭🙏🥀)
+
+- settings/commands:
+  - default preamble
+  - export to pdf
+  - change font size, preamble params as options
+  - editor readble line length
