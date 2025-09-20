@@ -70,51 +70,6 @@ export class TypstEditor {
       // Theme
       ...(isDarkTheme ? [oneDark] : []),
 
-      // Editor styling
-      EditorView.theme(
-        {
-          "&": {
-            fontSize: "var(--font-text-size)",
-            fontFamily: "var(--font-monospace-theme)",
-            height: "100%",
-          },
-          ".cm-content": {
-            lineHeight: "var(--line-height-normal)",
-            caretColor: "var(--text-accent)",
-            minHeight: "100%",
-          },
-          ".cm-editor": {
-            height: "100%",
-            backgroundColor: "transparent",
-          },
-          ".cm-editor.cm-focused": {
-            outline: "none",
-          },
-          ".cm-line": {
-            padding: "0",
-          },
-          ".cm-gutters": {
-            backgroundColor: "transparent",
-            color: "var(--text-faint)",
-            border: "none",
-          },
-          ".cm-lineNumbers .cm-gutterElement": {
-            color: "var(--text-faint)",
-            fontSize: "var(--font-ui-smaller)",
-          },
-          ".cm-activeLineGutter": {
-            backgroundColor: "transparent",
-          },
-          ".cm-activeLine": {
-            backgroundColor: "var(--background-primary-alt)",
-          },
-          ".cm-cursor": {
-            borderLeftColor: "var(--text-accent)",
-          },
-        },
-        { dark: isDarkTheme }
-      ),
-
       // Update content on changes
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
