@@ -1,5 +1,6 @@
 import { Notice } from "obsidian";
 import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs";
+import { typstWebCompiler, typstWebRenderer } from "./util";
 
 export class TypstCompiler {
   private static instance: TypstCompiler | null = null;
@@ -19,13 +20,11 @@ export class TypstCompiler {
 
     try {
       $typst.setCompilerInitOptions({
-        getModule: () =>
-          "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm",
+        getModule: () => typstWebCompiler,
       });
 
       $typst.setRendererInitOptions({
-        getModule: () =>
-          "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm",
+        getModule: () => typstWebRenderer,
       });
 
       this.initialized = true;
