@@ -1,12 +1,20 @@
-import { TextFileView, setIcon } from "obsidian";
+import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
 import { TypstCompiler } from "./TypstCompiler";
+import TypstForObsidian from "../main";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
   private modeIconContainer: HTMLElement | null = null;
   private typstEditor: TypstEditor | null = null;
   private fileContent: string = "";
+  private plugin: TypstForObsidian;
+
+  constructor(leaf: WorkspaceLeaf, plugin: TypstForObsidian) {
+    super(leaf);
+    this.plugin = plugin;
+    this.currentMode = plugin.settings.defaultMode;
+  }
 
   getViewType(): string {
     return "typst-view";

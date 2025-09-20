@@ -155,32 +155,10 @@
   box-shadow: none;
 }
 
-/* Make text inherit theme colors but preserve syntax highlighting */
-.typst-reading-mode svg text:not([fill*="#"]):not([fill*="rgb"]) {
-  fill: var(--text-normal) !important;
+.typst-reading-mode svg * {
+  fill: var(--text-normal);
 }
 
-/* Handle different text elements but preserve colors */
-.typst-reading-mode svg tspan:not([fill*="#"]):not([fill*="rgb"]) {
-  fill: var(--text-normal) !important;
-}
-
-/* Ensure headings use proper color but keep syntax highlighting */
-.typst-reading-mode
-  svg
-  text[font-weight="bold"]:not([fill*="#"]):not([fill*="rgb"]),
-.typst-reading-mode svg text[font-size]:not([fill*="#"]):not([fill*="rgb"]) {
-  fill: var(--text-normal) !important;
-}
-
-/* Force theme colors only on elements without explicit colors */
-.typst-reading-mode svg text[fill="black"],
-.typst-reading-mode svg text[fill="#000000"],
-.typst-reading-mode svg text[fill="#000"] {
-  fill: var(--text-normal) !important;
-}
-
-/* Override only basic black colors in paths/shapes, preserve syntax highlighting */
 .typst-reading-mode svg path[fill="#000000"],
 .typst-reading-mode svg path[fill="black"],
 .typst-reading-mode svg rect[fill="#000000"],
