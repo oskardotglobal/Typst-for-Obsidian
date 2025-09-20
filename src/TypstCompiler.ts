@@ -1,6 +1,6 @@
 import { Notice } from "obsidian";
 import { $typst } from "@myriaddreamin/typst.ts/dist/esm/contrib/snippet.mjs";
-import { typstWebCompiler, typstWebRenderer } from "./util";
+import { typstWebCompilerModule, typstWebRendererModule } from "./util";
 
 export class TypstCompiler {
   private static instance: TypstCompiler | null = null;
@@ -20,11 +20,11 @@ export class TypstCompiler {
 
     try {
       $typst.setCompilerInitOptions({
-        getModule: () => typstWebCompiler,
+        getModule: () => typstWebCompilerModule,
       });
 
       $typst.setRendererInitOptions({
-        getModule: () => typstWebRenderer,
+        getModule: () => typstWebRendererModule,
       });
 
       this.initialized = true;
@@ -84,19 +84,10 @@ export class TypstCompiler {
   }
 
   private getThemeTextColor(): string {
-    // Create a temporary element to get the computed CSS variable value
-    const tempEl = document.createElement("div");
-    tempEl.style.position = "absolute";
-    tempEl.style.visibility = "hidden";
-    document.body.appendChild(tempEl);
+    const bodyStyle = getComputedStyle(document.body);
+    const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
 
-    const computedStyle = getComputedStyle(tempEl);
-    const textColor = computedStyle.getPropertyValue("--text-normal").trim();
-
-    document.body.removeChild(tempEl);
-
-    // If we got a color, return it; otherwise fallback to white
-    if (textColor && textColor !== "") {
+    if (textColor) {
       return textColor.startsWith("#") ? textColor.slice(1) : textColor;
     }
 
