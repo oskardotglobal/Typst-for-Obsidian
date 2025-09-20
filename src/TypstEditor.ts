@@ -14,7 +14,7 @@ import {
   history,
   historyKeymap,
 } from "@codemirror/commands";
-import { bracketMatching, foldGutter } from "@codemirror/language";
+import { bracketMatching } from "@codemirror/language";
 import { closeBrackets } from "@codemirror/autocomplete";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
@@ -50,7 +50,6 @@ export class TypstEditor {
 
     const extensions: Extension[] = [
       lineNumbers(),
-      foldGutter(),
       dropCursor(),
       rectangularSelection(),
       highlightActiveLine(),

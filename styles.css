@@ -129,20 +129,6 @@
   border-left-width: 2px;
 }
 
-.typst-editor-container .cm-foldGutter .cm-gutterElement {
-  padding: 0 var(--size-2-2);
-  font-size: var(--font-ui-smaller);
-}
-
-.typst-editor-container .cm-foldPlaceholder {
-  background-color: var(--background-modifier-border);
-  color: var(--text-faint);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s);
-  padding: 0 var(--size-2-2);
-  margin: 0 var(--size-2-1);
-}
-
 .typst-reading-mode {
   padding: var(--size-4-5);
   font-family: var(--font-monospace);

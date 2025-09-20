@@ -1,6 +1,6 @@
 import { App, Notice, Plugin } from "obsidian";
 import { CreateTypstFileModal } from "./modal";
-import { TypstView } from "./typstView";
+import { TypstView } from "./TypstView";
 
 export function registerCommands(plugin: Plugin) {
   plugin.addCommand({
