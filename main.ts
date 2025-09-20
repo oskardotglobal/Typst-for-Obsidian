@@ -10,6 +10,7 @@ import {
   Notice,
   normalizePath,
 } from "obsidian";
+import { TypstEditor } from "./src/TypstEditor";
 
 export default class TypstForObsidian extends Plugin {
   async onload() {
@@ -31,6 +32,8 @@ export default class TypstForObsidian extends Plugin {
 class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
   private modeIconContainer: HTMLElement | null = null;
+  private typstEditor: TypstEditor | null = null;
+  private fileContent: string = "";
 
   getViewType(): string {
     return "typst-view";
@@ -46,6 +49,10 @@ class TypstView extends TextFileView {
   }
 
   onClose(): Promise<void> {
+    if (this.typstEditor) {
+      this.typstEditor.destroy();
+      this.typstEditor = null;
+    }
     return super.onClose();
   }
 
@@ -72,8 +79,20 @@ class TypstView extends TextFileView {
   }
 
   private toggleMode(): void {
+    // Save content if in source mode
+    if (this.currentMode === "source" && this.typstEditor) {
+      this.fileContent = this.typstEditor.getContent();
+    }
+
     this.currentMode = this.currentMode === "source" ? "reading" : "source";
     this.updateModeIcon();
+
+    if (this.currentMode === "source") {
+      this.showSourceMode();
+    } else {
+      this.showReadingMode();
+    }
+
     console.log(`Switched to ${this.currentMode} mode`);
   }
 
@@ -97,13 +116,69 @@ class TypstView extends TextFileView {
     }
   }
 
-  async setViewData(data: string, clear: boolean): Promise<void> {}
+  async setViewData(data: string, clear: boolean): Promise<void> {
+    this.fileContent = data;
 
-  getViewData(): string {
-    return "test";
+    if (this.currentMode === "source") {
+      this.showSourceMode();
+    } else {
+      this.showReadingMode();
+    }
   }
 
-  clear(): void {}
+  getViewData(): string {
+    if (this.currentMode === "source" && this.typstEditor) {
+      return this.typstEditor.getContent();
+    }
+    return this.fileContent;
+  }
+
+  private showSourceMode(): void {
+    const contentEl = this.containerEl.querySelector(
+      ".view-content"
+    ) as HTMLElement;
+    if (contentEl) {
+      contentEl.empty();
+
+      if (this.typstEditor) {
+        this.typstEditor.destroy();
+        this.typstEditor = null;
+      }
+
+      this.typstEditor = new TypstEditor(
+        contentEl,
+        this.app,
+        (content: string) => {
+          // Auto-save
+          this.fileContent = content;
+          this.requestSave();
+        }
+      );
+      this.typstEditor.initialize(this.fileContent);
+    }
+  }
+
+  private showReadingMode(): void {
+    const contentEl = this.containerEl.querySelector(
+      ".view-content"
+    ) as HTMLElement;
+    if (contentEl) {
+      contentEl.empty();
+      // add later
+      const preElement = contentEl.createEl("pre", {
+        text: this.fileContent,
+        cls: "typst-reading-mode",
+      });
+    }
+  }
+
+  clear(): void {
+    this.fileContent = "";
+    if (this.typstEditor) {
+      this.typstEditor.destroy();
+      this.typstEditor = null;
+    }
+  }
 }
 
 class CreateTypstFileModal extends Modal {

@@ -1,3 +1,4 @@
+/* Modal Styling */
 .modal-button-container {
   display: flex;
   justify-content: flex-end;
@@ -29,4 +30,113 @@
 
 .modal-button-container button.mod-cta:hover {
   background: var(--interactive-accent-hover);
+}
+
+/* Typst Editor Styling */
+.typst-editor-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.typst-editor-container .cm-editor {
+  height: 100%;
+  width: 100%;
+  background: transparent;
+  color: var(--text-normal);
+  font-family: var(--font-monospace);
+  border: none;
+  outline: none;
+}
+
+.typst-editor-container .cm-scroller {
+  font-family: var(--font-monospace);
+  line-height: var(--line-height-normal);
+}
+
+.typst-editor-container .cm-content {
+  padding: var(--file-margins);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+  caret-color: var(--text-accent);
+  font-family: var(--font-monospace);
+}
+
+.typst-editor-container .cm-line {
+  font-family: var(--font-monospace);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+}
+
+.typst-editor-container .cm-gutters {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  padding-left: var(--file-margins);
+  font-family: var(--font-ui);
+}
+
+.typst-editor-container .cm-lineNumbers .cm-gutterElement {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  padding: 0 8px 0 0;
+}
+
+.typst-editor-container .cm-activeLine {
+  background-color: var(--background-primary-alt);
+}
+
+.typst-editor-container .cm-activeLineGutter {
+  background-color: transparent;
+}
+
+.typst-editor-container .cm-cursor {
+  border-left-color: var(--text-accent);
+  border-left-width: 2px;
+}
+
+.typst-editor-container .cm-selectionBackground {
+  background-color: var(--text-selection) !important;
+}
+
+.typst-editor-container .cm-focused .cm-selectionBackground {
+  background-color: var(--text-selection) !important;
+}
+
+.typst-editor-container .cm-searchMatch {
+  background-color: var(--text-highlight-bg);
+  outline: 1px solid var(--text-accent);
+}
+
+.typst-editor-container .cm-searchMatch.cm-searchMatch-selected {
+  background-color: var(--text-accent);
+  color: var(--text-on-accent);
+}
+
+.typst-editor-container .cm-foldGutter .cm-gutterElement {
+  padding: 0 4px;
+  font-size: var(--font-ui-smaller);
+}
+
+.typst-editor-container .cm-foldPlaceholder {
+  background-color: var(--background-modifier-border);
+  color: var(--text-faint);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  padding: 0 4px;
+  margin: 0 2px;
+}
+
+.typst-reading-mode {
+  padding: 20px;
+  font-family: var(--font-monospace);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  border: none;
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
