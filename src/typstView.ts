@@ -113,7 +113,6 @@ export class TypstView extends TextFileView {
         this.currentMode = "source";
         this.updateModeIcon();
         this.showSourceMode();
-        new Notice("Typst compilation failed.");
       } else {
         this.showReadingMode(svg);
       }

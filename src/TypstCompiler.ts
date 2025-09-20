@@ -70,6 +70,7 @@ export class TypstCompiler {
       return svg;
     } catch (error) {
       console.error("Typst compilation failed:", error);
+      new Notice("Typst compilation failed.");
       return null;
     }
   }
