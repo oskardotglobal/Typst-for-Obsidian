@@ -55,6 +55,8 @@ export class TypstEditor {
       highlightActiveLine(),
       history(),
 
+      EditorView.lineWrapping,
+
       // Language features
       bracketMatching(),
       closeBrackets(),

@@ -48,9 +48,12 @@
   font-family: var(--font-monospace);
   border: none;
   outline: none;
+  overflow-x: hidden;
 }
 
 .typst-editor-container .cm-scroller {
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: var(--font-monospace);
   line-height: var(--line-height-normal);
 }
