@@ -143,4 +143,32 @@
   outline: none;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.typst-reading-mode svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-s);
+}
+
+.typst-reading-mode svg text {
+  fill: currentColor;
+}
+
+.typst-reading-mode svg + svg {
+  margin-top: var(--size-4-3);
+}
+
+.typst-rendered-content {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100%;
 }

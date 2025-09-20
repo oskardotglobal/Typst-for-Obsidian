@@ -1,5 +1,6 @@
 import { TextFileView, setIcon } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
+import { TypstCompiler } from "./TypstCompiler";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -44,14 +45,24 @@ export class TypstView extends TextFileView {
     }
   }
 
-  public toggleMode(): void {
-    this.currentMode = this.currentMode === "source" ? "reading" : "source";
-    this.updateModeIcon();
-
+  public async toggleMode(): Promise<void> {
     if (this.currentMode === "source") {
-      this.showSourceMode();
+      // Compile before switching to read mode
+      const currentContent = this.getViewData();
+      const compiler = TypstCompiler.getInstance();
+      const svg = await compiler.compileToSvg(currentContent);
+
+      if (!svg) {
+        return;
+      }
+
+      this.currentMode = "reading";
+      this.updateModeIcon();
+      this.showReadingMode(svg);
     } else {
-      this.showReadingMode();
+      this.currentMode = "source";
+      this.updateModeIcon();
+      this.showSourceMode();
     }
   }
 
@@ -121,7 +132,7 @@ export class TypstView extends TextFileView {
     }
   }
 
-  private showReadingMode(): void {
+  private showReadingMode(svg?: string): void {
     const contentEl = this.containerEl.querySelector(
       ".view-content"
     ) as HTMLElement;
@@ -134,7 +145,11 @@ export class TypstView extends TextFileView {
       }
 
       const readingDiv = contentEl.createDiv("typst-reading-mode");
-      readingDiv.textContent = this.fileContent;
+      readingDiv.innerHTML = `
+        <div class="typst-rendered-content">
+          ${svg}
+        </div>
+      `;
     }
   }
 
