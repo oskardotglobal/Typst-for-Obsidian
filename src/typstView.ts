@@ -15,6 +15,10 @@ export class TypstView extends TextFileView {
     return this.file?.basename || "Typst File";
   }
 
+  getIcon(): string {
+    return "typst-file";
+  }
+
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.addModeIcon();
