@@ -132,43 +132,67 @@
   border-left-width: 2px;
 }
 
+/* Typst Reading Mode Styling */
 .typst-reading-mode {
-  padding: var(--size-4-5);
-  font-family: var(--font-monospace);
-  font-size: var(--font-text-size);
-  line-height: var(--line-height-normal);
+  padding-top: var(--file-margins);
+  padding-bottom: var(--file-margins);
+  max-width: var(--file-line-width);
+  margin: 0 auto;
+  width: 100%;
   background: var(--background-primary);
-  color: var(--text-normal);
-  border: none;
-  outline: none;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-x: auto;
+  min-height: 100%;
   overflow-y: auto;
 }
 
 .typst-reading-mode svg {
-  max-width: 100%;
+  width: 100%;
+  max-width: none;
   height: auto;
   display: block;
-  margin: 0 auto;
-  background: white;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s);
-  box-shadow: var(--shadow-s);
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-.typst-reading-mode svg text {
-  fill: currentColor;
+/* Make text inherit theme colors but preserve syntax highlighting */
+.typst-reading-mode svg text:not([fill*="#"]):not([fill*="rgb"]) {
+  fill: var(--text-normal) !important;
+}
+
+/* Handle different text elements but preserve colors */
+.typst-reading-mode svg tspan:not([fill*="#"]):not([fill*="rgb"]) {
+  fill: var(--text-normal) !important;
+}
+
+/* Ensure headings use proper color but keep syntax highlighting */
+.typst-reading-mode
+  svg
+  text[font-weight="bold"]:not([fill*="#"]):not([fill*="rgb"]),
+.typst-reading-mode svg text[font-size]:not([fill*="#"]):not([fill*="rgb"]) {
+  fill: var(--text-normal) !important;
+}
+
+/* Force theme colors only on elements without explicit colors */
+.typst-reading-mode svg text[fill="black"],
+.typst-reading-mode svg text[fill="#000000"],
+.typst-reading-mode svg text[fill="#000"] {
+  fill: var(--text-normal) !important;
+}
+
+/* Override only basic black colors in paths/shapes, preserve syntax highlighting */
+.typst-reading-mode svg path[fill="#000000"],
+.typst-reading-mode svg path[fill="black"],
+.typst-reading-mode svg rect[fill="#000000"],
+.typst-reading-mode svg rect[fill="black"] {
+  fill: var(--text-normal) !important;
 }
 
 .typst-reading-mode svg + svg {
-  margin-top: var(--size-4-3);
+  margin-top: 0;
 }
 
 .typst-rendered-content {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100%;
+  width: 100%;
+  max-width: none;
 }
