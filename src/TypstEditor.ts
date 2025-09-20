@@ -2,13 +2,12 @@ import {
   EditorView,
   keymap,
   lineNumbers,
-  drawSelection,
   dropCursor,
   rectangularSelection,
   highlightActiveLine,
 } from "@codemirror/view";
 import { EditorState, Extension } from "@codemirror/state";
-import { oneDark } from "@codemirror/theme-one-dark";
+import { color, oneDark } from "@codemirror/theme-one-dark";
 import {
   defaultKeymap,
   indentWithTab,
@@ -16,6 +15,7 @@ import {
   historyKeymap,
 } from "@codemirror/commands";
 import { bracketMatching, foldGutter } from "@codemirror/language";
+import { closeBrackets } from "@codemirror/autocomplete";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
 
@@ -51,13 +51,14 @@ export class TypstEditor {
     const extensions: Extension[] = [
       lineNumbers(),
       foldGutter(),
-      drawSelection(),
       dropCursor(),
       rectangularSelection(),
       highlightActiveLine(),
       history(),
 
+      // Language features
       bracketMatching(),
+      closeBrackets(),
       highlightSelectionMatches(),
 
       // Multiple selections
@@ -78,7 +79,6 @@ export class TypstEditor {
             height: "100%",
           },
           ".cm-content": {
-            padding: "var(--file-margins)",
             lineHeight: "var(--line-height-normal)",
             caretColor: "var(--text-accent)",
             minHeight: "100%",
@@ -97,7 +97,6 @@ export class TypstEditor {
             backgroundColor: "transparent",
             color: "var(--text-faint)",
             border: "none",
-            paddingLeft: "var(--file-margins)",
           },
           ".cm-lineNumbers .cm-gutterElement": {
             color: "var(--text-faint)",
@@ -111,20 +110,6 @@ export class TypstEditor {
           },
           ".cm-cursor": {
             borderLeftColor: "var(--text-accent)",
-          },
-          ".cm-selectionBackground": {
-            backgroundColor: "var(--text-selection) !important",
-          },
-          "&.cm-focused .cm-selectionBackground": {
-            backgroundColor: "var(--text-selection) !important",
-          },
-          ".cm-searchMatch": {
-            backgroundColor: "var(--text-highlight-bg)",
-            outline: "1px solid var(--text-accent)",
-          },
-          ".cm-searchMatch.cm-searchMatch-selected": {
-            backgroundColor: "var(--text-accent)",
-            color: "var(--text-on-accent)",
           },
         },
         { dark: isDarkTheme }
@@ -141,13 +126,11 @@ export class TypstEditor {
       }),
     ];
 
-    const state = EditorState.create({
-      doc: this.content,
-      extensions: extensions,
-    });
-
     this.editorView = new EditorView({
-      state: state,
+      state: EditorState.create({
+        doc: this.content,
+        extensions,
+      }),
       parent: editorContainer,
     });
   }

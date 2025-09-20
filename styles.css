@@ -96,24 +96,6 @@
   border-left-width: 2px;
 }
 
-.typst-editor-container .cm-selectionBackground {
-  background-color: var(--text-selection) !important;
-}
-
-.typst-editor-container .cm-focused .cm-selectionBackground {
-  background-color: var(--text-selection) !important;
-}
-
-.typst-editor-container .cm-searchMatch {
-  background-color: var(--text-highlight-bg);
-  outline: 1px solid var(--text-accent);
-}
-
-.typst-editor-container .cm-searchMatch.cm-searchMatch-selected {
-  background-color: var(--text-accent);
-  color: var(--text-on-accent);
-}
-
 .typst-editor-container .cm-foldGutter .cm-gutterElement {
   padding: 0 4px;
   font-size: var(--font-ui-smaller);
