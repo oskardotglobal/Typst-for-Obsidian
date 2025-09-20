@@ -12,10 +12,7 @@ ${n.stack}`:r}function tt(n,e){let t=e(n.length*1,1)>>>0;return Le().set(n,t/1),
         #set page(
           width: 210mm,
           height: auto,
-          margin: (
-            x: 0cm,
-            y: 0cm
-          ),
+          margin: (x: 0cm, y: 0cm),
           fill: none
         )
         #set text(
@@ -27,12 +24,12 @@ ${n.stack}`:r}function tt(n,e){let t=e(n.length*1,1)>>>0;return Le().set(n,t/1),
           justify: true,
           leading: 0.65em
         )
-        #set rect(fill: none)
         #set block(fill: none)
-        #set box(fill: none)
-        #set circle(fill: none)
-        #set ellipse(fill: none)
-        #set polygon(fill: none)
+        #set rect(fill: none, stroke: rgb("${t}"))
+        #set box(fill: none, stroke: rgb("${t}"))
+        #set circle(fill: none, stroke: rgb("${t}"))
+        #set ellipse(fill: none, stroke: rgb("${t}"))
+        #set polygon(fill: none, stroke: rgb("${t}"))
         #set line(stroke: rgb("${t}"))
         ${e}`;return await ce.svg({mainContent:r})}catch(t){return console.error("Typst compilation failed:",t),new Jt.Notice("Typst compilation failed."),null}}getThemeTextColor(){let t=getComputedStyle(document.body).getPropertyValue("--text-normal").trim();return t?t.startsWith("#")?t.slice(1):t:"ffffff"}destroy(){this.initialized=!1}},Oe=Ee;Oe.instance=null;var X=class extends De.TextFileView{constructor(t,r){super(t);this.currentMode="source";this.modeIconContainer=null;this.typstEditor=null;this.fileContent="";this.plugin=r,this.currentMode=r.settings.defaultMode}getViewType(){return"typst-view"}getDisplayText(){var t;return((t=this.file)==null?void 0:t.basename)||"Typst File"}getIcon(){return"typst-file"}async onOpen(){await super.onOpen(),this.addModeIcon(),this.applySettings()}onResize(){super.onResize(),this.applySettings()}applySettings(){this.plugin.settings.editorReadableWidth?this.containerEl.addClass("typst-readable-width"):this.containerEl.removeClass("typst-readable-width")}onClose(){return this.cleanupEditor(),super.onClose()}addModeIcon(){let t=this.containerEl.querySelector(".view-actions");t&&(this.modeIconContainer=t.createDiv("clickable-icon"),this.modeIconContainer.addClass("view-action"),this.modeIconContainer.addEventListener("click",()=>{this.toggleMode()}),this.updateModeIcon())}async toggleMode(){this.currentMode==="source"?await this.switchToReadingMode():this.switchToSourceMode()}getCurrentMode(){return this.currentMode}async recompileIfInReadingMode(){if(this.currentMode==="reading"){let t=await this.compile();t&&this.showReadingMode(t)}}async switchToReadingMode(){let t=await this.compile();t&&(this.setMode("reading"),this.showReadingMode(t))}switchToSourceMode(){this.setMode("source"),this.showSourceMode()}setMode(t){this.currentMode=t,this.updateModeIcon()}async compile(){let t=this.getViewData();return await Oe.getInstance().compileToSvg(t)}updateModeIcon(){this.modeIconContainer&&(this.modeIconContainer.empty(),this.currentMode==="source"?((0,De.setIcon)(this.modeIconContainer,"pencil-line"),this.modeIconContainer.setAttribute("aria-label","Currently in source mode. Click to switch to reading mode.")):((0,De.setIcon)(this.modeIconContainer,"book-open"),this.modeIconContainer.setAttribute("aria-label","Currently in reading mode. Click to switch to source mode.")))}async setViewData(t,r){this.fileContent=t,this.currentMode==="source"?this.showSourceMode():await this.loadReadingMode(t)}async loadReadingMode(t){let r=await this.compile();r?this.showReadingMode(r):(this.setMode("source"),this.showSourceMode())}getViewData(){return this.currentMode==="source"&&this.typstEditor?this.typstEditor.getContent():this.fileContent}getContentElement(){return this.containerEl.querySelector(".view-content")}cleanupEditor(){this.typstEditor&&(this.typstEditor.destroy(),this.typstEditor=null)}showSourceMode(){let t=this.getContentElement();t&&(t.empty(),this.cleanupEditor(),this.typstEditor=new ze(t,this.app,r=>{this.fileContent=r,this.requestSave()}),this.typstEditor.initialize(this.fileContent))}showReadingMode(t){let r=this.getContentElement();if(!r)return;r.empty(),this.cleanupEditor();let i=r.createDiv("typst-reading-mode");i.innerHTML=`
       <div class="typst-rendered-content">

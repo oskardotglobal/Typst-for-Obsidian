@@ -47,10 +47,7 @@ export class TypstCompiler {
         #set page(
           width: 210mm,
           height: auto,
-          margin: (
-            x: 0cm,
-            y: 0cm
-          ),
+          margin: (x: 0cm, y: 0cm),
           fill: none
         )
         #set text(
@@ -62,12 +59,12 @@ export class TypstCompiler {
           justify: true,
           leading: 0.65em
         )
-        #set rect(fill: none)
         #set block(fill: none)
-        #set box(fill: none)
-        #set circle(fill: none)
-        #set ellipse(fill: none)
-        #set polygon(fill: none)
+        #set rect(fill: none, stroke: rgb("${textColor}"))
+        #set box(fill: none, stroke: rgb("${textColor}"))
+        #set circle(fill: none, stroke: rgb("${textColor}"))
+        #set ellipse(fill: none, stroke: rgb("${textColor}"))
+        #set polygon(fill: none, stroke: rgb("${textColor}"))
         #set line(stroke: rgb("${textColor}"))
         ${content}`;
 

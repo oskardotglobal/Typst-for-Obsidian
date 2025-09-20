@@ -41,4 +41,3 @@ npm run build
   - default preamble
   - export to pdf
   - change font size, preamble params as options
-  - editor readble line length
