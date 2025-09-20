@@ -20,11 +20,12 @@
 
 /* Settings Styling */
 .typst-layout-textarea {
-  width: 100% !important;
-  max-width: none !important;
+  width: 50% !important;
+  max-width: 400px !important;
+  min-width: 300px !important;
   font-family: var(--font-monospace) !important;
   font-size: var(--font-ui-small) !important;
-  min-height: var(--input-height) !important;
+  min-height: 100px !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
