@@ -33,14 +33,18 @@ npm run build
 - [ ] Fix styling
 - [ ] Add formatting settings
 - [ ] Add package support
-- [ ] Add more features to code editor
+- [ ] Add more features & keyboard shortcuts to code editor
 - [ ] Define Typst language for syntax highlight (???)
 - [ ] "Live Preview" mode - render incremental document fragments for each 'block' of Typst (ts is not happening 😭🙏🥀)
 
 - settings/commands:
 
-  - default preamble
   - export to pdf
   - change font size, preamble params as options
+    packages
+    fonts
 
 - %THEMECOLOR%
+
+Typst compilation failed: [SourceDiagnostic { severity: Error, span: Span(1421687374872340), message: "failed to load package (JsValue(Error: Dummy Registry, please initialize compiler with withPackageRegistry()\nError: Dummy Registry, please initialize compiler with withPackageRegistry()\n at wt.eval (eval at n.wbg.**wbg_newnoargs_105ed471475aaf50 (plugin:typst-for-obsidian), <anonymous>:3:7)\n at eval (plugin:typst-for-obsidian:7:1605)\n at ft (plugin:typst-for-obsidian:6:7205)\n at n.wbg.**wbg_call_7cccdd69e0791ae2 (plugin:typst-for-obsidian:7:1575)\n at https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm:wasm-function[13541]:0xda8289\n at https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm:wasm-function[1290]:0x5c9d2e\n at https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm:wasm-function[3416]:0x95cfc7\n at https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm:wasm-function[11711]:0xd7e518\n at https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm:wasm-function[2380]:0x7fc965\n at https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm:wasm-function[14159]:0xdbec5a))", trace: [], hints: [] }]
+compileToSvg @ plugin:typst-for-obsidian:12

@@ -7,7 +7,7 @@ import {
   highlightActiveLine,
 } from "@codemirror/view";
 import { EditorState, Extension } from "@codemirror/state";
-import { color, oneDark } from "@codemirror/theme-one-dark";
+import { oneDark } from "@codemirror/theme-one-dark";
 import {
   defaultKeymap,
   indentWithTab,
@@ -18,6 +18,7 @@ import {
 } from "@codemirror/commands";
 import { bracketMatching } from "@codemirror/language";
 import { closeBrackets } from "@codemirror/autocomplete";
+import { typst } from "./grammar/typst";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
 
@@ -60,6 +61,7 @@ export class TypstEditor {
       EditorView.lineWrapping,
 
       // Language features
+      typst(),
       bracketMatching(),
       closeBrackets(),
       highlightSelectionMatches(),
