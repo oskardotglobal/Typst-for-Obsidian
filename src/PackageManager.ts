@@ -1,5 +1,6 @@
 import { App, Notice, Platform } from "obsidian";
-import { extract } from "tar";
+import untar from "js-untar";
+import { ungzip } from "pako";
 
 export class PackageManager {
   private app: App;
@@ -37,6 +38,42 @@ export class PackageManager {
       const arrayBuffer = await response.arrayBuffer();
 
       // Decompress and extract tar
+      const decompressed = ungzip(new Uint8Array(arrayBuffer));
+      const files = await untar(decompressed.buffer);
+
+      const packagePath = `${this.vaultPackagePath}/preview/${name}/${version}`;
+
+      // Create directories if they don't exist
+      if (!(await this.app.vault.adapter.exists(this.vaultPackagePath))) {
+        await this.app.vault.createFolder(this.vaultPackagePath);
+      }
+      if (
+        !(await this.app.vault.adapter.exists(
+          `${this.vaultPackagePath}/preview`
+        ))
+      ) {
+        await this.app.vault.createFolder(`${this.vaultPackagePath}/preview`);
+      }
+      if (
+        !(await this.app.vault.adapter.exists(
+          `${this.vaultPackagePath}/preview/${name}`
+        ))
+      ) {
+        await this.app.vault.createFolder(
+          `${this.vaultPackagePath}/preview/${name}`
+        );
+      }
+      if (await this.app.vault.adapter.exists(packagePath)) {
+        await this.app.vault.adapter.rmdir(packagePath, true);
+      }
+      await this.app.vault.createFolder(packagePath);
+
+      for (const file of files) {
+        const filePath = `${packagePath}/${file.name}`;
+        if (file.type === "file") {
+          await this.app.vault.adapter.writeBinary(filePath, file.buffer);
+        }
+      }
     } catch (error) {
       console.error("Error downloading package:", error);
       new Notice(`Error downloading package ${name}:${version}`);
@@ -115,8 +152,7 @@ export class PackageManager {
     if (await this.packageExistsAt(packagePath)) {
       return packagePath;
     } else {
-      console.warn(`Local package ${name}:${version} not found.`);
-      // fetch?
+      new Notice(`Local package ${name}:${version} not found.`);
     }
 
     return null;
@@ -146,7 +182,6 @@ export class PackageManager {
       return false;
     }
   }
-
   getDataDir() {
     if (Platform.isLinux) {
       if ("XDG_DATA_HOME" in process.env) return process.env.XDG_DATA_HOME;
