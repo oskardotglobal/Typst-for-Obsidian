@@ -1,7 +1,7 @@
 import { Plugin, addIcon } from "obsidian";
 import { TypstView } from "./src/TypstView";
 import { registerCommands } from "./src/commands";
-import { TypstIcon } from "src/util";
+import { TypstIcon } from "./src/util";
 import {
   TypstSettings,
   DEFAULT_SETTINGS,
