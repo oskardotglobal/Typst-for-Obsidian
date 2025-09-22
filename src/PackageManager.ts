@@ -1,4 +1,5 @@
 import { App, Notice, Platform } from "obsidian";
+import { extract } from "tar";
 
 export class PackageManager {
   private app: App;
@@ -20,6 +21,28 @@ export class PackageManager {
   // get pkg list
   // del pkgs
   //
+
+  private async downloadPackage(name: string, version: string) {
+    const url = `https://packages.typst.org/preview/${name}-${version}.tar.gz`;
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to download package: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Decompress and extract tar
+    } catch (error) {
+      console.error("Error downloading package:", error);
+      new Notice(`Error downloading package ${name}:${version}`);
+      throw error;
+    }
+  }
 
   private async loadPersistentCache() {
     try {

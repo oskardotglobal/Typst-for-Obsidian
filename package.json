@@ -36,6 +36,8 @@
     "@lezer/lr": "^1.4.2",
     "@myriaddreamin/typst-ts-renderer": "^0.6.1-rc3",
     "@myriaddreamin/typst-ts-web-compiler": "^0.6.1-rc3",
-    "@myriaddreamin/typst.ts": "^0.6.1-rc3"
+    "@myriaddreamin/typst.ts": "^0.6.1-rc3",
+    "js-untar": "^2.0.0",
+    "tar": "^7.4.4"
   }
 }
