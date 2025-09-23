@@ -1,4 +1,6 @@
 import { App, Notice, Platform } from "obsidian";
+import { PackageImport } from "./types/packages";
+import { PackageParser } from "./TypstParser";
 import untar from "js-untar";
 import { ungzip } from "pako";
 
@@ -120,6 +122,11 @@ export class PackageManager {
     } catch (error) {
       console.error("Error saving package cache:", error);
     }
+  }
+
+  clearCache(): void {
+    this.packageCache.clear();
+    this.savePersistentCache();
   }
 
   async getPackageEntrypoint(packagePath: string): Promise<string | null> {
