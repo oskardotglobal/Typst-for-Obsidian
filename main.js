@@ -845,6 +845,7 @@ var DEFAULT_SETTINGS = {
   editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
   autoDownloadPackages: true,
+  fontFamilies: [],
   // prettier-ignore
   customLayoutFunctions: `#set page(
   width: 210mm,
@@ -920,6 +921,14 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
         })
       );
     }
+    new import_obsidian4.Setting(containerEl).setName("Font families").setDesc(
+      "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts."
+    ).addTextArea(
+      (text) => text.setPlaceholder("Arial\nHelvetica\nTimes New Roman").setValue(this.plugin.settings.fontFamilies.join("\n")).onChange(async (value) => {
+        this.plugin.settings.fontFamilies = value.split("\n").map((font) => font.trim().toLowerCase()).filter((font) => font.length > 0);
+        await this.plugin.saveSettings();
+      })
+    );
   }
 };
 
@@ -5758,9 +5767,24 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
         data: true
       });
       this.fs = require("fs");
-      console.log(
-        "\u{1F535} TypstForObsidian: Skipping font loading to prevent delay"
-      );
+      console.log("\u{1F535} TypstForObsidian: Loading system fonts");
+      try {
+        let fonts = await Promise.all(
+          //@ts-expect-error
+          (await window.queryLocalFonts()).filter(
+            (font) => this.settings.fontFamilies.includes(font.family.toLowerCase())
+          ).map(
+            async (font) => await (await font.blob()).arrayBuffer()
+          )
+        );
+        console.log(`\u{1F535} TypstForObsidian: Loaded ${fonts.length} fonts`);
+        this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
+      } catch (error) {
+        console.warn(
+          "\u{1F7E1} TypstForObsidian: Could not load system fonts:",
+          error
+        );
+      }
     } else {
       await this.app.vault.adapter.mkdir(this.packagePath);
       const packages = await this.getPackageList();
@@ -5843,12 +5867,6 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     while (true) {
       const result = await new Promise((resolve, reject) => {
         const listener = (ev) => {
-          console.log(
-            "\u{1F536} Main: Received worker response, data type:",
-            typeof ev.data,
-            "data:",
-            ev.data
-          );
           if (ev.data && ev.data.type === "ready") {
             console.log("\u{1F536} Main: Ignoring ready signal");
             return;

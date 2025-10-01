@@ -8,6 +8,7 @@ export interface TypstSettings {
   useDefaultLayoutFunctions: boolean;
   customLayoutFunctions: string;
   autoDownloadPackages: boolean;
+  fontFamilies: string[];
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
@@ -15,6 +16,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
   autoDownloadPackages: true,
+  fontFamilies: [],
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
@@ -143,5 +145,23 @@ export class TypstSettingTab extends PluginSettingTab {
           })
       );
     }
+
+    new Setting(containerEl)
+      .setName("Font families")
+      .setDesc(
+        "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts."
+      )
+      .addTextArea((text) =>
+        text
+          .setPlaceholder("Arial\nHelvetica\nTimes New Roman")
+          .setValue(this.plugin.settings.fontFamilies.join("\n"))
+          .onChange(async (value: string) => {
+            this.plugin.settings.fontFamilies = value
+              .split("\n")
+              .map((font) => font.trim().toLowerCase())
+              .filter((font) => font.length > 0);
+            await this.plugin.saveSettings();
+          })
+      );
   }
 }

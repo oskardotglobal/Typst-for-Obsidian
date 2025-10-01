@@ -83,10 +83,27 @@ export default class TypstForObsidian extends Plugin {
       });
       this.fs = require("fs");
 
-      // Skip font loading for now to prevent 10-minute delay
-      console.log(
-        "🔵 TypstForObsidian: Skipping font loading to prevent delay"
-      );
+      console.log("🔵 TypstForObsidian: Loading system fonts");
+      try {
+        let fonts = await Promise.all(
+          //@ts-expect-error
+          ((await window.queryLocalFonts()) as Array)
+            .filter((font: { family: string; name: string }) =>
+              this.settings.fontFamilies.includes(font.family.toLowerCase())
+            )
+            .map(
+              async (font: { blob: () => Promise<Blob> }) =>
+                await (await font.blob()).arrayBuffer()
+            )
+        );
+        console.log(`🔵 TypstForObsidian: Loaded ${fonts.length} fonts`);
+        this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
+      } catch (error) {
+        console.warn(
+          "🟡 TypstForObsidian: Could not load system fonts:",
+          error
+        );
+      }
     } else {
       // Mobile - set up packages
       await this.app.vault.adapter.mkdir(this.packagePath);
@@ -193,13 +210,6 @@ export default class TypstForObsidian extends Plugin {
     while (true) {
       const result = await new Promise<any>((resolve, reject) => {
         const listener = (ev: MessageEvent) => {
-          console.log(
-            "🔶 Main: Received worker response, data type:",
-            typeof ev.data,
-            "data:",
-            ev.data
-          );
-
           // Ignore ready signals
           if (ev.data && ev.data.type === "ready") {
             console.log("🔶 Main: Ignoring ready signal");
