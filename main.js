@@ -5896,7 +5896,7 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
         this.compilerWorker.addEventListener("error", errorListener);
       });
       if (typeof result === "string") {
-        console.log("\u{1F536} Main: Got SVG string result");
+        console.log("\u{1F536} Main: Got SVG string result, optimizing for display");
         return result;
       } else if (result && result.error) {
         throw new Error(result.error);
@@ -5930,39 +5930,48 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     console.log("\u{1F536} Main: Could not determine font size, using fallback");
     return "16pt";
   }
-  // private scaleSvgForDpi(svgString: string): string {
-  //   const dpr = window.devicePixelRatio || 1;
-  //   console.log("🔶 Main: Scaling SVG for devicePixelRatio:", dpr);
-  //   // Parse the SVG to adjust dimensions
+  // private optimizeSvgForDisplay(svgString: string, scaleFactor = 2): string {
+  //   console.log("🔶 Main: Optimizing SVG for display");
+  //   // Parse the SVG
   //   const parser = new DOMParser();
   //   const doc = parser.parseFromString(svgString, "image/svg+xml");
   //   const svg = doc.documentElement;
   //   if (svg && svg.tagName === "svg") {
-  //     // Get original dimensions
+  //     // Get original dimensions in points
   //     const width = svg.getAttribute("width");
   //     const height = svg.getAttribute("height");
-  //     if (width && height) {
-  //       // Convert pt to px with DPI scaling
+  //     if (width && height && width.includes("pt") && height.includes("pt")) {
   //       const widthPt = parseFloat(width.replace("pt", ""));
   //       const heightPt = parseFloat(height.replace("pt", ""));
-  //       // Convert pt to px: 1pt = 4/3 px at 96 DPI, then scale by devicePixelRatio
-  //       const pxPerPt = (4 / 3) * dpr;
-  //       const widthPx = widthPt * pxPerPt;
-  //       const heightPx = heightPt * pxPerPt;
-  //       // Set pixel dimensions and viewBox for crisp rendering
-  //       svg.setAttribute("width", `${widthPx}px`);
-  //       svg.setAttribute("height", `${heightPx}px`);
-  //       svg.setAttribute("viewBox", `0 0 ${widthPt} ${heightPt}`);
-  //       // Ensure crisp rendering
-  //       svg.setAttribute("shape-rendering", "crispEdges");
-  //       svg.setAttribute("text-rendering", "optimizeLegibility");
   //       console.log(
-  //         `🔶 Main: Scaled SVG from ${widthPt}x${heightPt}pt to ${widthPx}x${heightPx}px`
+  //         `🔶 Main: Original SVG dimensions: ${widthPt}x${heightPt}pt`
+  //       );
+  //       // Remove pt units - let CSS handle the sizing
+  //       svg.removeAttribute("width");
+  //       svg.removeAttribute("height");
+  //       // Set viewBox to preserve aspect ratio and allow CSS scaling
+  //       svg.setAttribute("viewBox", `0 0 ${widthPt} ${heightPt}`);
+  //       svg.setAttribute("vector-effect", "non-scaling-stroke");
+  //       // Preserve aspect ratio while allowing flexible sizing
+  //       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  //       svg.setAttribute("shape-rendering", "geometricPrecision");
+  //       const g = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+  //       while (svg.firstChild) {
+  //         g.appendChild(svg.firstChild);
+  //       }
+  //       g.setAttribute("transform", `scale(${scaleFactor})`);
+  //       svg.appendChild(g);
+  //       // Adjust viewBox to account for scale
+  //       // svg.setAttribute(
+  //       //   "viewBox",
+  //       //   `0 0 ${widthPt * scaleFactor} ${heightPt * scaleFactor}`
+  //       // );
+  //       console.log(
+  //         `🔶 Main: Optimized SVG - removed fixed dimensions, added viewBox`
   //       );
   //     }
-  //     return new XMLSerializer().serializeToString(doc);
   //   }
-  //   return svgString;
+  //   return new XMLSerializer().serializeToString(doc);
   // }
   async handleWorkerRequest({ buffer: wbuffer, path: path2 }) {
     console.log("\u{1F536} Main: Handling worker request for path:", path2);
