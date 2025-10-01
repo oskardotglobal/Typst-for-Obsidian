@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import TypstForObsidian from "../main";
+import TypstForObsidian from "./main";
 import { TypstView } from "./TypstView";
 
 export interface TypstSettings {
@@ -7,12 +7,14 @@ export interface TypstSettings {
   editorReadableWidth: boolean;
   useDefaultLayoutFunctions: boolean;
   customLayoutFunctions: string;
+  autoDownloadPackages: boolean;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
   defaultMode: "source",
   editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
+  autoDownloadPackages: true,
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
@@ -71,24 +73,24 @@ export class TypstSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
-      .setName("Editor readable width")
-      .setDesc(
-        "When enabled, limits the editor width for better readability and centers it"
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.editorReadableWidth)
-          .onChange(async (value: boolean) => {
-            this.plugin.settings.editorReadableWidth = value;
-            await this.plugin.saveSettings();
-            this.app.workspace.iterateAllLeaves((leaf) => {
-              if (leaf.view instanceof TypstView) {
-                leaf.view.onResize();
-              }
-            });
-          })
-      );
+    // new Setting(containerEl)
+    //   .setName("Editor readable width")
+    //   .setDesc(
+    //     "When enabled, limits the editor width for better readability and centers it"
+    //   )
+    //   .addToggle((toggle) =>
+    //     toggle
+    //       .setValue(this.plugin.settings.editorReadableWidth)
+    //       .onChange(async (value: boolean) => {
+    //         this.plugin.settings.editorReadableWidth = value;
+    //         await this.plugin.saveSettings();
+    //         this.app.workspace.iterateAllLeaves((leaf) => {
+    //           if (leaf.view instanceof TypstView) {
+    //             leaf.view.onResize();
+    //           }
+    //         });
+    //       })
+    //   );
 
     new Setting(containerEl)
       .setName("Use default layout functions")

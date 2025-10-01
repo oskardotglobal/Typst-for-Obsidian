@@ -1,7 +1,6 @@
 import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
-import { TypstCompiler } from "./TypstCompiler";
-import TypstForObsidian from "../main";
+import TypstForObsidian from "./main";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -105,11 +104,20 @@ export class TypstView extends TextFileView {
   }
 
   private async compile(): Promise<string | null> {
+    console.log("🟡 TypstView: Starting compile()");
     const content = this.getViewData();
-    const compiler = TypstCompiler.getInstance();
-    return await compiler.compileToSvg(content, this.plugin.settings);
-  }
+    console.log("🟡 TypstView: Got content, length:", content.length);
 
+    console.log("🟡 TypstView: Calling plugin's compileToSvg");
+    try {
+      const result = await this.plugin.compileToSvg(content);
+      console.log("🟡 TypstView: SVG compilation completed successfully");
+      return result;
+    } catch (error) {
+      console.error("🔴 TypstView: SVG compilation failed:", error);
+      throw error;
+    }
+  }
   private updateModeIcon(): void {
     if (!this.modeIconContainer) return;
 

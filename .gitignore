@@ -1,3 +1,5 @@
 node_modules
 build.js
 docs
+pkg/
+temp_repo/
