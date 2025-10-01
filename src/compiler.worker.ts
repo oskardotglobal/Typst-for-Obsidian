@@ -90,6 +90,12 @@ onmessage = (ev: MessageEvent<Message>) => {
       break;
     case "fonts":
       console.log("🟣 Worker: Adding fonts, count:", message.data.length);
+      if (!compiler) {
+        console.warn(
+          "🟡 Worker: Compiler not initialized yet, cannot add fonts"
+        );
+        break;
+      }
       message.data.forEach((font: any) =>
         compiler.add_font(new Uint8Array(font))
       );

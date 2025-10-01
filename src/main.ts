@@ -83,27 +83,12 @@ export default class TypstForObsidian extends Plugin {
       });
       this.fs = require("fs");
 
-      console.log("🔵 TypstForObsidian: Loading system fonts");
-      try {
-        let fonts = await Promise.all(
-          //@ts-expect-error
-          ((await window.queryLocalFonts()) as Array)
-            .filter((font: { family: string; name: string }) =>
-              this.settings.fontFamilies.includes(font.family.toLowerCase())
-            )
-            .map(
-              async (font: { blob: () => Promise<Blob> }) =>
-                await (await font.blob()).arrayBuffer()
-            )
-        );
-        console.log(`🔵 TypstForObsidian: Loaded ${fonts.length} fonts`);
-        this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
-      } catch (error) {
-        console.warn(
-          "🟡 TypstForObsidian: Could not load system fonts:",
-          error
-        );
-      }
+      // Wait for worker to be ready before loading fonts
+      this.compilerWorker.addEventListener("message", (event) => {
+        if (event.data?.type === "ready") {
+          this.loadFonts();
+        }
+      });
     } else {
       // Mobile - set up packages
       await this.app.vault.adapter.mkdir(this.packagePath);
@@ -126,6 +111,28 @@ export default class TypstForObsidian extends Plugin {
 
     console.log("🔵 TypstForObsidian: onload() completed successfully");
   }
+
+  private async loadFonts() {
+    console.log("🔵 TypstForObsidian: Loading system fonts");
+    try {
+      let fonts = await Promise.all(
+        //@ts-expect-error
+        ((await window.queryLocalFonts()) as Array)
+          .filter((font: { family: string; name: string }) =>
+            this.settings.fontFamilies.includes(font.family.toLowerCase())
+          )
+          .map(
+            async (font: { blob: () => Promise<Blob> }) =>
+              await (await font.blob()).arrayBuffer()
+          )
+      );
+      console.log(`🔵 TypstForObsidian: Loaded ${fonts.length} fonts`);
+      this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
+    } catch (error) {
+      console.warn("🟡 TypstForObsidian: Could not load system fonts:", error);
+    }
+  }
+
   private onThemeChange() {
     // Find all open Typst views and recompile if they are in reading mode
     this.app.workspace.iterateAllLeaves((leaf) => {
@@ -186,14 +193,21 @@ export default class TypstForObsidian extends Plugin {
 
     // Add layout functions if enabled
     if (this.settings.useDefaultLayoutFunctions) {
-      finalSource = this.settings.customLayoutFunctions + "\n" + source;
+      finalSource =
+        this.settings.customLayoutFunctions + "\n" + source + "#linebreak()"; // linebreak to make svg not cut off
     }
 
     // Replace %THEMECOLOR% with actual theme text color
     const textColor = this.getThemeTextColor();
     finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
 
-    console.log("🔶 Main: Applied layout functions and theme color");
+    // Replace %FONTSIZE% with actual CSS font size
+    const fontSize = this.getCssFontSize();
+    finalSource = finalSource.replace(/%FONTSIZE%/g, fontSize);
+
+    console.log(
+      "🔶 Main: Applied layout functions, theme color, and font size"
+    );
 
     const message = {
       type: "compile",
@@ -264,6 +278,66 @@ export default class TypstForObsidian extends Plugin {
 
     return "ffffff";
   }
+
+  private getCssFontSize(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontSize = bodyStyle.getPropertyValue("--font-text-size").trim();
+
+    if (fontSize) {
+      // Convert px to pt (1px = 0.75pt)
+      const pxValue = parseFloat(fontSize.replace("px", ""));
+      const ptValue = pxValue * 0.75;
+      console.log(`🔶 Main: Converted font size ${fontSize} to ${ptValue}pt`);
+      return `${ptValue}pt`;
+    }
+
+    console.log("🔶 Main: Could not determine font size, using fallback");
+    return "16pt"; // fallback
+  }
+
+  // private scaleSvgForDpi(svgString: string): string {
+  //   const dpr = window.devicePixelRatio || 1;
+  //   console.log("🔶 Main: Scaling SVG for devicePixelRatio:", dpr);
+
+  //   // Parse the SVG to adjust dimensions
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(svgString, "image/svg+xml");
+  //   const svg = doc.documentElement;
+
+  //   if (svg && svg.tagName === "svg") {
+  //     // Get original dimensions
+  //     const width = svg.getAttribute("width");
+  //     const height = svg.getAttribute("height");
+
+  //     if (width && height) {
+  //       // Convert pt to px with DPI scaling
+  //       const widthPt = parseFloat(width.replace("pt", ""));
+  //       const heightPt = parseFloat(height.replace("pt", ""));
+
+  //       // Convert pt to px: 1pt = 4/3 px at 96 DPI, then scale by devicePixelRatio
+  //       const pxPerPt = (4 / 3) * dpr;
+  //       const widthPx = widthPt * pxPerPt;
+  //       const heightPx = heightPt * pxPerPt;
+
+  //       // Set pixel dimensions and viewBox for crisp rendering
+  //       svg.setAttribute("width", `${widthPx}px`);
+  //       svg.setAttribute("height", `${heightPx}px`);
+  //       svg.setAttribute("viewBox", `0 0 ${widthPt} ${heightPt}`);
+
+  //       // Ensure crisp rendering
+  //       svg.setAttribute("shape-rendering", "crispEdges");
+  //       svg.setAttribute("text-rendering", "optimizeLegibility");
+
+  //       console.log(
+  //         `🔶 Main: Scaled SVG from ${widthPt}x${heightPt}pt to ${widthPx}x${heightPx}px`
+  //       );
+  //     }
+
+  //     return new XMLSerializer().serializeToString(doc);
+  //   }
+
+  //   return svgString;
+  // }
 
   async handleWorkerRequest({ buffer: wbuffer, path }: WorkerRequest) {
     console.log("🔶 Main: Handling worker request for path:", path);

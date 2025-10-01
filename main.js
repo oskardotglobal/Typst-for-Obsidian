@@ -848,14 +848,14 @@ var DEFAULT_SETTINGS = {
   fontFamilies: [],
   // prettier-ignore
   customLayoutFunctions: `#set page(
-  width: 210mm,
+  width: auto,
   height: auto,
   margin: (x: 0cm, y: 0cm),
   fill: none
 )
 
 #set text(
-  size: 16pt,
+  size: %FONTSIZE%,
   fill: rgb("%THEMECOLOR%")
 )
 
@@ -5311,7 +5311,7 @@ var PackageManager = class {
 
 // src/compiler.worker.ts
 function inlineWorker() {
-  let blob = new Blob(['var Z={},o;function j(t){let e=o.__externref_table_alloc();return o.__wbindgen_export_2.set(e,t),e}function D(t,e){try{return t.apply(this,e)}catch(n){let r=j(n);o.__wbindgen_exn_store(r)}}function _(t,e){try{return t.apply(this,e)}catch(n){let r=function(){try{return n instanceof Error?`${n.message}\n\nStack:\n${n.stack}`:n.toString()}catch(s){return"<failed to stringify thrown value>"}}();throw console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:",r),n}}var p=null;function h(){return(p===null||p.byteLength===0)&&(p=new Uint8Array(o.memory.buffer)),p}var S=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0});S.decode();var V=2146435072,C=0;function q(t,e){return C+=e,C>=V&&(S=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0}),S.decode(),C=e),S.decode(h().subarray(t,t+e))}function E(t,e){return t=t>>>0,q(t,e)}var m=null;function $(){return(m===null||m.byteLength===0)&&(m=new Uint8ClampedArray(o.memory.buffer)),m}function N(t,e){return t=t>>>0,$().subarray(t/1,t/1+e)}var l=0,k=new TextEncoder;"encodeInto"in k||(k.encodeInto=function(t,e){let n=k.encode(t);return e.set(n),{read:t.length,written:n.length}});function g(t,e,n){if(typeof t!="string")throw new Error(`expected a string argument, found ${typeof t}`);if(n===void 0){let c=k.encode(t),f=e(c.length,1)>>>0;return h().subarray(f,f+c.length).set(c),l=c.length,f}let r=t.length,s=e(r,1)>>>0,a=h(),i=0;for(;i<r;i++){let c=t.charCodeAt(i);if(c>127)break;a[s+i]=c}if(i!==r){i!==0&&(t=t.slice(i)),s=n(s,r,r=i+t.length*3,1)>>>0;let c=h().subarray(s+i,s+r),f=k.encodeInto(t,c);if(f.read!==t.length)throw new Error("failed to pass whole string");i+=f.written,s=n(s,r,i,1)>>>0}return l=i,s}var u=null;function b(){return(u===null||u.buffer.detached===!0||u.buffer.detached===void 0&&u.buffer!==o.memory.buffer)&&(u=new DataView(o.memory.buffer)),u}function W(t){return t==null}function y(t){if(typeof t!="number")throw new Error(`expected a number argument, found ${typeof t}`)}function G(t){if(typeof t!="boolean")throw new Error(`expected a boolean argument, found ${typeof t}`)}function I(t){let e=o.__wbindgen_export_2.get(t);return o.__externref_table_dealloc(t),e}function X(t,e){let n=e(t.length*1,1)>>>0;return h().set(t,n/1),l=t.length,n}var O=typeof FinalizationRegistry=="undefined"?{register:()=>{},unregister:()=>{}}:new FinalizationRegistry(t=>o.__wbg_compiler_free(t>>>0,1)),w=class{__destroy_into_raw(){let e=this.__wbg_ptr;return this.__wbg_ptr=0,O.unregister(this),e}free(){let e=this.__destroy_into_raw();o.__wbg_compiler_free(e,0)}constructor(e,n){let r=g(e,o.__wbindgen_malloc,o.__wbindgen_realloc),s=l,a=o.compiler_new(r,s,n);return this.__wbg_ptr=a>>>0,O.register(this,this.__wbg_ptr,this),this}compile_image(e,n,r,s,a,i){if(this.__wbg_ptr==0)throw new Error("Attempt to use a moved value");y(this.__wbg_ptr);let c=g(e,o.__wbindgen_malloc,o.__wbindgen_realloc),f=l,M=g(n,o.__wbindgen_malloc,o.__wbindgen_realloc),T=l,d=g(s,o.__wbindgen_malloc,o.__wbindgen_realloc),L=l;y(a),G(i);let v=o.compiler_compile_image(this.__wbg_ptr,c,f,M,T,r,d,L,a,i);if(v[2])throw I(v[1]);return I(v[0])}compile_svg(e,n){let r,s;try{if(this.__wbg_ptr==0)throw new Error("Attempt to use a moved value");y(this.__wbg_ptr);let c=g(e,o.__wbindgen_malloc,o.__wbindgen_realloc),f=l,M=g(n,o.__wbindgen_malloc,o.__wbindgen_realloc),T=l,d=o.compiler_compile_svg(this.__wbg_ptr,c,f,M,T);var a=d[0],i=d[1];if(d[3])throw a=0,i=0,I(d[2]);return r=a,s=i,E(a,i)}finally{o.__wbindgen_free(r,s,1)}}add_font(e){if(this.__wbg_ptr==0)throw new Error("Attempt to use a moved value");y(this.__wbg_ptr);let n=X(e,o.__wbindgen_malloc),r=l;o.compiler_add_font(this.__wbg_ptr,n,r)}};Symbol.dispose&&(w.prototype[Symbol.dispose]=w.prototype.free);var Y=new Set(["basic","cors","default"]);async function H(t,e){if(typeof Response=="function"&&t instanceof Response){if(typeof WebAssembly.instantiateStreaming=="function")try{return await WebAssembly.instantiateStreaming(t,e)}catch(r){if(t.ok&&Y.has(t.type)&&t.headers.get("Content-Type")!=="application/wasm")console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\\n",r);else throw r}let n=await t.arrayBuffer();return await WebAssembly.instantiate(n,e)}else{let n=await WebAssembly.instantiate(t,e);return n instanceof WebAssembly.Instance?{instance:n,module:t}:n}}function J(){let t={};return t.wbg={},t.wbg.__wbg_call_a5400b25a865cfd8=function(){return D(function(e,n,r){return e.call(n,r)},arguments)},t.wbg.__wbg_error_7534b8e9a36f1ab4=function(){return _(function(e,n){let r,s;try{r=e,s=n,console.error(E(e,n))}finally{o.__wbindgen_free(r,s,1)}},arguments)},t.wbg.__wbg_getTime_6bb3f64e0f18f817=function(){return _(function(e){return e.getTime()},arguments)},t.wbg.__wbg_getTimezoneOffset_1e3ddc1382e7c8b0=function(){return _(function(e){return e.getTimezoneOffset()},arguments)},t.wbg.__wbg_new0_b0a0a38c201e6df5=function(){return _(function(){return new Date},arguments)},t.wbg.__wbg_new_5a2ae4557f92b50e=function(){return _(function(e){return new Date(e)},arguments)},t.wbg.__wbg_new_8a6f238a6ece86ea=function(){return _(function(){return new Error},arguments)},t.wbg.__wbg_newwithu8clampedarrayandsh_132382d049b78e28=function(){return D(function(e,n,r,s){return new ImageData(N(e,n),r>>>0,s>>>0)},arguments)},t.wbg.__wbg_stack_0ed75d68575b0f3c=function(){return _(function(e,n){let r=n.stack,s=g(r,o.__wbindgen_malloc,o.__wbindgen_realloc),a=l;b().setInt32(e+4*1,a,!0),b().setInt32(e+4*0,s,!0)},arguments)},t.wbg.__wbg_wbindgennumberget_f74b4c7525ac05cb=function(e,n){let r=n,s=typeof r=="number"?r:void 0;W(s)||y(s),b().setFloat64(e+8*1,W(s)?0:s,!0),b().setInt32(e+4*0,!W(s),!0)},t.wbg.__wbg_wbindgenstringget_0f16a6ddddef376f=function(e,n){let r=n,s=typeof r=="string"?r:void 0;var a=W(s)?0:g(s,o.__wbindgen_malloc,o.__wbindgen_realloc),i=l;b().setInt32(e+4*1,i,!0),b().setInt32(e+4*0,a,!0)},t.wbg.__wbg_wbindgenthrow_451ec1a8469d7eb6=function(e,n){throw new Error(E(e,n))},t.wbg.__wbindgen_cast_2241b6af4c4b2941=function(){return _(function(e,n){return E(e,n)},arguments)},t.wbg.__wbindgen_cast_d6cd19b81560fd6e=function(){return _(function(e){return e},arguments)},t.wbg.__wbindgen_init_externref_table=function(){let e=o.__wbindgen_export_2,n=e.grow(4);e.set(0,void 0),e.set(n+0,void 0),e.set(n+1,null),e.set(n+2,!0),e.set(n+3,!1)},t}function K(t,e){return o=t.exports,z.__wbindgen_wasm_module=e,u=null,p=null,m=null,o.__wbindgen_start(),o}async function z(t){if(o!==void 0)return o;typeof t!="undefined"&&(Object.getPrototypeOf(t)===Object.prototype?{module_or_path:t}=t:console.warn("using deprecated parameters for the initialization function; pass a single object instead")),typeof t=="undefined"&&(t=new URL("obsidian_typst_bg.wasm",Z.url));let e=J();(typeof t=="string"||typeof Request=="function"&&t instanceof Request||typeof URL=="function"&&t instanceof URL)&&(t=fetch(t));let{instance:n,module:r}=await H(await t,e);return K(n,r)}var B=z;var P=!1,ee=new TextDecoder,R,U,F=[],x=new XMLHttpRequest;function te(t){try{if(!P){if(t.startsWith("@")){if(F.includes(t.slice(1)))return U+t.slice(1);throw 2}t="http://localhost/_capacitor_file_"+R+"/"+t,x.open("GET",t,!1);try{x.send()}catch(r){throw console.error(r),3}if(x.status==404)throw 2;return x.responseText}let e=new Int32Array(new SharedArrayBuffer(4,{maxByteLength:1e8}));e[0]=0,postMessage({buffer:e,path:t});let n=Atomics.wait(e,0,0);if(e[0]==0)return ee.decode(Uint8Array.from(e.slice(1)));throw e[0]}catch(e){throw typeof e!="number"?(console.error(e),1):e}}var A;onmessage=t=>{console.log("\\u{1F7E3} Worker: Received message:",t.data.type);let e=t.data;switch(e.type){case"canUseSharedArrayBuffer":console.log("\\u{1F7E3} Worker: Setting canUseSharedArrayBuffer to:",e.data),P=e.data;break;case"startup":console.log("\\u{1F7E3} Worker: Starting typst initialization"),B(e.data.wasm).then(n=>{console.log("\\u{1F7E3} Worker: typst initialized, creating compiler"),A=new w("",te),console.log("Typst web assembly loaded!"),console.log("\\u{1F7E3} Worker: Sending ready signal"),postMessage({type:"ready"})}).catch(n=>{console.error("\\u{1F534} Worker: typst initialization failed:",n),postMessage({type:"error",error:n.toString()})}),R=e.data.basePath,U=e.data.packagePath,console.log("\\u{1F7E3} Worker: Set basePath:",R,"packagePath:",U);break;case"fonts":console.log("\\u{1F7E3} Worker: Adding fonts, count:",e.data.length),e.data.forEach(n=>A.add_font(new Uint8Array(n)));break;case"compile":if(console.log("\\u{1F7E3} Worker: Compile request, format:",e.data.format),!A){console.error("\\u{1F534} Worker: Compiler not initialized!"),postMessage({error:"Compiler not initialized"});return}try{if(e.data.format=="image"){console.log("\\u{1F7E3} Worker: Compiling to image");let n=e.data,r=A.compile_image(n.source,n.path,n.pixel_per_pt,n.fill,n.size,n.display);console.log("\\u{1F7E3} Worker: Image compilation complete, posting result"),postMessage(r)}else if(e.data.format=="svg"){console.log("\\u{1F7E3} Worker: Compiling to SVG");let n=A.compile_svg(e.data.source,e.data.path);console.log("\\u{1F7E3} Worker: SVG compilation complete, posting result"),postMessage(n)}}catch(n){console.error("\\u{1F534} Worker: Compilation failed:",n),postMessage({error:n.toString()})}break;case"packages":console.log("\\u{1F7E3} Worker: Setting packages, count:",e.data.length),F=e.data;break;default:throw console.error("\\u{1F534} Worker: Unknown message type:",e),e}};console.log("Typst compiler worker loaded!");\n']);
+  let blob = new Blob(['var Z={},o;function j(t){let e=o.__externref_table_alloc();return o.__wbindgen_export_2.set(e,t),e}function D(t,e){try{return t.apply(this,e)}catch(n){let r=j(n);o.__wbindgen_exn_store(r)}}function _(t,e){try{return t.apply(this,e)}catch(n){let r=function(){try{return n instanceof Error?`${n.message}\n\nStack:\n${n.stack}`:n.toString()}catch(i){return"<failed to stringify thrown value>"}}();throw console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:",r),n}}var m=null;function k(){return(m===null||m.byteLength===0)&&(m=new Uint8Array(o.memory.buffer)),m}var S=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0});S.decode();var V=2146435072,v=0;function q(t,e){return v+=e,v>=V&&(S=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0}),S.decode(),v=e),S.decode(k().subarray(t,t+e))}function E(t,e){return t=t>>>0,q(t,e)}var y=null;function $(){return(y===null||y.byteLength===0)&&(y=new Uint8ClampedArray(o.memory.buffer)),y}function N(t,e){return t=t>>>0,$().subarray(t/1,t/1+e)}var l=0,A=new TextEncoder;"encodeInto"in A||(A.encodeInto=function(t,e){let n=A.encode(t);return e.set(n),{read:t.length,written:n.length}});function g(t,e,n){if(typeof t!="string")throw new Error(`expected a string argument, found ${typeof t}`);if(n===void 0){let c=A.encode(t),f=e(c.length,1)>>>0;return k().subarray(f,f+c.length).set(c),l=c.length,f}let r=t.length,i=e(r,1)>>>0,a=k(),s=0;for(;s<r;s++){let c=t.charCodeAt(s);if(c>127)break;a[i+s]=c}if(s!==r){s!==0&&(t=t.slice(s)),i=n(i,r,r=s+t.length*3,1)>>>0;let c=k().subarray(i+s,i+r),f=A.encodeInto(t,c);if(f.read!==t.length)throw new Error("failed to pass whole string");s+=f.written,i=n(i,r,s,1)>>>0}return l=s,i}var u=null;function b(){return(u===null||u.buffer.detached===!0||u.buffer.detached===void 0&&u.buffer!==o.memory.buffer)&&(u=new DataView(o.memory.buffer)),u}function W(t){return t==null}function h(t){if(typeof t!="number")throw new Error(`expected a number argument, found ${typeof t}`)}function G(t){if(typeof t!="boolean")throw new Error(`expected a boolean argument, found ${typeof t}`)}function I(t){let e=o.__wbindgen_export_2.get(t);return o.__externref_table_dealloc(t),e}function X(t,e){let n=e(t.length*1,1)>>>0;return k().set(t,n/1),l=t.length,n}var O=typeof FinalizationRegistry=="undefined"?{register:()=>{},unregister:()=>{}}:new FinalizationRegistry(t=>o.__wbg_compiler_free(t>>>0,1)),w=class{__destroy_into_raw(){let e=this.__wbg_ptr;return this.__wbg_ptr=0,O.unregister(this),e}free(){let e=this.__destroy_into_raw();o.__wbg_compiler_free(e,0)}constructor(e,n){let r=g(e,o.__wbindgen_malloc,o.__wbindgen_realloc),i=l,a=o.compiler_new(r,i,n);return this.__wbg_ptr=a>>>0,O.register(this,this.__wbg_ptr,this),this}compile_image(e,n,r,i,a,s){if(this.__wbg_ptr==0)throw new Error("Attempt to use a moved value");h(this.__wbg_ptr);let c=g(e,o.__wbindgen_malloc,o.__wbindgen_realloc),f=l,M=g(n,o.__wbindgen_malloc,o.__wbindgen_realloc),T=l,d=g(i,o.__wbindgen_malloc,o.__wbindgen_realloc),L=l;h(a),G(s);let C=o.compiler_compile_image(this.__wbg_ptr,c,f,M,T,r,d,L,a,s);if(C[2])throw I(C[1]);return I(C[0])}compile_svg(e,n){let r,i;try{if(this.__wbg_ptr==0)throw new Error("Attempt to use a moved value");h(this.__wbg_ptr);let c=g(e,o.__wbindgen_malloc,o.__wbindgen_realloc),f=l,M=g(n,o.__wbindgen_malloc,o.__wbindgen_realloc),T=l,d=o.compiler_compile_svg(this.__wbg_ptr,c,f,M,T);var a=d[0],s=d[1];if(d[3])throw a=0,s=0,I(d[2]);return r=a,i=s,E(a,s)}finally{o.__wbindgen_free(r,i,1)}}add_font(e){if(this.__wbg_ptr==0)throw new Error("Attempt to use a moved value");h(this.__wbg_ptr);let n=X(e,o.__wbindgen_malloc),r=l;o.compiler_add_font(this.__wbg_ptr,n,r)}};Symbol.dispose&&(w.prototype[Symbol.dispose]=w.prototype.free);var Y=new Set(["basic","cors","default"]);async function H(t,e){if(typeof Response=="function"&&t instanceof Response){if(typeof WebAssembly.instantiateStreaming=="function")try{return await WebAssembly.instantiateStreaming(t,e)}catch(r){if(t.ok&&Y.has(t.type)&&t.headers.get("Content-Type")!=="application/wasm")console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\\n",r);else throw r}let n=await t.arrayBuffer();return await WebAssembly.instantiate(n,e)}else{let n=await WebAssembly.instantiate(t,e);return n instanceof WebAssembly.Instance?{instance:n,module:t}:n}}function J(){let t={};return t.wbg={},t.wbg.__wbg_call_a5400b25a865cfd8=function(){return D(function(e,n,r){return e.call(n,r)},arguments)},t.wbg.__wbg_error_7534b8e9a36f1ab4=function(){return _(function(e,n){let r,i;try{r=e,i=n,console.error(E(e,n))}finally{o.__wbindgen_free(r,i,1)}},arguments)},t.wbg.__wbg_getTime_6bb3f64e0f18f817=function(){return _(function(e){return e.getTime()},arguments)},t.wbg.__wbg_getTimezoneOffset_1e3ddc1382e7c8b0=function(){return _(function(e){return e.getTimezoneOffset()},arguments)},t.wbg.__wbg_new0_b0a0a38c201e6df5=function(){return _(function(){return new Date},arguments)},t.wbg.__wbg_new_5a2ae4557f92b50e=function(){return _(function(e){return new Date(e)},arguments)},t.wbg.__wbg_new_8a6f238a6ece86ea=function(){return _(function(){return new Error},arguments)},t.wbg.__wbg_newwithu8clampedarrayandsh_132382d049b78e28=function(){return D(function(e,n,r,i){return new ImageData(N(e,n),r>>>0,i>>>0)},arguments)},t.wbg.__wbg_stack_0ed75d68575b0f3c=function(){return _(function(e,n){let r=n.stack,i=g(r,o.__wbindgen_malloc,o.__wbindgen_realloc),a=l;b().setInt32(e+4*1,a,!0),b().setInt32(e+4*0,i,!0)},arguments)},t.wbg.__wbg_wbindgennumberget_f74b4c7525ac05cb=function(e,n){let r=n,i=typeof r=="number"?r:void 0;W(i)||h(i),b().setFloat64(e+8*1,W(i)?0:i,!0),b().setInt32(e+4*0,!W(i),!0)},t.wbg.__wbg_wbindgenstringget_0f16a6ddddef376f=function(e,n){let r=n,i=typeof r=="string"?r:void 0;var a=W(i)?0:g(i,o.__wbindgen_malloc,o.__wbindgen_realloc),s=l;b().setInt32(e+4*1,s,!0),b().setInt32(e+4*0,a,!0)},t.wbg.__wbg_wbindgenthrow_451ec1a8469d7eb6=function(e,n){throw new Error(E(e,n))},t.wbg.__wbindgen_cast_2241b6af4c4b2941=function(){return _(function(e,n){return E(e,n)},arguments)},t.wbg.__wbindgen_cast_d6cd19b81560fd6e=function(){return _(function(e){return e},arguments)},t.wbg.__wbindgen_init_externref_table=function(){let e=o.__wbindgen_export_2,n=e.grow(4);e.set(0,void 0),e.set(n+0,void 0),e.set(n+1,null),e.set(n+2,!0),e.set(n+3,!1)},t}function K(t,e){return o=t.exports,z.__wbindgen_wasm_module=e,u=null,m=null,y=null,o.__wbindgen_start(),o}async function z(t){if(o!==void 0)return o;typeof t!="undefined"&&(Object.getPrototypeOf(t)===Object.prototype?{module_or_path:t}=t:console.warn("using deprecated parameters for the initialization function; pass a single object instead")),typeof t=="undefined"&&(t=new URL("obsidian_typst_bg.wasm",Z.url));let e=J();(typeof t=="string"||typeof Request=="function"&&t instanceof Request||typeof URL=="function"&&t instanceof URL)&&(t=fetch(t));let{instance:n,module:r}=await H(await t,e);return K(n,r)}var B=z;var P=!1,ee=new TextDecoder,R,U,F=[],x=new XMLHttpRequest;function te(t){try{if(!P){if(t.startsWith("@")){if(F.includes(t.slice(1)))return U+t.slice(1);throw 2}t="http://localhost/_capacitor_file_"+R+"/"+t,x.open("GET",t,!1);try{x.send()}catch(r){throw console.error(r),3}if(x.status==404)throw 2;return x.responseText}let e=new Int32Array(new SharedArrayBuffer(4,{maxByteLength:1e8}));e[0]=0,postMessage({buffer:e,path:t});let n=Atomics.wait(e,0,0);if(e[0]==0)return ee.decode(Uint8Array.from(e.slice(1)));throw e[0]}catch(e){throw typeof e!="number"?(console.error(e),1):e}}var p;onmessage=t=>{console.log("\\u{1F7E3} Worker: Received message:",t.data.type);let e=t.data;switch(e.type){case"canUseSharedArrayBuffer":console.log("\\u{1F7E3} Worker: Setting canUseSharedArrayBuffer to:",e.data),P=e.data;break;case"startup":console.log("\\u{1F7E3} Worker: Starting typst initialization"),B(e.data.wasm).then(n=>{console.log("\\u{1F7E3} Worker: typst initialized, creating compiler"),p=new w("",te),console.log("Typst web assembly loaded!"),console.log("\\u{1F7E3} Worker: Sending ready signal"),postMessage({type:"ready"})}).catch(n=>{console.error("\\u{1F534} Worker: typst initialization failed:",n),postMessage({type:"error",error:n.toString()})}),R=e.data.basePath,U=e.data.packagePath,console.log("\\u{1F7E3} Worker: Set basePath:",R,"packagePath:",U);break;case"fonts":if(console.log("\\u{1F7E3} Worker: Adding fonts, count:",e.data.length),!p){console.warn("\\u{1F7E1} Worker: Compiler not initialized yet, cannot add fonts");break}e.data.forEach(n=>p.add_font(new Uint8Array(n)));break;case"compile":if(console.log("\\u{1F7E3} Worker: Compile request, format:",e.data.format),!p){console.error("\\u{1F534} Worker: Compiler not initialized!"),postMessage({error:"Compiler not initialized"});return}try{if(e.data.format=="image"){console.log("\\u{1F7E3} Worker: Compiling to image");let n=e.data,r=p.compile_image(n.source,n.path,n.pixel_per_pt,n.fill,n.size,n.display);console.log("\\u{1F7E3} Worker: Image compilation complete, posting result"),postMessage(r)}else if(e.data.format=="svg"){console.log("\\u{1F7E3} Worker: Compiling to SVG");let n=p.compile_svg(e.data.source,e.data.path);console.log("\\u{1F7E3} Worker: SVG compilation complete, posting result"),postMessage(n)}}catch(n){console.error("\\u{1F534} Worker: Compilation failed:",n),postMessage({error:n.toString()})}break;case"packages":console.log("\\u{1F7E3} Worker: Setting packages, count:",e.data.length),F=e.data;break;default:throw console.error("\\u{1F534} Worker: Unknown message type:",e),e}};console.log("Typst compiler worker loaded!");\n']);
   let url = URL.createObjectURL(blob);
   let worker = new Worker(url);
   URL.revokeObjectURL(url);
@@ -5767,24 +5767,12 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
         data: true
       });
       this.fs = require("fs");
-      console.log("\u{1F535} TypstForObsidian: Loading system fonts");
-      try {
-        let fonts = await Promise.all(
-          //@ts-expect-error
-          (await window.queryLocalFonts()).filter(
-            (font) => this.settings.fontFamilies.includes(font.family.toLowerCase())
-          ).map(
-            async (font) => await (await font.blob()).arrayBuffer()
-          )
-        );
-        console.log(`\u{1F535} TypstForObsidian: Loaded ${fonts.length} fonts`);
-        this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
-      } catch (error) {
-        console.warn(
-          "\u{1F7E1} TypstForObsidian: Could not load system fonts:",
-          error
-        );
-      }
+      this.compilerWorker.addEventListener("message", (event) => {
+        var _a2;
+        if (((_a2 = event.data) == null ? void 0 : _a2.type) === "ready") {
+          this.loadFonts();
+        }
+      });
     } else {
       await this.app.vault.adapter.mkdir(this.packagePath);
       const packages = await this.getPackageList();
@@ -5802,6 +5790,23 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
       })
     );
     console.log("\u{1F535} TypstForObsidian: onload() completed successfully");
+  }
+  async loadFonts() {
+    console.log("\u{1F535} TypstForObsidian: Loading system fonts");
+    try {
+      let fonts = await Promise.all(
+        //@ts-expect-error
+        (await window.queryLocalFonts()).filter(
+          (font) => this.settings.fontFamilies.includes(font.family.toLowerCase())
+        ).map(
+          async (font) => await (await font.blob()).arrayBuffer()
+        )
+      );
+      console.log(`\u{1F535} TypstForObsidian: Loaded ${fonts.length} fonts`);
+      this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
+    } catch (error) {
+      console.warn("\u{1F7E1} TypstForObsidian: Could not load system fonts:", error);
+    }
   }
   onThemeChange() {
     this.app.workspace.iterateAllLeaves((leaf) => {
@@ -5849,11 +5854,15 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     console.log("\u{1F536} Main: compileToSvg called");
     let finalSource = source;
     if (this.settings.useDefaultLayoutFunctions) {
-      finalSource = this.settings.customLayoutFunctions + "\n" + source;
+      finalSource = this.settings.customLayoutFunctions + "\n" + source + "#linebreak()";
     }
     const textColor = this.getThemeTextColor();
     finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
-    console.log("\u{1F536} Main: Applied layout functions and theme color");
+    const fontSize = this.getCssFontSize();
+    finalSource = finalSource.replace(/%FONTSIZE%/g, fontSize);
+    console.log(
+      "\u{1F536} Main: Applied layout functions, theme color, and font size"
+    );
     const message = {
       type: "compile",
       data: {
@@ -5909,6 +5918,52 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     }
     return "ffffff";
   }
+  getCssFontSize() {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontSize = bodyStyle.getPropertyValue("--font-text-size").trim();
+    if (fontSize) {
+      const pxValue = parseFloat(fontSize.replace("px", ""));
+      const ptValue = pxValue * 0.75;
+      console.log(`\u{1F536} Main: Converted font size ${fontSize} to ${ptValue}pt`);
+      return `${ptValue}pt`;
+    }
+    console.log("\u{1F536} Main: Could not determine font size, using fallback");
+    return "16pt";
+  }
+  // private scaleSvgForDpi(svgString: string): string {
+  //   const dpr = window.devicePixelRatio || 1;
+  //   console.log("🔶 Main: Scaling SVG for devicePixelRatio:", dpr);
+  //   // Parse the SVG to adjust dimensions
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(svgString, "image/svg+xml");
+  //   const svg = doc.documentElement;
+  //   if (svg && svg.tagName === "svg") {
+  //     // Get original dimensions
+  //     const width = svg.getAttribute("width");
+  //     const height = svg.getAttribute("height");
+  //     if (width && height) {
+  //       // Convert pt to px with DPI scaling
+  //       const widthPt = parseFloat(width.replace("pt", ""));
+  //       const heightPt = parseFloat(height.replace("pt", ""));
+  //       // Convert pt to px: 1pt = 4/3 px at 96 DPI, then scale by devicePixelRatio
+  //       const pxPerPt = (4 / 3) * dpr;
+  //       const widthPx = widthPt * pxPerPt;
+  //       const heightPx = heightPt * pxPerPt;
+  //       // Set pixel dimensions and viewBox for crisp rendering
+  //       svg.setAttribute("width", `${widthPx}px`);
+  //       svg.setAttribute("height", `${heightPx}px`);
+  //       svg.setAttribute("viewBox", `0 0 ${widthPt} ${heightPt}`);
+  //       // Ensure crisp rendering
+  //       svg.setAttribute("shape-rendering", "crispEdges");
+  //       svg.setAttribute("text-rendering", "optimizeLegibility");
+  //       console.log(
+  //         `🔶 Main: Scaled SVG from ${widthPt}x${heightPt}pt to ${widthPx}x${heightPx}px`
+  //       );
+  //     }
+  //     return new XMLSerializer().serializeToString(doc);
+  //   }
+  //   return svgString;
+  // }
   async handleWorkerRequest({ buffer: wbuffer, path: path2 }) {
     console.log("\u{1F536} Main: Handling worker request for path:", path2);
     try {
