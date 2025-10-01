@@ -5901,9 +5901,22 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
   }
   async preparePackage(spec) {
     console.log("\u{1F536} Main: Preparing package:", spec);
+    if (import_obsidian8.Platform.isDesktopApp) {
+      let subdir = "/typst/packages/" + spec;
+      let dir = require("path").normalize(this.getDataDir() + subdir);
+      if (this.fs.existsSync(dir)) {
+        console.log("\u{1F536} Main: Found package in data directory:", dir);
+        return dir;
+      }
+      dir = require("path").normalize(this.getCacheDir() + subdir);
+      if (this.fs.existsSync(dir)) {
+        console.log("\u{1F536} Main: Found package in cache directory:", dir);
+        return dir;
+      }
+    }
     const folder = this.packagePath + spec + "/";
     if (await this.app.vault.adapter.exists(folder)) {
-      console.log("\u{1F536} Main: Package exists locally");
+      console.log("\u{1F536} Main: Package exists locally in plugin directory");
       return folder;
     }
     if (spec.startsWith("preview") && this.settings.autoDownloadPackages) {
@@ -5922,6 +5935,34 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     }
     throw 2;
   }
+  getDataDir() {
+    if (import_obsidian8.Platform.isLinux) {
+      if ("XDG_DATA_HOME" in process.env) {
+        return process.env["XDG_DATA_HOME"];
+      } else {
+        return process.env["HOME"] + "/.local/share";
+      }
+    } else if (import_obsidian8.Platform.isWin) {
+      return process.env["APPDATA"];
+    } else if (import_obsidian8.Platform.isMacOS) {
+      return process.env["HOME"] + "/Library/Application Support";
+    }
+    throw "Cannot find data directory on an unknown platform";
+  }
+  getCacheDir() {
+    if (import_obsidian8.Platform.isLinux) {
+      if ("XDG_CACHE_HOME" in process.env) {
+        return process.env["XDG_CACHE_HOME"];
+      } else {
+        return process.env["HOME"] + "/.cache";
+      }
+    } else if (import_obsidian8.Platform.isWin) {
+      return process.env["LOCALAPPDATA"];
+    } else if (import_obsidian8.Platform.isMacOS) {
+      return process.env["HOME"] + "/Library/Caches";
+    }
+    throw "Cannot find cache directory on an unknown platform";
+  }
   async fetchPackage(folder, name, version) {
     console.log("\u{1F536} Main: Fetching package:", name, version);
     const url = `https://packages.typst.org/preview/${name}-${version}.tar.gz`;
@@ -5930,14 +5971,19 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
       throw 2;
     }
     await this.app.vault.adapter.mkdir(folder);
-    const decompressed = decompressSync(new Uint8Array(await response.arrayBuffer()));
+    const decompressed = decompressSync(
+      new Uint8Array(await response.arrayBuffer())
+    );
     const untarrer = (0, import_js_untar2.default)(decompressed.buffer);
     await untarrer.progress(async (file) => {
       if (file.type == "5" && file.name != ".") {
         await this.app.vault.adapter.mkdir(folder + file.name);
       }
       if (file.type === "0") {
-        await this.app.vault.adapter.writeBinary(folder + file.name, file.buffer);
+        await this.app.vault.adapter.writeBinary(
+          folder + file.name,
+          file.buffer
+        );
       }
     });
     console.log("\u{1F536} Main: Package downloaded successfully");

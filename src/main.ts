@@ -259,11 +259,32 @@ export default class TypstForObsidian extends Plugin {
 
   async preparePackage(spec: string): Promise<string | undefined> {
     console.log("🔶 Main: Preparing package:", spec);
+
+    // Check system directories first (for @local packages)
+    if (Platform.isDesktopApp) {
+      let subdir = "/typst/packages/" + spec;
+
+      let dir = require("path").normalize(this.getDataDir() + subdir);
+      if (this.fs.existsSync(dir)) {
+        console.log("🔶 Main: Found package in data directory:", dir);
+        return dir;
+      }
+
+      dir = require("path").normalize(this.getCacheDir() + subdir);
+      if (this.fs.existsSync(dir)) {
+        console.log("🔶 Main: Found package in cache directory:", dir);
+        return dir;
+      }
+    }
+
+    // Check plugin's package directory
     const folder = this.packagePath + spec + "/";
     if (await this.app.vault.adapter.exists(folder)) {
-      console.log("🔶 Main: Package exists locally");
+      console.log("🔶 Main: Package exists locally in plugin directory");
       return folder;
     }
+
+    // Download preview packages
     if (spec.startsWith("preview") && this.settings.autoDownloadPackages) {
       console.log("🔶 Main: Downloading preview package:", spec);
       const [namespace, name, version] = spec.split("/");
@@ -279,6 +300,36 @@ export default class TypstForObsidian extends Plugin {
       }
     }
     throw 2; // Package not found
+  }
+
+  getDataDir() {
+    if (Platform.isLinux) {
+      if ("XDG_DATA_HOME" in process.env) {
+        return process.env["XDG_DATA_HOME"];
+      } else {
+        return process.env["HOME"] + "/.local/share";
+      }
+    } else if (Platform.isWin) {
+      return process.env["APPDATA"];
+    } else if (Platform.isMacOS) {
+      return process.env["HOME"] + "/Library/Application Support";
+    }
+    throw "Cannot find data directory on an unknown platform";
+  }
+
+  getCacheDir() {
+    if (Platform.isLinux) {
+      if ("XDG_CACHE_HOME" in process.env) {
+        return process.env["XDG_CACHE_HOME"];
+      } else {
+        return process.env["HOME"] + "/.cache";
+      }
+    } else if (Platform.isWin) {
+      return process.env["LOCALAPPDATA"];
+    } else if (Platform.isMacOS) {
+      return process.env["HOME"] + "/Library/Caches";
+    }
+    throw "Cannot find cache directory on an unknown platform";
   }
 
   async fetchPackage(folder: string, name: string, version: string) {
