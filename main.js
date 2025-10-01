@@ -5823,12 +5823,19 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
   // Enhanced compilation method that handles WorkerRequests
   async compileToSvg(source, path2 = "/main.typ") {
     console.log("\u{1F536} Main: compileToSvg called");
+    let finalSource = source;
+    if (this.settings.useDefaultLayoutFunctions) {
+      finalSource = this.settings.customLayoutFunctions + "\n" + source;
+    }
+    const textColor = this.getThemeTextColor();
+    finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
+    console.log("\u{1F536} Main: Applied layout functions and theme color");
     const message = {
       type: "compile",
       data: {
         format: "svg",
         path: path2,
-        source
+        source: finalSource
       }
     };
     console.log("\u{1F536} Main: Posting SVG compile message to worker");
@@ -5875,6 +5882,14 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
         throw new Error("Invalid response format");
       }
     }
+  }
+  getThemeTextColor() {
+    const bodyStyle = getComputedStyle(document.body);
+    const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
+    if (textColor) {
+      return textColor.startsWith("#") ? textColor.slice(1) : textColor;
+    }
+    return "ffffff";
   }
   async handleWorkerRequest({ buffer: wbuffer, path: path2 }) {
     console.log("\u{1F536} Main: Handling worker request for path:", path2);

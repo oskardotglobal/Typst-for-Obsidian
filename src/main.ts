@@ -164,12 +164,26 @@ export default class TypstForObsidian extends Plugin {
   ): Promise<string> {
     console.log("🔶 Main: compileToSvg called");
 
+    // Apply styling and layout functions like the old implementation
+    let finalSource = source;
+
+    // Add layout functions if enabled
+    if (this.settings.useDefaultLayoutFunctions) {
+      finalSource = this.settings.customLayoutFunctions + "\n" + source;
+    }
+
+    // Replace %THEMECOLOR% with actual theme text color
+    const textColor = this.getThemeTextColor();
+    finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
+
+    console.log("🔶 Main: Applied layout functions and theme color");
+
     const message = {
       type: "compile",
       data: {
         format: "svg",
         path,
-        source,
+        source: finalSource,
       },
     };
 
@@ -228,6 +242,17 @@ export default class TypstForObsidian extends Plugin {
         throw new Error("Invalid response format");
       }
     }
+  }
+
+  private getThemeTextColor(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
+
+    if (textColor) {
+      return textColor.startsWith("#") ? textColor.slice(1) : textColor;
+    }
+
+    return "ffffff";
   }
 
   async handleWorkerRequest({ buffer: wbuffer, path }: WorkerRequest) {

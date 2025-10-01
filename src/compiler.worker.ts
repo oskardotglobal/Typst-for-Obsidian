@@ -32,7 +32,7 @@ function requestData(path: string): string {
       }
       return xhr.responseText;
     }
-    // @ts-expect-error
+    // @ts-ignore
     let buffer = new Int32Array(
       new SharedArrayBuffer(4, { maxByteLength: 1e8 })
     );
