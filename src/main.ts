@@ -260,7 +260,7 @@ export default class TypstForObsidian extends Plugin {
         // Then quantize for pixel-perfect rendering
 
         // Then quantize (optional, but helps)
-        const processedSvg = this.quantizeSVG(result, 0.5);
+        const processedSvg = this.quantizeSVG(result, 0.05);
         return processedSvg;
         // return result;
         // const optimizedSvg = this.optimizeSvgForDisplay(result);
