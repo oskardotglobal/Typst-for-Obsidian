@@ -584,61 +584,6 @@ var TypstEditor = class {
 };
 
 // node_modules/pdfjs-dist/build/pdf.mjs
-var pdf_exports = {};
-__export(pdf_exports, {
-  AbortException: () => AbortException,
-  AnnotationEditorLayer: () => AnnotationEditorLayer,
-  AnnotationEditorParamsType: () => AnnotationEditorParamsType,
-  AnnotationEditorType: () => AnnotationEditorType,
-  AnnotationEditorUIManager: () => AnnotationEditorUIManager,
-  AnnotationLayer: () => AnnotationLayer,
-  AnnotationMode: () => AnnotationMode,
-  AnnotationType: () => AnnotationType,
-  ColorPicker: () => ColorPicker,
-  DOMSVGFactory: () => DOMSVGFactory,
-  DrawLayer: () => DrawLayer,
-  FeatureTest: () => util_FeatureTest,
-  GlobalWorkerOptions: () => GlobalWorkerOptions,
-  ImageKind: () => util_ImageKind,
-  InvalidPDFException: () => InvalidPDFException,
-  MathClamp: () => MathClamp,
-  OPS: () => OPS,
-  OutputScale: () => OutputScale,
-  PDFDataRangeTransport: () => PDFDataRangeTransport,
-  PDFDateString: () => PDFDateString,
-  PDFWorker: () => PDFWorker,
-  PasswordResponses: () => PasswordResponses,
-  PermissionFlag: () => PermissionFlag,
-  PixelsPerInch: () => PixelsPerInch,
-  RenderingCancelledException: () => RenderingCancelledException,
-  ResponseException: () => ResponseException,
-  SignatureExtractor: () => SignatureExtractor,
-  SupportedImageMimeTypes: () => SupportedImageMimeTypes,
-  TextLayer: () => TextLayer,
-  TouchManager: () => TouchManager,
-  Util: () => Util,
-  VerbosityLevel: () => VerbosityLevel,
-  XfaLayer: () => XfaLayer,
-  build: () => build,
-  createValidAbsoluteUrl: () => createValidAbsoluteUrl,
-  fetchData: () => fetchData,
-  getDocument: () => getDocument,
-  getFilenameFromUrl: () => getFilenameFromUrl,
-  getPdfFilenameFromUrl: () => getPdfFilenameFromUrl,
-  getRGB: () => getRGB,
-  getUuid: () => getUuid,
-  getXfaPageViewport: () => getXfaPageViewport,
-  isDataScheme: () => isDataScheme,
-  isPdfFile: () => isPdfFile,
-  isValidExplicitDest: () => isValidExplicitDest,
-  noContextMenu: () => noContextMenu,
-  normalizeUnicode: () => normalizeUnicode,
-  setLayerDimensions: () => setLayerDimensions,
-  shadow: () => shadow,
-  stopEvent: () => stopEvent,
-  updateUrlHash: () => updateUrlHash,
-  version: () => version
-});
 var import_meta = {};
 var __webpack_require__ = {};
 (() => {
@@ -25786,92 +25731,64 @@ var TypstView = class extends import_obsidian.TextFileView {
   }
   async renderPage(pdfDocument, pageNumber, container) {
     try {
+      const isTextItem = (item) => {
+        return typeof item === "object" && "str" in item && "transform" in item;
+      };
       const page = await pdfDocument.getPage(pageNumber);
       const scale = 1.5;
       const viewport = page.getViewport({ scale });
-      console.log(
-        `\u{1F50D} TypstView: Page ${pageNumber} - Scale: ${scale}, PDF Viewport: ${viewport.width}x${viewport.height}`
-      );
-      console.log(
-        `\u{1F50D} TypstView: Container clientWidth: ${container.clientWidth}, offsetWidth: ${container.offsetWidth}`
-      );
       const outputScale = window.devicePixelRatio || 1;
-      console.log(
-        `\u{1F50D} TypstView: OutputScale (devicePixelRatio): ${outputScale}`
-      );
       const pageContainer = container.createDiv("typst-pdf-page");
-      console.log(
-        `\u{1F50D} TypstView: Page container created with class 'typst-pdf-page'`
-      );
+      pageContainer.style.position = "relative";
+      pageContainer.style.width = `${Math.floor(viewport.width)}px`;
+      pageContainer.style.height = `${Math.floor(viewport.height)}px`;
+      pageContainer.style.marginBottom = "20px";
+      pageContainer.style.opacity = "0";
       const canvas = pageContainer.createEl("canvas");
-      const context = canvas.getContext("2d");
       canvas.width = Math.floor(viewport.width * outputScale);
       canvas.height = Math.floor(viewport.height * outputScale);
-      canvas.style.width = Math.floor(viewport.width) + "px";
-      canvas.style.height = Math.floor(viewport.height) + "px";
-      console.log(
-        `\u{1F50D} TypstView: Canvas actual size: ${canvas.width}x${canvas.height}`
-      );
-      console.log(
-        `\u{1F50D} TypstView: Canvas CSS size: ${canvas.style.width} x ${canvas.style.height}`
-      );
-      const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : void 0;
-      const renderContext = {
-        canvasContext: context,
-        transform,
-        viewport,
-        canvas
-      };
-      await page.render(renderContext).promise;
+      canvas.style.width = `${Math.floor(viewport.width)}px`;
+      canvas.style.height = `${Math.floor(viewport.height)}px`;
+      const context = canvas.getContext("2d");
+      await page.render({ canvasContext: context, viewport, canvas }).promise;
+      const textContent = await page.getTextContent();
       const textLayerDiv = pageContainer.createDiv("textLayer");
       textLayerDiv.style.position = "absolute";
-      textLayerDiv.style.left = "0";
       textLayerDiv.style.top = "0";
-      textLayerDiv.style.width = Math.floor(viewport.width) + "px";
-      textLayerDiv.style.height = Math.floor(viewport.height) + "px";
+      textLayerDiv.style.left = "0";
+      textLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
+      textLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
       textLayerDiv.style.pointerEvents = "auto";
-      textLayerDiv.style.overflow = "hidden";
-      const textContent = await page.getTextContent();
-      const textLayer = new TextLayer({
-        textContentSource: textContent,
-        container: textLayerDiv,
-        viewport
-      });
-      await textLayer.render();
-      const annotationLayer = pageContainer.createDiv("annotationLayer");
-      annotationLayer.style.position = "absolute";
-      annotationLayer.style.left = "0";
-      annotationLayer.style.top = "0";
-      annotationLayer.style.width = Math.floor(viewport.width) + "px";
-      annotationLayer.style.height = Math.floor(viewport.height) + "px";
-      const annotations = await page.getAnnotations();
-      if (annotations.length > 0) {
-        const { AnnotationLayerBuilder } = pdf_exports;
-        if (AnnotationLayerBuilder) {
-          const annotationLayerBuilder = new AnnotationLayerBuilder({
-            pageDiv: annotationLayer,
-            pdfPage: page,
-            linkService: {
-              getDestinationHash: (dest) => `#${JSON.stringify(dest)}`,
-              getAnchorUrl: (hash) => `#${hash}`,
-              executeNamedAction: (action) => {
-                console.log("Named action:", action);
-              },
-              executeSetOCGState: (action) => {
-                console.log("OCG state:", action);
-              }
-            },
-            renderInteractiveForms: false,
-            viewport
-          });
-          annotationLayerBuilder.render(viewport);
+      textContent.items.forEach((item) => {
+        if (isTextItem(item)) {
+          const span = document.createElement("span");
+          span.textContent = item.str;
+          span.style.transform = `translate(${item.transform[4]}px, ${item.transform[5]}px)`;
+          span.style.fontSize = `${item.height}px`;
+          span.style.whiteSpace = "pre";
+          textLayerDiv.appendChild(span);
         }
-      }
+      });
+      const annotations = await page.getAnnotations();
+      const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
+      annotationLayerDiv.style.position = "absolute";
+      annotationLayerDiv.style.top = "0";
+      annotationLayerDiv.style.left = "0";
+      annotationLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
+      annotationLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
+      annotations.forEach((annotation) => {
+        const div = document.createElement("div");
+        div.className = "annotation";
+        div.style.position = "absolute";
+        div.style.left = `${annotation.rect[0]}px`;
+        div.style.top = `${annotation.rect[1]}px`;
+        div.style.width = `${annotation.rect[2] - annotation.rect[0]}px`;
+        div.style.height = `${annotation.rect[3] - annotation.rect[1]}px`;
+        annotationLayerDiv.appendChild(div);
+      });
+      pageContainer.style.opacity = "1";
     } catch (error) {
-      console.error(
-        `\u{1F534} TypstView: Failed to render page ${pageNumber}:`,
-        error
-      );
+      console.error(`Failed to render page ${pageNumber}:`, error);
     }
   }
   clear() {
@@ -25998,7 +25915,7 @@ var DEFAULT_SETTINGS = {
   customLayoutFunctions: `#set page(
   width: %LINEWIDTH%pt,
   height: auto,
-  margin: (x: 0.5cm, y: 0.5cm),
+  margin: (x: 0.25em, y: 0.25em),
   fill: rgb("%BGCOLOR%")
 )
 

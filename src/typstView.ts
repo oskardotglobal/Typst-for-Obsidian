@@ -2,6 +2,7 @@ import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
 import TypstForObsidian from "./main";
 import * as pdfjsLib from "pdfjs-dist";
+import type { TextItem } from "pdfjs-dist/types/src/display/api";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -259,119 +260,78 @@ export class TypstView extends TextFileView {
     container: HTMLElement
   ): Promise<void> {
     try {
-      const page = await pdfDocument.getPage(pageNumber);
-
-      // Use fixed 1.5 scale as required
-      const scale = 1.5;
-      const viewport = page.getViewport({ scale: scale });
-
-      console.log(
-        `🔍 TypstView: Page ${pageNumber} - Scale: ${scale}, PDF Viewport: ${viewport.width}x${viewport.height}`
-      );
-      console.log(
-        `🔍 TypstView: Container clientWidth: ${container.clientWidth}, offsetWidth: ${container.offsetWidth}`
-      );
-
-      // Support HiDPI screens for sharp rendering
-      const outputScale = window.devicePixelRatio || 1;
-      console.log(
-        `🔍 TypstView: OutputScale (devicePixelRatio): ${outputScale}`
-      );
-
-      // Create page container - let CSS handle sizing
-      const pageContainer = container.createDiv("typst-pdf-page");
-
-      console.log(
-        `🔍 TypstView: Page container created with class 'typst-pdf-page'`
-      );
-
-      // Create canvas
-      const canvas = pageContainer.createEl("canvas");
-      const context = canvas.getContext("2d")!;
-
-      // Set canvas size for HiDPI
-      canvas.width = Math.floor(viewport.width * outputScale);
-      canvas.height = Math.floor(viewport.height * outputScale);
-      canvas.style.width = Math.floor(viewport.width) + "px";
-      canvas.style.height = Math.floor(viewport.height) + "px";
-
-      console.log(
-        `🔍 TypstView: Canvas actual size: ${canvas.width}x${canvas.height}`
-      );
-      console.log(
-        `🔍 TypstView: Canvas CSS size: ${canvas.style.width} x ${canvas.style.height}`
-      );
-
-      // Apply transform for HiDPI rendering
-      const transform =
-        outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : undefined;
-
-      const renderContext = {
-        canvasContext: context,
-        transform: transform,
-        viewport: viewport,
-        canvas: canvas,
+      const isTextItem = (item: TextItem | any): item is TextItem => {
+        return typeof item === "object" && "str" in item && "transform" in item;
       };
 
-      // Render the page
-      await page.render(renderContext).promise;
+      const page = await pdfDocument.getPage(pageNumber);
+      const scale = 1.5;
+      const viewport = page.getViewport({ scale });
+      const outputScale = window.devicePixelRatio || 1;
 
-      // Add text layer for selection
-      const textLayerDiv = pageContainer.createDiv("textLayer");
-      // textLayerDiv.style.position = "absolute";
-      // textLayerDiv.style.left = "0";
-      // textLayerDiv.style.top = "0";
-      // textLayerDiv.style.width = Math.floor(viewport.width) + "px";
-      // textLayerDiv.style.height = Math.floor(viewport.height) + "px";
-      // textLayerDiv.style.pointerEvents = "auto"; // Enable text selection
+      // --- Page container ---
+      const pageContainer = container.createDiv("typst-pdf-page");
+      pageContainer.style.position = "relative";
+      pageContainer.style.width = `${Math.floor(viewport.width)}px`;
+      pageContainer.style.height = `${Math.floor(viewport.height)}px`;
+      pageContainer.style.marginBottom = "20px";
+      pageContainer.style.opacity = "0";
 
+      // --- Canvas rendering ---
+      const canvas = pageContainer.createEl("canvas");
+      canvas.width = Math.floor(viewport.width * outputScale);
+      canvas.height = Math.floor(viewport.height * outputScale);
+      canvas.style.width = `${Math.floor(viewport.width)}px`;
+      canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+      const context = canvas.getContext("2d")!;
+      await page.render({ canvasContext: context, viewport, canvas }).promise;
+
+      // --- Text layer ---
       const textContent = await page.getTextContent();
-      const textLayer = new pdfjsLib.TextLayer({
-        textContentSource: textContent,
-        container: textLayerDiv,
-        viewport: viewport,
+      const textLayerDiv = pageContainer.createDiv("textLayer");
+      textLayerDiv.style.position = "absolute";
+      textLayerDiv.style.top = "0";
+      textLayerDiv.style.left = "0";
+      textLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
+      textLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
+      textLayerDiv.style.pointerEvents = "auto"; // Enable selection
+
+      // Manually render text content
+      textContent.items.forEach((item) => {
+        if (isTextItem(item)) {
+          const span = document.createElement("span");
+          span.textContent = item.str;
+          span.style.transform = `translate(${item.transform[4]}px, ${item.transform[5]}px)`;
+          span.style.fontSize = `${item.height}px`;
+          span.style.whiteSpace = "pre";
+          textLayerDiv.appendChild(span);
+        }
       });
 
-      await textLayer.render();
-
-      // Add annotation layer for links
-      const annotationLayer = pageContainer.createDiv("annotationLayer");
-      annotationLayer.style.position = "absolute";
-      annotationLayer.style.left = "0";
-      annotationLayer.style.top = "0";
-      annotationLayer.style.width = Math.floor(viewport.width) + "px";
-      annotationLayer.style.height = Math.floor(viewport.height) + "px";
-
+      // --- Annotation layer ---
       const annotations = await page.getAnnotations();
+      const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
+      annotationLayerDiv.style.position = "absolute";
+      annotationLayerDiv.style.top = "0";
+      annotationLayerDiv.style.left = "0";
+      annotationLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
+      annotationLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
 
-      if (annotations.length > 0) {
-        const { AnnotationLayerBuilder } = pdfjsLib as any;
+      annotations.forEach((annotation) => {
+        const div = document.createElement("div");
+        div.className = "annotation";
+        div.style.position = "absolute";
+        div.style.left = `${annotation.rect[0]}px`;
+        div.style.top = `${annotation.rect[1]}px`;
+        div.style.width = `${annotation.rect[2] - annotation.rect[0]}px`;
+        div.style.height = `${annotation.rect[3] - annotation.rect[1]}px`;
+        annotationLayerDiv.appendChild(div);
+      });
 
-        if (AnnotationLayerBuilder) {
-          const annotationLayerBuilder = new AnnotationLayerBuilder({
-            pageDiv: annotationLayer,
-            pdfPage: page,
-            linkService: {
-              getDestinationHash: (dest: any) => `#${JSON.stringify(dest)}`,
-              getAnchorUrl: (hash: string) => `#${hash}`,
-              executeNamedAction: (action: string) => {
-                console.log("Named action:", action);
-              },
-              executeSetOCGState: (action: any) => {
-                console.log("OCG state:", action);
-              },
-            },
-            renderInteractiveForms: false,
-            viewport: viewport,
-          });
-          annotationLayerBuilder.render(viewport);
-        }
-      }
+      pageContainer.style.opacity = "1";
     } catch (error) {
-      console.error(
-        `🔴 TypstView: Failed to render page ${pageNumber}:`,
-        error
-      );
+      console.error(`Failed to render page ${pageNumber}:`, error);
     }
   }
 

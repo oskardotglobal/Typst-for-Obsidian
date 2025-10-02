@@ -137,21 +137,17 @@
 .typst-reading-mode {
   padding-top: var(--file-margins);
   padding-bottom: var(--file-margins);
-  max-width: 800px;
+  max-width: var(--file-line-width);
   margin: 0 auto;
-  width: 800px;
+  width: 100%;
   background: var(--background-primary);
   min-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.typst-pdf-page {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  display: block;
+.typst-reading-mode::-webkit-scrollbar {
+  display: none;
 }
 
 .typst-rendered-content {
@@ -183,74 +179,19 @@
   margin-top: 0;
 }
 
-/* PDF Container */
-.typst-reading-mode {
-  overflow-y: auto;
-  height: 100%;
-  background: transparent;
-}
-
-.typst-reading-mode::-webkit-scrollbar {
-  display: none;
-}
-
 .typst-pdf-page {
-  position: relative;
-  margin: 0 auto 20px auto;
-  max-width: 800px;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: block;
+  position: relative;
 }
 
 .typst-pdf-page canvas {
   display: block;
-  max-width: 800px;
+  /* max-width: var(--file-line-width); */
   width: 100%;
-}
-
-.textLayer {
-  position: absolute;
-  text-align: initial;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  opacity: 0.2;
-  line-height: 1;
-  -webkit-text-size-adjust: none;
-  -moz-text-size-adjust: none;
-  text-size-adjust: none;
-  forced-color-adjust: none;
-  max-width: 800px;
-  width: 800px;
-  pointer-events: all;
-}
-
-.textLayer span,
-.textLayer br {
-  color: transparent;
-  position: absolute;
-  white-space: pre;
-  cursor: text;
-  transform-origin: 0% 0%;
-  pointer-events: all; /* Enable selection on spans */
-  max-width: 800px;
-  width: 800px;
-}
-
-.textLayer ::selection {
-  background: rgba(0, 100, 255, 0.3);
-}
-
-.textLayer .highlight {
-  margin: -1px;
-  padding: 1px;
-  background-color: rgba(180, 0, 170, 0.2);
-  border-radius: 4px;
-}
-
-.textLayer br::selection {
-  background: transparent;
 }
 
 .textLayer .highlight {
@@ -280,12 +221,11 @@
   background-color: rgba(0, 100, 0, 0.2);
 }
 
-/* Annotation Layer - for links */
 .annotationLayer {
   position: absolute;
   top: 0;
   left: 0;
-  pointer-events: none;
+  pointer-events: auto; /* allow clicks on links */
 }
 
 .annotationLayer section {
@@ -295,8 +235,8 @@
 }
 
 .annotationLayer .linkAnnotation > a {
+  display: block;
   position: absolute;
-  font-size: 1em;
   top: 0;
   left: 0;
   width: 100%;
