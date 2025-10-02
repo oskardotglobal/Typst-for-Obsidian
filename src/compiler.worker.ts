@@ -1,6 +1,11 @@
 import typstInit, * as typst from "../pkg";
 
-import { CompileImageCommand, CompileSvgCommand, Message } from "src/types";
+import {
+  CompileImageCommand,
+  CompileSvgCommand,
+  CompilePdfCommand,
+  Message,
+} from "src/types";
 
 let canUseSharedArrayBuffer = false;
 
@@ -128,6 +133,12 @@ onmessage = (ev: MessageEvent<Message>) => {
             message.data.path
           );
           console.log("🟣 Worker: SVG compilation complete, posting result");
+          postMessage(result);
+        } else if (message.data.format == "pdf") {
+          console.log("🟣 Worker: Compiling to PDF");
+          const data: CompilePdfCommand = message.data;
+          const result = compiler.compile_pdf(data.source, data.path);
+          console.log("🟣 Worker: PDF compilation complete, posting result");
           postMessage(result);
         }
       } catch (error) {

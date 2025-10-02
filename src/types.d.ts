@@ -14,6 +14,12 @@ export interface CompileSvgCommand {
   path: string;
 }
 
+export interface CompilePdfCommand {
+  format: "pdf";
+  source: string;
+  path: string;
+}
+
 export interface WorkerRequest {
   buffer: Int32Array;
   path: string;

@@ -280,6 +280,129 @@ export default class TypstForObsidian extends Plugin {
     }
   }
 
+  // Enhanced compilation method for PDF that mirrors compileToSvg
+  async compileToPdf(
+    source: string,
+    path: string = "/main.typ"
+  ): Promise<Uint8Array> {
+    console.log("🔶 Main: compileToPdf called");
+
+    // Apply styling and layout functions like the SVG implementation
+    let finalSource = source;
+
+    // Add layout functions if enabled
+    if (this.settings.useDefaultLayoutFunctions) {
+      finalSource = this.settings.customLayoutFunctions + "\n" + source;
+    } else {
+      finalSource = "#set page: (margin: (x: 0.25em, y: 0.25em));" + source;
+    }
+
+    finalSource = finalSource + "#linebreak()\n#linebreak()";
+
+    // Replace %THEMECOLOR% with actual theme text color
+    const textColor = this.getThemeTextColor();
+    finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
+
+    // Replace %FONTSIZE% with actual CSS font size
+    const fontSize = this.getCssFontSize();
+    finalSource = finalSource.replace(/%FONTSIZE%/g, fontSize);
+
+    // Replace %BGCOLOR% with actual theme background color
+    const bgColor = this.getThemeBGColor();
+    finalSource = finalSource.replace(/%BGCOLOR%/g, bgColor);
+
+    const lineWidth = this.getFileLineWidth();
+    finalSource = finalSource.replace(/%LINEWIDTH%/g, this.pxToPt(lineWidth));
+
+    console.log(
+      "🔶 Main: Applied layout functions, theme color, and font size for PDF"
+    );
+
+    const message = {
+      type: "compile",
+      data: {
+        format: "pdf",
+        path,
+        source: finalSource,
+      },
+    };
+
+    console.log("🔶 Main: Posting PDF compile message to worker");
+    this.compilerWorker.postMessage(message);
+
+    while (true) {
+      const result = await new Promise<any>((resolve, reject) => {
+        const listener = (ev: MessageEvent) => {
+          // Ignore ready signals
+          if (ev.data && ev.data.type === "ready") {
+            console.log("🔶 Main: Ignoring ready signal");
+            return; // Don't remove listener, keep waiting
+          }
+
+          remove();
+          resolve(ev.data);
+        };
+
+        const errorListener = (error: ErrorEvent) => {
+          console.error("🔴 Main: Worker error during PDF compile:", error);
+          remove();
+          reject(error);
+        };
+
+        const remove = () => {
+          this.compilerWorker.removeEventListener("message", listener);
+          this.compilerWorker.removeEventListener("error", errorListener);
+        };
+
+        this.compilerWorker.addEventListener("message", listener);
+        this.compilerWorker.addEventListener("error", errorListener);
+      });
+
+      // Handle different response types
+      if (
+        result instanceof Uint8Array ||
+        (result &&
+          result.constructor &&
+          result.constructor.name === "Uint8Array")
+      ) {
+        console.log("🔶 Main: Got PDF bytes result");
+
+        // Quick and dirty: Save PDF to vault
+        try {
+          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+          const pdfPath = `typst-output-${timestamp}.pdf`;
+          await this.app.vault.adapter.writeBinary(pdfPath, result);
+          console.log(`📄 Saved PDF to vault: ${pdfPath}`);
+        } catch (error) {
+          console.error("🔴 Failed to save PDF:", error);
+        }
+
+        return result;
+      } else if (result && result.error) {
+        throw new Error(result.error);
+      } else if (result && result.buffer && result.path) {
+        // This is a WorkerRequest - handle it
+        console.log("🔶 Main: Got WorkerRequest for path:", result.path);
+        await this.handleWorkerRequest(result);
+        // Continue the loop to wait for the next response
+        continue;
+      } else {
+        console.error("🔴 Main: Unexpected PDF response format:", result);
+        throw new Error("Invalid PDF response format");
+      }
+    }
+  }
+
+  private pxToPt(px: string): string {
+    const pxValue = parseFloat(px.replace("px", ""));
+    // Convert for 1.5 scale: 700px container / 1.5 scale = 466.67pt
+    const ptValue = pxValue / 1.5;
+    console.log(
+      `🔍 Main: Converting ${px} → ${pxValue}px → ${ptValue}pt (for 1.5 scale)`
+    );
+    return `${ptValue}`;
+  }
+
   quantizeSVG(svg: string, precision = 0.05) {
     // Regex to match numbers (including decimals and scientific notation)
     const numberRegex = /-?\d+\.?\d*(?:[eE][+-]?\d+)?/g;
@@ -381,6 +504,30 @@ export default class TypstForObsidian extends Plugin {
 
     console.log("🔶 Main: Could not determine font size, using fallback");
     return "16pt"; // fallback
+  }
+
+  private getThemeBGColor(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const bgColor = bodyStyle.getPropertyValue("--background-primary").trim();
+
+    if (bgColor) {
+      return bgColor.startsWith("#") ? bgColor.slice(1) : bgColor;
+    }
+
+    return "ffffff"; // fallback
+  }
+
+  private getFileLineWidth(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const fileLineWidth = bodyStyle
+      .getPropertyValue("--file-line-width")
+      .trim();
+    console.log("🔍 Main: --file-line-width CSS variable:", fileLineWidth);
+    if (fileLineWidth) {
+      return fileLineWidth;
+    }
+    console.log("🔍 Main: Using fallback width: 700");
+    return "700"; // fallback
   }
 
   async handleWorkerRequest({ buffer: wbuffer, path }: WorkerRequest) {

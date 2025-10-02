@@ -39,6 +39,7 @@
     "obsidian": "latest",
     "obsidian-typst": "file:pkg",
     "pako": "^2.1.0",
+    "pdfjs-dist": "^5.4.149",
     "svgo": "^3.0.2",
     "tslib": "^2"
   }

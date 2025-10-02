@@ -77,3 +77,14 @@ pub fn to_image(
 pub fn to_svg(document: Document) -> String {
     typst_svg::svg(&document.pages[0])
 }
+
+pub fn to_pdf(document: Document) -> Result<Vec<u8>, wasm_bindgen::JsValue> {
+    // Use typst_pdf to compile document to PDF bytes with default options
+    // Available fields: ident, timestamp, page_ranges, standards
+    let pdf_options = typst_pdf::PdfOptions::default();
+    
+    match typst_pdf::pdf(&document, &pdf_options) {
+        Ok(pdf_bytes) => Ok(pdf_bytes),
+        Err(e) => Err(wasm_bindgen::JsValue::from_str(&format!("PDF compilation failed: {:?}", e)))
+    }
+}

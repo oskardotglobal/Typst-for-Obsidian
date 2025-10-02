@@ -53,6 +53,12 @@ impl Compiler {
             .map(|document| render::to_svg(document))
     }
 
+    pub fn compile_pdf(&mut self, text: String, path: String) -> Result<Vec<u8>, JsValue> {
+        self.world
+            .compile(text, path)
+            .and_then(|document| render::to_pdf(document))
+    }
+
     pub fn add_font(&mut self, data: Vec<u8>) {
         self.world.add_font(data);
     }

@@ -20,10 +20,10 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
-  width: auto,
+  width: %LINEWIDTH%pt,
   height: auto,
-  margin: (x: 0cm, y: 0cm),
-  fill: none
+  margin: (x: 0.25em, y: 0.25em),
+  fill: rgb("%BGCOLOR%")
 )
 
 #set text(
