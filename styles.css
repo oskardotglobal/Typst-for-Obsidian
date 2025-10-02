@@ -160,9 +160,14 @@
   background: transparent;
   border: none;
   box-shadow: none;
-  max-width: 100%;
+
+  transform-origin: top left;
+
+  /* max-width: 100%; */
   image-rendering: crisp-edges;
   shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .typst-reading-mode svg + svg {

@@ -5854,8 +5854,10 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     console.log("\u{1F536} Main: compileToSvg called");
     let finalSource = source;
     if (this.settings.useDefaultLayoutFunctions) {
-      finalSource = this.settings.customLayoutFunctions + "\n" + source + "#linebreak()";
+      finalSource = this.settings.customLayoutFunctions + "\n" + source;
     }
+    finalSource = finalSource + "#linebreak()\n#linebreak()";
+    console.log(finalSource);
     const textColor = this.getThemeTextColor();
     finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
     const fontSize = this.getCssFontSize();
@@ -5897,7 +5899,8 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
       });
       if (typeof result === "string") {
         console.log("\u{1F536} Main: Got SVG string result, optimizing for display");
-        return result;
+        const processedSvg = this.quantizeSVG(result, 0.5);
+        return processedSvg;
       } else if (result && result.error) {
         throw new Error(result.error);
       } else if (result && result.buffer && result.path) {
@@ -5909,6 +5912,65 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
         throw new Error("Invalid response format");
       }
     }
+  }
+  quantizeSVG(svg, precision = 0.05) {
+    const numberRegex = /-?\d+\.?\d*(?:[eE][+-]?\d+)?/g;
+    const quantize = (num) => {
+      var _a2;
+      const value = parseFloat(num);
+      if (isNaN(value))
+        return num;
+      return (Math.round(value / precision) * precision).toFixed(
+        precision >= 1 ? 0 : ((_a2 = precision.toString().split(".")[1]) == null ? void 0 : _a2.length) || 0
+      );
+    };
+    const coordAttrs = [
+      "x",
+      "y",
+      "x1",
+      "y1",
+      "x2",
+      "y2",
+      "cx",
+      "cy",
+      "r",
+      "rx",
+      "ry",
+      "width",
+      "height",
+      "dx",
+      "dy",
+      "offset"
+    ];
+    const attrPattern = coordAttrs.join("|");
+    const attrRegex = new RegExp(`(${attrPattern})=["']([^"']+)["']`, "g");
+    let result = svg.replace(attrRegex, (match, attr, value) => {
+      const quantized = value.replace(numberRegex, quantize);
+      return `${attr}="${quantized}"`;
+    });
+    result = result.replace(/\bd=["']([^"']+)["']/g, (match, pathData) => {
+      const quantized = pathData.replace(numberRegex, quantize);
+      return `d="${quantized}"`;
+    });
+    result = result.replace(/\bpoints=["']([^"']+)["']/g, (match, points) => {
+      const quantized = points.replace(numberRegex, quantize);
+      return `points="${quantized}"`;
+    });
+    result = result.replace(
+      /\btransform=["']([^"']+)["']/g,
+      (match, transform) => {
+        const quantized = transform.replace(numberRegex, quantize);
+        return `transform="${quantized}"`;
+      }
+    );
+    result = result.replace(/\bstyle=["']([^"']+)["']/g, (match, style) => {
+      const quantized = style.replace(
+        /(stroke-width|font-size):\s*(-?\d+\.?\d*)/g,
+        (m, prop, val) => `${prop}: ${quantize(val)}`
+      );
+      return `style="${quantized}"`;
+    });
+    return result;
   }
   getThemeTextColor() {
     const bodyStyle = getComputedStyle(document.body);
@@ -5930,49 +5992,6 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     console.log("\u{1F536} Main: Could not determine font size, using fallback");
     return "16pt";
   }
-  // private optimizeSvgForDisplay(svgString: string, scaleFactor = 2): string {
-  //   console.log("🔶 Main: Optimizing SVG for display");
-  //   // Parse the SVG
-  //   const parser = new DOMParser();
-  //   const doc = parser.parseFromString(svgString, "image/svg+xml");
-  //   const svg = doc.documentElement;
-  //   if (svg && svg.tagName === "svg") {
-  //     // Get original dimensions in points
-  //     const width = svg.getAttribute("width");
-  //     const height = svg.getAttribute("height");
-  //     if (width && height && width.includes("pt") && height.includes("pt")) {
-  //       const widthPt = parseFloat(width.replace("pt", ""));
-  //       const heightPt = parseFloat(height.replace("pt", ""));
-  //       console.log(
-  //         `🔶 Main: Original SVG dimensions: ${widthPt}x${heightPt}pt`
-  //       );
-  //       // Remove pt units - let CSS handle the sizing
-  //       svg.removeAttribute("width");
-  //       svg.removeAttribute("height");
-  //       // Set viewBox to preserve aspect ratio and allow CSS scaling
-  //       svg.setAttribute("viewBox", `0 0 ${widthPt} ${heightPt}`);
-  //       svg.setAttribute("vector-effect", "non-scaling-stroke");
-  //       // Preserve aspect ratio while allowing flexible sizing
-  //       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-  //       svg.setAttribute("shape-rendering", "geometricPrecision");
-  //       const g = doc.createElementNS("http://www.w3.org/2000/svg", "g");
-  //       while (svg.firstChild) {
-  //         g.appendChild(svg.firstChild);
-  //       }
-  //       g.setAttribute("transform", `scale(${scaleFactor})`);
-  //       svg.appendChild(g);
-  //       // Adjust viewBox to account for scale
-  //       // svg.setAttribute(
-  //       //   "viewBox",
-  //       //   `0 0 ${widthPt * scaleFactor} ${heightPt * scaleFactor}`
-  //       // );
-  //       console.log(
-  //         `🔶 Main: Optimized SVG - removed fixed dimensions, added viewBox`
-  //       );
-  //     }
-  //   }
-  //   return new XMLSerializer().serializeToString(doc);
-  // }
   async handleWorkerRequest({ buffer: wbuffer, path: path2 }) {
     console.log("\u{1F536} Main: Handling worker request for path:", path2);
     try {

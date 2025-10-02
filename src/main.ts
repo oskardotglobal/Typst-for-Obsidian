@@ -193,9 +193,12 @@ export default class TypstForObsidian extends Plugin {
 
     // Add layout functions if enabled
     if (this.settings.useDefaultLayoutFunctions) {
-      finalSource =
-        this.settings.customLayoutFunctions + "\n" + source + "#linebreak()"; // linebreak to make svg not cut off
+      finalSource = this.settings.customLayoutFunctions + "\n" + source;
     }
+
+    finalSource = finalSource + "#linebreak()\n#linebreak()"; // linebreak to make svg not cut off
+
+    console.log(finalSource);
 
     // Replace %THEMECOLOR% with actual theme text color
     const textColor = this.getThemeTextColor();
@@ -253,7 +256,13 @@ export default class TypstForObsidian extends Plugin {
       if (typeof result === "string") {
         console.log("🔶 Main: Got SVG string result, optimizing for display");
         // Optimize SVG for better display rendering
-        return result;
+
+        // Then quantize for pixel-perfect rendering
+
+        // Then quantize (optional, but helps)
+        const processedSvg = this.quantizeSVG(result, 0.5);
+        return processedSvg;
+        // return result;
         // const optimizedSvg = this.optimizeSvgForDisplay(result);
         // return optimizedSvg;
       } else if (result && result.error) {
@@ -269,6 +278,82 @@ export default class TypstForObsidian extends Plugin {
         throw new Error("Invalid response format");
       }
     }
+  }
+
+  quantizeSVG(svg: string, precision = 0.05) {
+    // Regex to match numbers (including decimals and scientific notation)
+    const numberRegex = /-?\d+\.?\d*(?:[eE][+-]?\d+)?/g;
+
+    // Function to round to nearest precision
+    const quantize = (num: string) => {
+      const value = parseFloat(num);
+      if (isNaN(value)) return num;
+      return (Math.round(value / precision) * precision).toFixed(
+        precision >= 1 ? 0 : precision.toString().split(".")[1]?.length || 0
+      );
+    };
+
+    // Attributes that contain coordinate values
+    const coordAttrs = [
+      "x",
+      "y",
+      "x1",
+      "y1",
+      "x2",
+      "y2",
+      "cx",
+      "cy",
+      "r",
+      "rx",
+      "ry",
+      "width",
+      "height",
+      "dx",
+      "dy",
+      "offset",
+    ];
+
+    // Build regex for attributes
+    const attrPattern = coordAttrs.join("|");
+    const attrRegex = new RegExp(`(${attrPattern})=["']([^"']+)["']`, "g");
+
+    // Process attribute values
+    let result = svg.replace(attrRegex, (match, attr, value) => {
+      const quantized = value.replace(numberRegex, quantize);
+      return `${attr}="${quantized}"`;
+    });
+
+    // Process path data (d attribute)
+    result = result.replace(/\bd=["']([^"']+)["']/g, (match, pathData) => {
+      const quantized = pathData.replace(numberRegex, quantize);
+      return `d="${quantized}"`;
+    });
+
+    // Process points attribute (for polyline/polygon)
+    result = result.replace(/\bpoints=["']([^"']+)["']/g, (match, points) => {
+      const quantized = points.replace(numberRegex, quantize);
+      return `points="${quantized}"`;
+    });
+
+    // Process transform attribute
+    result = result.replace(
+      /\btransform=["']([^"']+)["']/g,
+      (match, transform) => {
+        const quantized = transform.replace(numberRegex, quantize);
+        return `transform="${quantized}"`;
+      }
+    );
+
+    // Process style attribute coordinates
+    result = result.replace(/\bstyle=["']([^"']+)["']/g, (match, style) => {
+      const quantized = style.replace(
+        /(stroke-width|font-size):\s*(-?\d+\.?\d*)/g,
+        (m: string, prop: string, val: string) => `${prop}: ${quantize(val)}`
+      );
+      return `style="${quantized}"`;
+    });
+
+    return result;
   }
 
   private getThemeTextColor(): string {
@@ -297,60 +382,6 @@ export default class TypstForObsidian extends Plugin {
     console.log("🔶 Main: Could not determine font size, using fallback");
     return "16pt"; // fallback
   }
-
-  // private optimizeSvgForDisplay(svgString: string, scaleFactor = 2): string {
-  //   console.log("🔶 Main: Optimizing SVG for display");
-
-  //   // Parse the SVG
-  //   const parser = new DOMParser();
-  //   const doc = parser.parseFromString(svgString, "image/svg+xml");
-  //   const svg = doc.documentElement;
-
-  //   if (svg && svg.tagName === "svg") {
-  //     // Get original dimensions in points
-  //     const width = svg.getAttribute("width");
-  //     const height = svg.getAttribute("height");
-
-  //     if (width && height && width.includes("pt") && height.includes("pt")) {
-  //       const widthPt = parseFloat(width.replace("pt", ""));
-  //       const heightPt = parseFloat(height.replace("pt", ""));
-
-  //       console.log(
-  //         `🔶 Main: Original SVG dimensions: ${widthPt}x${heightPt}pt`
-  //       );
-
-  //       // Remove pt units - let CSS handle the sizing
-  //       svg.removeAttribute("width");
-  //       svg.removeAttribute("height");
-
-  //       // Set viewBox to preserve aspect ratio and allow CSS scaling
-  //       svg.setAttribute("viewBox", `0 0 ${widthPt} ${heightPt}`);
-  //       svg.setAttribute("vector-effect", "non-scaling-stroke");
-  //       // Preserve aspect ratio while allowing flexible sizing
-  //       svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-  //       svg.setAttribute("shape-rendering", "geometricPrecision");
-
-  //       const g = doc.createElementNS("http://www.w3.org/2000/svg", "g");
-  //       while (svg.firstChild) {
-  //         g.appendChild(svg.firstChild);
-  //       }
-  //       g.setAttribute("transform", `scale(${scaleFactor})`);
-  //       svg.appendChild(g);
-
-  //       // Adjust viewBox to account for scale
-  //       // svg.setAttribute(
-  //       //   "viewBox",
-  //       //   `0 0 ${widthPt * scaleFactor} ${heightPt * scaleFactor}`
-  //       // );
-
-  //       console.log(
-  //         `🔶 Main: Optimized SVG - removed fixed dimensions, added viewBox`
-  //       );
-  //     }
-  //   }
-
-  //   return new XMLSerializer().serializeToString(doc);
-  // }
 
   async handleWorkerRequest({ buffer: wbuffer, path }: WorkerRequest) {
     console.log("🔶 Main: Handling worker request for path:", path);
