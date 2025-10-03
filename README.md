@@ -1,6 +1,6 @@
 # Typst for Obsidian
 
-Edit and preview [Typst](https://typst.app) documents in [Obsidian](https://obsidian.md).
+A [Typst](https://typst.app) editor integrated directly into [Obsidian](https://obsidian.md), enabling you to create and preview Typst documents seamlessly within your notes. Create `.typ` files, edit with syntax highlighting, and render PDFs that adapt to your Obsidian theme.
 
 ## Features
 
@@ -67,6 +67,12 @@ Configure default page layouts in settings:
 
 _Currently, keyboard shortcuts only work when Obsidian hotkeys for the same hotkey are disabled._
 
+## Installation
+
+1. Download the latest release from the [Releases](https://github.com/k0src/Typst-for-Obsidian/releases) page
+2. Extract `main.js`, `manifest.json`, `styles.css`, and `obsidian_typst_bg.wasm` to your Obsidian plugins folder (`.obsidian/plugins/typst-for-obsidian`)
+3. Enable the plugin in Obsidian settings
+
 ## Development
 
 ### Build
@@ -79,6 +85,28 @@ wasm-pack build --target web --out-dir ../pkg
 cd ..
 npm run build
 ```
+
+## What's Next
+
+- [] Improve performance of PDF rendering
+- [] Incremental rendering while typing (requires reworking the compiler with to be stateful)
+- [] Add more keyboard shortcuts, more robust editor features
+- [] Better syntax highlighting (full grammar)
+- [] Formatter for Typst code
+- [] Polish PDF viewer, fix text layers
+- [] Polish editor UI
+- [] Add support for jumping from PDF to source by clicking on text
+- [] Add backlink support in PDF preview
+- [] Support for more template variables
+- [] Improve error handling and reporting
+- [] Support Typst packages that use WebAssembly modules
+- [] Add more settings for customization
+
+## Known Issues
+
+- Packages that import WebAssembly modules (like CeTZ) do not work, because WASM modules cannot be imported into other WASM modules in the browser
+- Some fonts will not load
+- Returning to scroll position when switching between source and preview modes is jittery
 
 ## Credits
 
