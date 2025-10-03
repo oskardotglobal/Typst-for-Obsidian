@@ -326,6 +326,94 @@ export class TypstView extends TextFileView {
         textLayerDiv.innerHTML.substring(0, 500)
       );
 
+      // Add endOfContent div - official PDF.js solution for selection gaps
+      const endOfContent = textLayerDiv.createDiv("endOfContent");
+      console.log(`✅ Added endOfContent element to prevent selection jumping`);
+
+      // Implement proper PDF.js selection handling
+      let prevRange: Range | null = null;
+
+      const resetEndOfContent = () => {
+        textLayerDiv.append(endOfContent);
+        endOfContent.style.width = "";
+        endOfContent.style.height = "";
+        textLayerDiv.classList.remove("selecting");
+        console.log(`🔄 Reset endOfContent to bottom`);
+      };
+
+      textLayerDiv.addEventListener("mousedown", () => {
+        textLayerDiv.classList.add("selecting");
+        console.log(`🟢 Started selecting`);
+      });
+
+      document.addEventListener("pointerup", () => {
+        resetEndOfContent();
+      });
+
+      document.addEventListener("selectionchange", () => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+          resetEndOfContent();
+          return;
+        }
+
+        // Check if selection is in this text layer
+        const range = selection.getRangeAt(0);
+        if (!range.intersectsNode(textLayerDiv)) {
+          resetEndOfContent();
+          return;
+        }
+
+        textLayerDiv.classList.add("selecting");
+
+        // Move endOfContent element to limit selection jumping
+        // Determine which side of selection is being modified
+        const modifyStart =
+          prevRange &&
+          (range.compareBoundaryPoints(Range.END_TO_END, prevRange) === 0 ||
+            range.compareBoundaryPoints(Range.START_TO_END, prevRange) === 0);
+
+        let anchor = modifyStart ? range.startContainer : range.endContainer;
+        if (anchor.nodeType === Node.TEXT_NODE) {
+          anchor = anchor.parentNode as Node;
+        }
+
+        // If at end of element, move to previous sibling
+        if (!modifyStart && range.endOffset === 0) {
+          let current = anchor as HTMLElement;
+          do {
+            while (!current.previousSibling) {
+              current = current.parentNode as HTMLElement;
+              if (!current || current === textLayerDiv) break;
+            }
+            if (current === textLayerDiv) break;
+            current = current.previousSibling as HTMLElement;
+          } while (current && !current.childNodes.length);
+          anchor = current;
+        }
+
+        // Ensure anchor is valid and reposition endOfContent
+        if (anchor && textLayerDiv.contains(anchor)) {
+          // Set dimensions to match text layer (fills entire layer)
+          endOfContent.style.width = `${viewport.width}px`;
+          endOfContent.style.height = `${viewport.height}px`;
+
+          const anchorParent = (anchor as HTMLElement).parentElement;
+          if (anchorParent && anchorParent.contains(anchor as HTMLElement)) {
+            const insertTarget = modifyStart
+              ? (anchor as HTMLElement)
+              : (anchor as HTMLElement).nextSibling;
+
+            if (insertTarget) {
+              anchorParent.insertBefore(endOfContent, insertTarget);
+              console.log(`📍 Moved endOfContent next to selection anchor`);
+            }
+          }
+        }
+
+        prevRange = range.cloneRange();
+      });
+
       // Check computed styles
       const computedStyle = window.getComputedStyle(textLayerDiv);
       console.log(`🎨 Text layer computed styles:`, {

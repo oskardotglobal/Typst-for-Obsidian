@@ -25762,7 +25762,9 @@ var TypstView = class extends import_obsidian.TextFileView {
       textLayerDiv.style.height = `${viewport.height}px`;
       textLayerDiv.style.overflow = "hidden";
       textLayerDiv.style.lineHeight = "1.0";
-      console.log(`\u{1F3AD} Text layer div created with dimensions: ${viewport.width}x${viewport.height}`);
+      console.log(
+        `\u{1F3AD} Text layer div created with dimensions: ${viewport.width}x${viewport.height}`
+      );
       console.log(`\u{1F527} Creating TextLayer instance...`);
       const textLayer = new TextLayer({
         textContentSource: textContent,
@@ -25779,6 +25781,68 @@ var TypstView = class extends import_obsidian.TextFileView {
         `\u{1F4CA} Text layer HTML:`,
         textLayerDiv.innerHTML.substring(0, 500)
       );
+      const endOfContent = textLayerDiv.createDiv("endOfContent");
+      console.log(`\u2705 Added endOfContent element to prevent selection jumping`);
+      let prevRange = null;
+      const resetEndOfContent = () => {
+        textLayerDiv.append(endOfContent);
+        endOfContent.style.width = "";
+        endOfContent.style.height = "";
+        textLayerDiv.classList.remove("selecting");
+        console.log(`\u{1F504} Reset endOfContent to bottom`);
+      };
+      textLayerDiv.addEventListener("mousedown", () => {
+        textLayerDiv.classList.add("selecting");
+        console.log(`\u{1F7E2} Started selecting`);
+      });
+      document.addEventListener("pointerup", () => {
+        resetEndOfContent();
+      });
+      document.addEventListener("selectionchange", () => {
+        const selection2 = window.getSelection();
+        if (!selection2 || selection2.rangeCount === 0) {
+          resetEndOfContent();
+          return;
+        }
+        const range = selection2.getRangeAt(0);
+        if (!range.intersectsNode(textLayerDiv)) {
+          resetEndOfContent();
+          return;
+        }
+        textLayerDiv.classList.add("selecting");
+        const modifyStart = prevRange && (range.compareBoundaryPoints(Range.END_TO_END, prevRange) === 0 || range.compareBoundaryPoints(Range.START_TO_END, prevRange) === 0);
+        let anchor = modifyStart ? range.startContainer : range.endContainer;
+        if (anchor.nodeType === Node.TEXT_NODE) {
+          anchor = anchor.parentNode;
+        }
+        if (!modifyStart && range.endOffset === 0) {
+          let current = anchor;
+          do {
+            while (!current.previousSibling) {
+              current = current.parentNode;
+              if (!current || current === textLayerDiv)
+                break;
+            }
+            if (current === textLayerDiv)
+              break;
+            current = current.previousSibling;
+          } while (current && !current.childNodes.length);
+          anchor = current;
+        }
+        if (anchor && textLayerDiv.contains(anchor)) {
+          endOfContent.style.width = `${viewport.width}px`;
+          endOfContent.style.height = `${viewport.height}px`;
+          const anchorParent = anchor.parentElement;
+          if (anchorParent && anchorParent.contains(anchor)) {
+            const insertTarget = modifyStart ? anchor : anchor.nextSibling;
+            if (insertTarget) {
+              anchorParent.insertBefore(endOfContent, insertTarget);
+              console.log(`\u{1F4CD} Moved endOfContent next to selection anchor`);
+            }
+          }
+        }
+        prevRange = range.cloneRange();
+      });
       const computedStyle = window.getComputedStyle(textLayerDiv);
       console.log(`\u{1F3A8} Text layer computed styles:`, {
         position: computedStyle.position,
