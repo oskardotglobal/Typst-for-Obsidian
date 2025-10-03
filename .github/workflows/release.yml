@@ -1,0 +1,61 @@
+name: Release Obsidian plugin
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM compiler
+        run: |
+          cd compiler
+          wasm-pack build --target web --out-dir ../pkg
+
+      - name: Build plugin
+        run: |
+          npm install
+          npm run build
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+
+          # Create a zip with all necessary files including WASM
+          mkdir release-files
+          cp main.js manifest.json styles.css release-files/
+          cp -r pkg release-files/
+
+          # Create the release with individual files and a complete zip
+          cd release-files
+          zip -r ../typst-for-obsidian-${tag}.zip .
+          cd ..
+
+          gh release create "$tag" \
+            --title="$tag" \
+            --draft \
+            main.js manifest.json styles.css \
+            typst-for-obsidian-${tag}.zip

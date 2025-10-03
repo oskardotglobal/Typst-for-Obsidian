@@ -4,8 +4,6 @@ import TypstForObsidian from "./main";
 import * as pdfjsLib from "pdfjs-dist";
 import { TextLayer } from "pdfjs-dist";
 import { AnnotationLayer } from "pdfjs-dist";
-import "./pdf_viewer.css";
-// import PDFWorker from 'pdfjs-dist/build/pdf.worker.min.mjs';
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -23,8 +21,6 @@ export class TypstView extends TextFileView {
     super(leaf);
     this.plugin = plugin;
     this.currentMode = plugin.settings.defaultMode;
-
-    // Configure PDF.js worker - use CDN for browser compatibility
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
   }
 
@@ -43,30 +39,10 @@ export class TypstView extends TextFileView {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.addModeIcon();
-    this.applySettings();
   }
 
   onResize(): void {
     super.onResize();
-    this.applySettings();
-  }
-
-  private applySettings(): void {
-    // Apply readable width setting
-    if (this.plugin.settings.editorReadableWidth) {
-      this.containerEl.addClass("typst-readable-width");
-      console.log("🔍 TypstView: Applied typst-readable-width class");
-    } else {
-      this.containerEl.removeClass("typst-readable-width");
-      console.log("🔍 TypstView: Removed typst-readable-width class");
-    }
-
-    // Log CSS variable values
-    const styles = getComputedStyle(document.body);
-    const fileLineWidth = styles.getPropertyValue("--file-line-width").trim();
-    const fileMargins = styles.getPropertyValue("--file-margins").trim();
-    console.log("🔍 TypstView: --file-line-width CSS value:", fileLineWidth);
-    console.log("🔍 TypstView: --file-margins CSS value:", fileMargins);
   }
 
   onClose(): Promise<void> {
@@ -82,11 +58,9 @@ export class TypstView extends TextFileView {
       this.modeIconContainer.addEventListener("click", () => {
         this.toggleMode();
       });
-      this.updateModeIcon();
-      // Prepend to place it before other actions
-      viewActions.prepend(this.modeIconContainer);
 
-      // Add PDF export button after mode toggle
+      this.updateModeIcon();
+      viewActions.prepend(this.modeIconContainer);
       this.addPdfExportButton(viewActions);
     }
   }
@@ -100,7 +74,6 @@ export class TypstView extends TextFileView {
       await this.exportToPdf();
     });
 
-    // Insert after the mode button (which is first)
     if (this.modeIconContainer?.nextSibling) {
       viewActions.insertBefore(
         exportButton,
@@ -118,10 +91,7 @@ export class TypstView extends TextFileView {
     }
 
     try {
-      // Get current content
       const content = this.getViewData();
-
-      // Compile to PDF with export mode
       const pdfData = await this.plugin.compileToPdf(
         content,
         "/main.typ",
@@ -132,14 +102,12 @@ export class TypstView extends TextFileView {
         return;
       }
 
-      // Get the file path and create PDF filename
       const filePath = this.file.path;
       const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
       const baseName = this.file.basename;
       const pdfFileName = `${baseName}.pdf`;
       const pdfPath = folderPath ? `${folderPath}/${pdfFileName}` : pdfFileName;
 
-      // Save PDF to vault
       const arrayBuffer = pdfData.buffer.slice(
         pdfData.byteOffset,
         pdfData.byteOffset + pdfData.byteLength
@@ -179,7 +147,6 @@ export class TypstView extends TextFileView {
   }
 
   private async switchToReadingMode(): Promise<void> {
-    // Save editor state before switching away
     this.saveEditorState();
 
     const pdfData = await this.compile();
@@ -190,13 +157,10 @@ export class TypstView extends TextFileView {
   }
 
   private switchToSourceMode(): void {
-    // Save reading mode state before switching away
     this.saveEditorState();
 
     this.setMode("source");
     this.showSourceMode();
-
-    // Restore editor state after switching back
     this.restoreEditorState();
   }
 
@@ -206,17 +170,12 @@ export class TypstView extends TextFileView {
   }
 
   private async compile(): Promise<Uint8Array | null> {
-    console.log("🟡 TypstView: Starting PDF compile()");
     const content = this.getViewData();
-    console.log("🟡 TypstView: Got content, length:", content.length);
-
-    console.log("🟡 TypstView: Calling plugin's compileToPdf");
     try {
       const result = await this.plugin.compileToPdf(content);
-      console.log("🟡 TypstView: PDF compilation completed successfully");
       return result;
     } catch (error) {
-      console.error("🔴 TypstView: PDF compilation failed:", error);
+      console.error("PDF compilation failed:", error);
       throw error;
     }
   }
@@ -254,7 +213,6 @@ export class TypstView extends TextFileView {
     const pdfData = await this.compile();
 
     if (!pdfData) {
-      // Fall back to source mode
       this.setMode("source");
       this.showSourceMode();
     } else {
@@ -306,7 +264,6 @@ export class TypstView extends TextFileView {
         this.savedEditorState = state;
       }
     } else if (this.currentMode === "reading") {
-      // Save reading mode scroll position
       const contentEl = this.getContentElement();
       if (contentEl) {
         this.savedReadingScrollTop = contentEl.scrollTop;
@@ -316,7 +273,6 @@ export class TypstView extends TextFileView {
 
   private restoreEditorState(): void {
     if (this.savedEditorState && this.typstEditor) {
-      // Use setTimeout to ensure editor is fully rendered
       setTimeout(() => {
         if (this.typstEditor && this.savedEditorState) {
           this.typstEditor.restoreEditorState(this.savedEditorState);
@@ -324,7 +280,6 @@ export class TypstView extends TextFileView {
         }
       }, 0);
     } else if (this.typstEditor) {
-      // If no saved state, just focus
       setTimeout(() => {
         this.typstEditor?.focus();
       }, 0);
@@ -341,11 +296,9 @@ export class TypstView extends TextFileView {
     const readingDiv = contentEl.createDiv("typst-reading-mode");
 
     try {
-      // Load PDF document
       const loadingTask = pdfjsLib.getDocument({ data: pdfData });
       const pdfDocument = await loadingTask.promise;
 
-      // Render each page
       for (
         let pageNumber = 1;
         pageNumber <= pdfDocument.numPages;
@@ -354,7 +307,6 @@ export class TypstView extends TextFileView {
         await this.renderPage(pdfDocument, pageNumber, readingDiv);
       }
 
-      // Restore scroll position after rendering
       if (this.savedReadingScrollTop > 0) {
         setTimeout(() => {
           if (contentEl) {
@@ -373,40 +325,22 @@ export class TypstView extends TextFileView {
     container: HTMLElement
   ): Promise<void> {
     try {
-      console.log(`📄 Starting to render page ${pageNumber}`);
       const page = await pdfDocument.getPage(pageNumber);
       const scale = 1.5;
-
-      // Account for high DPI displays
       const outputScale = window.devicePixelRatio || 1;
       const viewport = page.getViewport({ scale: scale * outputScale });
 
-      console.log(
-        `📐 Viewport: ${viewport.width / outputScale}x${
-          viewport.height / outputScale
-        }px, scale: ${scale}, DPI: ${outputScale}`
-      );
-
-      // --- Page container ---
       const pageContainer = container.createDiv("typst-pdf-page");
       pageContainer.style.position = "relative";
       pageContainer.style.width = `${viewport.width / outputScale}px`;
       pageContainer.style.height = `${viewport.height / outputScale}px`;
       pageContainer.style.marginBottom = "20px";
       pageContainer.style.setProperty("--scale-factor", scale.toString());
-      console.log(
-        `📦 Page container created with dimensions: ${
-          viewport.width / outputScale
-        }x${viewport.height / outputScale}`
-      );
       pageContainer.style.opacity = "0";
 
-      // --- Canvas layer (bottom) ---
       const canvas = pageContainer.createEl("canvas");
-      // Set canvas internal resolution (high DPI)
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
-      // Set display size (CSS pixels)
       canvas.style.display = "block";
       canvas.style.width = `${Math.floor(viewport.width / outputScale)}px`;
       canvas.style.height = `${Math.floor(viewport.height / outputScale)}px`;
@@ -419,20 +353,9 @@ export class TypstView extends TextFileView {
         canvas: canvas,
       };
 
-      console.log(
-        `🎨 Rendering canvas for page ${pageNumber} at ${canvas.width}x${canvas.height} (display: ${canvas.style.width}x${canvas.style.height})...`
-      );
       const renderTask = page.render(renderContext);
       await renderTask.promise;
-      console.log(`✅ Canvas rendered successfully for page ${pageNumber}`);
-
-      // --- Text layer (middle) ---
-      console.log(`📝 Getting text content for page ${pageNumber}...`);
       const textContent = await page.getTextContent();
-      console.log(`📝 Text content retrieved:`, {
-        items: textContent.items.length,
-        styles: Object.keys(textContent.styles || {}).length,
-      });
 
       const textLayerDiv = pageContainer.createDiv("textLayer");
       textLayerDiv.style.position = "absolute";
@@ -447,30 +370,15 @@ export class TypstView extends TextFileView {
       textLayerDiv.style.overflow = "hidden";
       textLayerDiv.style.lineHeight = "1.0";
 
-      console.log(
-        `🎭 Text layer div created with dimensions: ${Math.floor(
-          viewport.width / outputScale
-        )}x${Math.floor(viewport.height / outputScale)}`
-      );
-
-      // Create TextLayer instance using the modern API
-      console.log(`🔧 Creating TextLayer instance...`);
       const textLayer = new TextLayer({
         textContentSource: textContent,
         container: textLayerDiv,
         viewport: viewport,
       });
 
-      console.log(`⚙️ Rendering text layer...`);
       await textLayer.render();
-      console.log(`✅ Text layer rendered successfully`);
-      console.log(
-        `📊 Text layer children count: ${textLayerDiv.children.length}`
-      );
 
-      // --- Annotation layer (top) ---
       const annotations = await page.getAnnotations();
-      console.log(`🔖 Annotations found: ${annotations.length}`);
 
       if (annotations.length > 0) {
         const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
@@ -480,10 +388,7 @@ export class TypstView extends TextFileView {
         annotationLayerDiv.style.right = "0";
         annotationLayerDiv.style.bottom = "0";
 
-        // Clone viewport with dontFlip for annotations
         const annotationViewport = viewport.clone({ dontFlip: true });
-
-        // Create AnnotationLayer instance
         const annotationLayer = new AnnotationLayer({
           div: annotationLayerDiv,
           accessibilityManager: null,
@@ -494,8 +399,6 @@ export class TypstView extends TextFileView {
           structTreeLayer: null,
         });
 
-        console.log(`🔖 Rendering annotation layer...`);
-        // Render with parameters
         await annotationLayer.render({
           viewport: annotationViewport,
           div: annotationLayerDiv,
@@ -514,23 +417,11 @@ export class TypstView extends TextFileView {
           annotationEditorUIManager: undefined,
           structTreeLayer: undefined,
         });
-        console.log(`✅ Annotation layer rendered successfully`);
       }
 
       pageContainer.style.opacity = "1";
-
-      console.log(
-        `🎉 Page ${pageNumber} fully rendered. Final layer structure:`,
-        {
-          pageContainer: pageContainer.className,
-          canvas: !!canvas,
-          textLayer: !!textLayerDiv,
-          textLayerSpans: textLayerDiv.querySelectorAll("span").length,
-          annotationLayer: annotations.length > 0,
-        }
-      );
     } catch (error) {
-      console.error(`❌ Failed to render page ${pageNumber}:`, error);
+      console.error(`Failed to render page ${pageNumber}:`, error);
     }
   }
 

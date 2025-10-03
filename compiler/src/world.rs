@@ -1,42 +1,30 @@
-use std::{
-    borrow::Borrow,
-    collections::HashMap,
-    path::{Path, PathBuf},
-    sync::OnceLock,
-};
+use std::{ borrow::Borrow, collections::HashMap, path::{ Path, PathBuf }, sync::OnceLock };
 
-use chrono::{DateTime, Datelike, Local};
+use chrono::{ DateTime, Datelike, Local };
 use parking_lot::Mutex;
 use send_wrapper::SendWrapper;
 use typst::{
-    diag::{EcoString, FileError, FileResult, PackageError, PackageResult},
-    foundations::{Bytes, Datetime},
+    diag::{ EcoString, FileError, FileResult, PackageError, PackageResult },
+    foundations::{ Bytes, Datetime },
     layout::PagedDocument,
-    syntax::{package::PackageSpec, FileId, Source, VirtualPath},
-    text::{Font, FontBook},
+    syntax::{ package::PackageSpec, FileId, Source, VirtualPath },
+    text::{ Font, FontBook },
     utils::LazyHash,
-    Library, World,
+    Library,
+    World,
 };
 use wasm_bindgen::JsValue;
 
-use crate::{diagnostic::format_diagnostic, file_entry::FileEntry};
+use crate::{ diagnostic::format_diagnostic, file_entry::FileEntry };
 
 pub struct SystemWorld {
-    /// The root relative to which absolute paths are resolved.
     root: PathBuf,
-    /// The input source.
     main: FileId,
-    /// Typst's standard library.
     library: LazyHash<Library>,
-    /// Metadata about discovered fonts.
     book: LazyHash<FontBook>,
-    /// Storage of fonts
     fonts: Vec<Font>,
-
     files: Mutex<HashMap<FileId, FileEntry>>,
-
     now: OnceLock<DateTime<Local>>,
-
     packages: Mutex<HashMap<PackageSpec, PackageResult<PathBuf>>>,
     request_data: SendWrapper<js_sys::Function>,
 }
@@ -62,12 +50,12 @@ impl SystemWorld {
         self.reset();
 
         self.main = FileId::new(None, VirtualPath::new(path));
-        self.files
-            .get_mut()
-            .insert(self.main, FileEntry::new(self.main, text));
-        typst::compile(self)
-            .output
-            .map_err(|errors| format_diagnostic(self.files.get_mut().borrow(), &errors).into())
+        self.files.get_mut().insert(self.main, FileEntry::new(self.main, text));
+        typst
+            ::compile(self)
+            .output.map_err(|errors|
+                format_diagnostic(self.files.get_mut().borrow(), &errors).into()
+            )
     }
 
     pub fn add_font(&mut self, data: Vec<u8>) {
@@ -75,7 +63,7 @@ impl SystemWorld {
         let mut font_infos = Vec::new();
         for font in Font::iter(buffer) {
             font_infos.push(font.info().clone());
-            self.fonts.push(font)
+            self.fonts.push(font);
         }
         if font_infos.len() > 0 {
             for info in font_infos {
@@ -106,11 +94,7 @@ impl SystemWorld {
             }
             FileError::Other(e.as_string().map(EcoString::from))
         };
-        Ok(self
-            .request_data(path.to_str().unwrap().to_owned())
-            .map_err(f)?
-            .as_string()
-            .unwrap())
+        Ok(self.request_data(path.to_str().unwrap().to_owned()).map_err(f)?.as_string().unwrap())
     }
 
     fn prepare_package(&self, spec: &PackageSpec) -> PackageResult<PathBuf> {
@@ -127,22 +111,20 @@ impl SystemWorld {
             .lock()
             .entry(spec.clone())
             .or_insert_with(|| {
-                Ok(self
-                    .request_data(format!(
-                        "@{}/{}/{}",
-                        spec.namespace, spec.name, spec.version
-                    ))
-                    .map_err(f)?
-                    .as_string()
-                    .unwrap()
-                    .into())
+                Ok(
+                    self
+                        .request_data(format!("@{}/{}/{}", spec.namespace, spec.name, spec.version))
+                        .map_err(f)?
+                        .as_string()
+                        .unwrap()
+                        .into()
+                )
             })
             .clone()
     }
 
     fn file_entry<F, T>(&self, id: FileId, f: F) -> FileResult<T>
-    where
-        F: FnOnce(&mut FileEntry) -> T,
+        where F: FnOnce(&mut FileEntry) -> T
     {
         let mut map = self.files.lock();
         if !map.contains_key(&id) {
@@ -151,8 +133,7 @@ impl SystemWorld {
                 None => self.root.clone(),
             };
 
-            let text =
-                self.read_file(&id.vpath().resolve(&path).ok_or(FileError::AccessDenied)?)?;
+            let text = self.read_file(&id.vpath().resolve(&path).ok_or(FileError::AccessDenied)?)?;
 
             map.insert(id, FileEntry::new(id, text));
         }
@@ -211,7 +192,7 @@ impl World for SystemWorld {
         Datetime::from_ymd(
             naive.year(),
             naive.month().try_into().ok()?,
-            naive.day().try_into().ok()?,
+            naive.day().try_into().ok()?
         )
     }
 }

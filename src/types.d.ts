@@ -8,12 +8,6 @@ export interface CompileImageCommand {
   display: boolean;
 }
 
-export interface CompileSvgCommand {
-  format: "svg";
-  source: string;
-  path: string;
-}
-
 export interface CompilePdfCommand {
   format: "pdf";
   source: string;

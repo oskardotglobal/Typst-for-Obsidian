@@ -67,11 +67,8 @@ export class CreateTypstFileModal extends Modal {
     }
 
     try {
-      // Normalize the path and add .typ extension
       const fileName = this.fileName.trim();
       const fullPath = normalizePath(`${fileName}.typ`);
-
-      // Check if file already exists
       const existingFile = this.app.vault.getAbstractFileByPath(fullPath);
       if (existingFile && existingFile instanceof TFile) {
         new Notice("File already exists");
@@ -81,10 +78,7 @@ export class CreateTypstFileModal extends Modal {
         return;
       }
 
-      // Create the new file
       const newFile = await this.app.vault.create(fullPath, "", {});
-
-      // Open the file in a new leaf
       const leaf = this.app.workspace.getLeaf(true);
       leaf.openFile(newFile);
 

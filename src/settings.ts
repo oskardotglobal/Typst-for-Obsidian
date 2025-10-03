@@ -1,10 +1,8 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import TypstForObsidian from "./main";
-import { TypstView } from "./TypstView";
 
 export interface TypstSettings {
   defaultMode: "source" | "reading";
-  editorReadableWidth: boolean;
   useDefaultLayoutFunctions: boolean;
   customLayoutFunctions: string;
   usePdfLayoutFunctions: boolean;
@@ -15,7 +13,6 @@ export interface TypstSettings {
 
 export const DEFAULT_SETTINGS: TypstSettings = {
   defaultMode: "source",
-  editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
   usePdfLayoutFunctions: false,
   autoDownloadPackages: true,
@@ -79,29 +76,10 @@ export class TypstSettingTab extends PluginSettingTab {
           })
       );
 
-    // new Setting(containerEl)
-    //   .setName("Editor readable width")
-    //   .setDesc(
-    //     "When enabled, limits the editor width for better readability and centers it"
-    //   )
-    //   .addToggle((toggle) =>
-    //     toggle
-    //       .setValue(this.plugin.settings.editorReadableWidth)
-    //       .onChange(async (value: boolean) => {
-    //         this.plugin.settings.editorReadableWidth = value;
-    //         await this.plugin.saveSettings();
-    //         this.app.workspace.iterateAllLeaves((leaf) => {
-    //           if (leaf.view instanceof TypstView) {
-    //             leaf.view.onResize();
-    //           }
-    //         });
-    //       })
-    //   );
-
     new Setting(containerEl)
       .setName("Use default layout functions")
       .setDesc(
-        "When enabled, wraps editor content with default page, text, and styling functions."
+        "Wraps editor content with default page, text, and styling functions."
       )
       .addToggle((toggle) =>
         toggle
@@ -123,7 +101,6 @@ export class TypstSettingTab extends PluginSettingTab {
       layoutSetting.addTextArea((text) => {
         textArea = text.inputEl;
         text
-          .setPlaceholder("Enter Typst layout functions...")
           .setValue(this.plugin.settings.customLayoutFunctions)
           .onChange(async (value: string) => {
             this.plugin.settings.customLayoutFunctions = value;
@@ -151,7 +128,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use PDF export layout functions")
       .setDesc(
-        "When enabled, prepends custom layout functions to PDF exports only (not editor preview)."
+        "Prepends custom layout functions to PDF exports only (not editor preview)."
       )
       .addToggle((toggle) =>
         toggle
@@ -173,7 +150,6 @@ export class TypstSettingTab extends PluginSettingTab {
       pdfLayoutSetting.addTextArea((text) => {
         pdfTextArea = text.inputEl;
         text
-          .setPlaceholder("Enter Typst layout functions for PDF export...")
           .setValue(this.plugin.settings.pdfLayoutFunctions)
           .onChange(async (value: string) => {
             this.plugin.settings.pdfLayoutFunctions = value;

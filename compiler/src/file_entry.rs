@@ -1,9 +1,6 @@
 use std::cell::OnceCell;
 
-use typst::{
-    foundations::Bytes,
-    syntax::{FileId, Source},
-};
+use typst::{ foundations::Bytes, syntax::{ FileId, Source } };
 
 pub struct FileEntry {
     bytes: OnceCell<Bytes>,
@@ -23,8 +20,6 @@ impl FileEntry {
     }
 
     pub fn bytes(&self) -> Bytes {
-        self.bytes
-            .get_or_init(|| Bytes::new(self.source.text().as_bytes().to_vec()))
-            .clone()
+        self.bytes.get_or_init(|| Bytes::new(self.source.text().as_bytes().to_vec())).clone()
     }
 }

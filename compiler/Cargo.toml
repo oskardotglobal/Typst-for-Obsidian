@@ -3,7 +3,7 @@ name = "obsidian-typst"
 version = "0.1.0"
 authors = ["k0src"]
 edition = "2021"
-description = "Native-feeling Typst editor for Obsidian."
+description = "A Typst editor integrated into Obsidian, enabling you to create and preview Typst documents seamlessly within your notes."
 readme = "README.md"
 rust-version = "1.72.1"
 
@@ -11,7 +11,6 @@ rust-version = "1.72.1"
 crate-type = ["cdylib"]
 
 [dependencies]
-# Everything to do with Typst
 typst = "0.13"
 typst-render = "0.13"
 typst-svg = "0.13"
@@ -19,7 +18,6 @@ typst-pdf = "0.13"
 typst-assets = {version = "0.13", features = ["fonts"]}
 comemo = "0.4"
 
-# Everything to do with wasm
 wasm-bindgen = "^0.2"
 js-sys = "^0.3"
 wasm-bindgen-futures = "^0.4"

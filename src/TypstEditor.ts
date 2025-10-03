@@ -28,160 +28,38 @@ import {
 import { typst } from "./grammar/typst";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
+import { typstKeywords } from "./util";
 
-// Typst keywords from keywords.txt
-const typstKeywords = [
-  "abs",
-  "acos",
-  "align",
-  "and",
-  "angle",
-  "array",
-  "as",
-  "asin",
-  "assert",
-  "atan",
-  "atan2",
-  "attach",
-  "auto",
-  "bibliography",
-  "binom",
-  "block",
-  "bool",
-  "box",
-  "break",
-  "bytes",
-  "cbrt",
-  "ceil",
-  "cite",
-  "circle",
-  "colbreak",
-  "columns",
-  "content",
-  "context",
-  "continue",
-  "cos",
-  "cosh",
-  "datetime",
-  "dictionary",
-  "dif",
-  "Dif",
-  "document",
-  "duration",
-  "ellipse",
-  "else",
-  "emph",
-  "emoji",
-  "enum",
-  "equation",
-  "eval",
-  "exp",
-  "false",
-  "figure",
-  "float",
-  "floor",
-  "for",
-  "footnote",
-  "frac",
-  "fraction",
-  "function",
-  "gcd",
-  "grid",
-  "h",
-  "hcf",
-  "heading",
-  "highlight",
-  "hypot",
-  "if",
-  "image",
-  "import",
-  "in",
-  "include",
-  "int",
-  "label",
-  "lcm",
-  "length",
-  "let",
-  "line",
-  "link",
-  "list",
-  "log",
-  "lorem",
-  "lower",
-  "mat",
-  "math",
-  "max",
-  "measure",
-  "min",
-  "mod",
-  "module",
-  "move",
-  "none",
-  "not",
-  "numbering",
-  "or",
-  "outline",
-  "overline",
-  "pad",
-  "page",
-  "pagebreak",
-  "panic",
-  "par",
-  "parbreak",
-  "path",
-  "place",
-  "plugin",
-  "polygon",
-  "pow",
-  "quote",
-  "ratio",
-  "raw",
-  "rect",
-  "ref",
-  "regex",
-  "repeat",
-  "repr",
-  "return",
-  "root",
-  "rotate",
-  "round",
-  "scale",
-  "selector",
-  "set",
-  "show",
-  "sin",
-  "sinh",
-  "smallcaps",
-  "smartquote",
-  "sqrt",
-  "square",
-  "stack",
-  "str",
-  "strike",
-  "strong",
-  "sub",
-  "super",
-  "sym",
-  "symbol",
-  "sys",
-  "table",
-  "tan",
-  "tanh",
-  "terms",
-  "text",
-  "true",
-  "trunc",
-  "type",
-  "underline",
-  "upper",
-  "v",
-  "vec",
-  "while",
-  "with",
-  "where",
-];
+function wrapOrInsert(view: EditorView, markers: string): boolean {
+  const { state } = view;
+  const { selection } = state;
+  const changes = selection.ranges.map((range) => {
+    if (range.empty) {
+      return {
+        from: range.from,
+        to: range.to,
+        insert: markers + markers,
+      };
+    } else {
+      const selectedText = state.doc.sliceString(range.from, range.to);
+      return {
+        from: range.from,
+        to: range.to,
+        insert: markers + selectedText + markers,
+      };
+    }
+  });
 
-// Typst autocomplete function
+  view.dispatch({
+    changes,
+    selection: {
+      anchor: selection.main.from + markers.length,
+    },
+  });
+
+  return true;
+}
+
 function typstCompletions(context: CompletionContext) {
   const word = context.matchBefore(/\w*/);
   if (!word || (word.from === word.to && !context.explicit)) {
@@ -253,16 +131,24 @@ export class TypstEditor {
 
       // Key bindings
       keymap.of([
-        // Tab handler: accept completion if open, otherwise indent
         {
           key: "Tab",
           run: (view) => {
             if (completionStatus(view.state) === "active") {
               return acceptCompletion(view);
             }
-            // Fall through to default tab behavior
             return false;
           },
+        },
+        {
+          key: "Mod-b",
+          run: (view) => wrapOrInsert(view, "*"),
+          preventDefault: true,
+        },
+        {
+          key: "Mod-i",
+          run: (view) => wrapOrInsert(view, "_"),
+          preventDefault: true,
         },
         indentWithTab,
         ...completionKeymap,
@@ -271,7 +157,6 @@ export class TypstEditor {
         ...searchKeymap,
       ]),
 
-      // Theme
       ...(isDarkTheme ? [oneDark] : []),
 
       // Update content on changes
@@ -333,13 +218,11 @@ export class TypstEditor {
   }): void {
     if (!this.editorView) return;
 
-    // Restore cursor position
     this.editorView.dispatch({
       selection: { anchor: state.cursorPos },
-      scrollIntoView: false, // We'll handle scroll manually
+      scrollIntoView: false,
     });
 
-    // Restore scroll position
     this.editorView.scrollDOM.scrollTop = state.scrollTop;
   }
 

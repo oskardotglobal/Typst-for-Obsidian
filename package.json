@@ -1,7 +1,7 @@
 {
   "name": "typst-for-obsidian",
   "version": "0.1.0",
-  "description": "Native-feeling Typst editor for Obsidian.",
+  "description": "A Typst editor integrated into Obsidian, enabling you to create and preview Typst documents seamlessly within your notes.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",

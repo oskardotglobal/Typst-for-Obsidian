@@ -34,29 +34,18 @@ impl Compiler {
         pixel_per_pt: f32,
         fill: String,
         size: u32,
-        display: bool,
+        display: bool
     ) -> Result<ImageData, JsValue> {
         let document = self.world.compile(text, path)?;
-        render::to_image(
-            &mut self.resizer,
-            document,
-            pixel_per_pt,
-            fill,
-            size,
-            display,
-        )
+        render::to_image(&mut self.resizer, document, pixel_per_pt, fill, size, display)
     }
 
     pub fn compile_svg(&mut self, text: String, path: String) -> Result<String, JsValue> {
-        self.world
-            .compile(text, path)
-            .map(|document| render::to_svg(document))
+        self.world.compile(text, path).map(|document| render::to_svg(document))
     }
 
     pub fn compile_pdf(&mut self, text: String, path: String) -> Result<Vec<u8>, JsValue> {
-        self.world
-            .compile(text, path)
-            .and_then(|document| render::to_pdf(document))
+        self.world.compile(text, path).and_then(|document| render::to_pdf(document))
     }
 
     pub fn add_font(&mut self, data: Vec<u8>) {

@@ -1,4 +1,4 @@
-import { App, Notice, Plugin } from "obsidian";
+import { Notice, Plugin } from "obsidian";
 import { CreateTypstFileModal } from "./modal";
 import { TypstView } from "./TypstView";
 
