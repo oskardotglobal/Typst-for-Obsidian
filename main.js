@@ -156,7 +156,7 @@ __export(main_exports, {
   default: () => TypstForObsidian
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian6 = require("obsidian");
+var import_obsidian7 = require("obsidian");
 
 // src/TypstView.ts
 var import_obsidian2 = require("obsidian");
@@ -26498,17 +26498,176 @@ var TypstSettingTab = class extends import_obsidian5.PluginSettingTab {
   }
 };
 
-// src/compiler.worker.ts
-function inlineWorker() {
-  let blob = new Blob(['var Q={},s;function B(t){let e=s.__externref_table_alloc();return s.__wbindgen_export_2.set(e,t),e}function v(t,e){try{return t.apply(this,e)}catch(n){let r=B(n);s.__wbindgen_exn_store(r)}}var m=null;function w(){return(m===null||m.byteLength===0)&&(m=new Uint8Array(s.memory.buffer)),m}var M=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0});M.decode();var L=2146435072,k=0;function j(t,e){return k+=e,k>=L&&(M=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0}),M.decode(),k=e),M.decode(w().subarray(t,t+e))}function x(t,e){return t=t>>>0,j(t,e)}var y=null;function q(){return(y===null||y.byteLength===0)&&(y=new Uint8ClampedArray(s.memory.buffer)),y}function V(t,e){return t=t>>>0,q().subarray(t/1,t/1+e)}var _=0,h=new TextEncoder;"encodeInto"in h||(h.encodeInto=function(t,e){let n=h.encode(t);return e.set(n),{read:t.length,written:n.length}});function l(t,e,n){if(n===void 0){let a=h.encode(t),f=e(a.length,1)>>>0;return w().subarray(f,f+a.length).set(a),_=a.length,f}let r=t.length,o=e(r,1)>>>0,c=w(),i=0;for(;i<r;i++){let a=t.charCodeAt(i);if(a>127)break;c[o+i]=a}if(i!==r){i!==0&&(t=t.slice(i)),o=n(o,r,r=i+t.length*3,1)>>>0;let a=w().subarray(o+i,o+r),f=h.encodeInto(t,a);i+=f.written,o=n(o,r,i,1)>>>0}return _=i,o}var d=null;function u(){return(d===null||d.buffer.detached===!0||d.buffer.detached===void 0&&d.buffer!==s.memory.buffer)&&(d=new DataView(s.memory.buffer)),d}function W(t){return t==null}function A(t){let e=s.__wbindgen_export_2.get(t);return s.__externref_table_dealloc(t),e}function N(t,e){return t=t>>>0,w().subarray(t/1,t/1+e)}function X(t,e){let n=e(t.length*1,1)>>>0;return w().set(t,n/1),_=t.length,n}var I=typeof FinalizationRegistry=="undefined"?{register:()=>{},unregister:()=>{}}:new FinalizationRegistry(t=>s.__wbg_compiler_free(t>>>0,1)),p=class{__destroy_into_raw(){let e=this.__wbg_ptr;return this.__wbg_ptr=0,I.unregister(this),e}free(){let e=this.__destroy_into_raw();s.__wbg_compiler_free(e,0)}constructor(e,n){let r=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),o=_,c=s.compiler_new(r,o,n);return this.__wbg_ptr=c>>>0,I.register(this,this.__wbg_ptr,this),this}compile_image(e,n,r,o,c,i){let a=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),f=_,E=l(n,s.__wbindgen_malloc,s.__wbindgen_realloc),S=_,g=l(o,s.__wbindgen_malloc,s.__wbindgen_realloc),z=_,C=s.compiler_compile_image(this.__wbg_ptr,a,f,E,S,r,g,z,c,i);if(C[2])throw A(C[1]);return A(C[0])}compile_svg(e,n){let r,o;try{let a=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),f=_,E=l(n,s.__wbindgen_malloc,s.__wbindgen_realloc),S=_,g=s.compiler_compile_svg(this.__wbg_ptr,a,f,E,S);var c=g[0],i=g[1];if(g[3])throw c=0,i=0,A(g[2]);return r=c,o=i,x(c,i)}finally{s.__wbindgen_free(r,o,1)}}compile_pdf(e,n){let r=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),o=_,c=l(n,s.__wbindgen_malloc,s.__wbindgen_realloc),i=_,a=s.compiler_compile_pdf(this.__wbg_ptr,r,o,c,i);if(a[3])throw A(a[2]);var f=N(a[0],a[1]).slice();return s.__wbindgen_free(a[0],a[1]*1,1),f}add_font(e){let n=X(e,s.__wbindgen_malloc),r=_;s.compiler_add_font(this.__wbg_ptr,n,r)}};Symbol.dispose&&(p.prototype[Symbol.dispose]=p.prototype.free);var Y=new Set(["basic","cors","default"]);async function G(t,e){if(typeof Response=="function"&&t instanceof Response){if(typeof WebAssembly.instantiateStreaming=="function")try{return await WebAssembly.instantiateStreaming(t,e)}catch(r){if(t.ok&&Y.has(t.type)&&t.headers.get("Content-Type")!=="application/wasm")console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\\n",r);else throw r}let n=await t.arrayBuffer();return await WebAssembly.instantiate(n,e)}else{let n=await WebAssembly.instantiate(t,e);return n instanceof WebAssembly.Instance?{instance:n,module:t}:n}}function H(){let t={};return t.wbg={},t.wbg.__wbg_call_a5400b25a865cfd8=function(){return v(function(e,n,r){return e.call(n,r)},arguments)},t.wbg.__wbg_error_7534b8e9a36f1ab4=function(e,n){let r,o;try{r=e,o=n,console.error(x(e,n))}finally{s.__wbindgen_free(r,o,1)}},t.wbg.__wbg_getTime_6bb3f64e0f18f817=function(e){return e.getTime()},t.wbg.__wbg_getTimezoneOffset_1e3ddc1382e7c8b0=function(e){return e.getTimezoneOffset()},t.wbg.__wbg_new0_b0a0a38c201e6df5=function(){return new Date},t.wbg.__wbg_new_5a2ae4557f92b50e=function(e){return new Date(e)},t.wbg.__wbg_new_8a6f238a6ece86ea=function(){return new Error},t.wbg.__wbg_newwithu8clampedarrayandsh_132382d049b78e28=function(){return v(function(e,n,r,o){return new ImageData(V(e,n),r>>>0,o>>>0)},arguments)},t.wbg.__wbg_stack_0ed75d68575b0f3c=function(e,n){let r=n.stack,o=l(r,s.__wbindgen_malloc,s.__wbindgen_realloc),c=_;u().setInt32(e+4*1,c,!0),u().setInt32(e+4*0,o,!0)},t.wbg.__wbg_wbindgennumberget_f74b4c7525ac05cb=function(e,n){let r=n,o=typeof r=="number"?r:void 0;u().setFloat64(e+8*1,W(o)?0:o,!0),u().setInt32(e+4*0,!W(o),!0)},t.wbg.__wbg_wbindgenstringget_0f16a6ddddef376f=function(e,n){let r=n,o=typeof r=="string"?r:void 0;var c=W(o)?0:l(o,s.__wbindgen_malloc,s.__wbindgen_realloc),i=_;u().setInt32(e+4*1,i,!0),u().setInt32(e+4*0,c,!0)},t.wbg.__wbg_wbindgenthrow_451ec1a8469d7eb6=function(e,n){throw new Error(x(e,n))},t.wbg.__wbindgen_cast_2241b6af4c4b2941=function(e,n){return x(e,n)},t.wbg.__wbindgen_cast_d6cd19b81560fd6e=function(e){return e},t.wbg.__wbindgen_init_externref_table=function(){let e=s.__wbindgen_export_2,n=e.grow(4);e.set(0,void 0),e.set(n+0,void 0),e.set(n+1,null),e.set(n+2,!0),e.set(n+3,!1)},t}function J(t,e){return s=t.exports,U.__wbindgen_wasm_module=e,d=null,m=null,y=null,s.__wbindgen_start(),s}async function U(t){if(s!==void 0)return s;typeof t!="undefined"&&(Object.getPrototypeOf(t)===Object.prototype?{module_or_path:t}=t:console.warn("using deprecated parameters for the initialization function; pass a single object instead")),typeof t=="undefined"&&(t=new URL("obsidian_typst_bg.wasm",Q.url));let e=H();(typeof t=="string"||typeof Request=="function"&&t instanceof Request||typeof URL=="function"&&t instanceof URL)&&(t=fetch(t));let{instance:n,module:r}=await G(await t,e);return J(n,r)}var D=U;var R=!1,Z=new TextDecoder,O,F,P=[],T=new XMLHttpRequest;function $(t){try{if(!R){if(t.startsWith("@")){if(P.includes(t.slice(1)))return F+t.slice(1);throw 2}t="http://localhost/_capacitor_file_"+O+"/"+t,T.open("GET",t,!1);try{T.send()}catch(r){throw console.error(r),3}if(T.status==404)throw 2;return T.responseText}let e=new Int32Array(new SharedArrayBuffer(4,{maxByteLength:1e8}));e[0]=0,postMessage({buffer:e,path:t});let n=Atomics.wait(e,0,0);if(e[0]==0)return Z.decode(Uint8Array.from(e.slice(1)));throw e[0]}catch(e){throw typeof e!="number"?(console.error(e),1):e}}var b;onmessage=t=>{let e=t.data;switch(e.type){case"canUseSharedArrayBuffer":R=e.data;break;case"startup":D(e.data.wasm).then(n=>{b=new p("",$),postMessage({type:"ready"})}).catch(n=>{postMessage({type:"error",error:n.toString()})}),O=e.data.basePath,F=e.data.packagePath;break;case"fonts":if(!b)break;e.data.forEach(n=>b.add_font(new Uint8Array(n)));break;case"compile":if(!b){postMessage({error:"Compiler not initialized"});return}try{if(e.data.format=="image"){let n=e.data,r=b.compile_image(n.source,n.path,n.pixel_per_pt,n.fill,n.size,n.display);postMessage(r)}else if(e.data.format=="svg"){let n=b.compile_svg(e.data.source,e.data.path);postMessage(n)}else if(e.data.format=="pdf"){let n=e.data,r=b.compile_pdf(n.source,n.path);postMessage(r)}}catch(n){postMessage({error:n.toString()})}break;case"packages":P=e.data;break;default:throw console.error("Worker: Unknown message type:",e),e}};\n']);
-  let url = URL.createObjectURL(blob);
-  let worker = new Worker(url);
-  URL.revokeObjectURL(url);
-  return worker;
-}
+// src/TemplateVariableProvider.ts
+var TemplateVariableProvider = class {
+  replaceVariables(source) {
+    return source.replace(/%THEMECOLOR%/g, this.getThemeTextColor()).replace(/%FONTSIZE%/g, this.getCssFontSize()).replace(/%BGCOLOR%/g, this.getThemeBGColor()).replace(/%FONTTEXT%/g, this.getFontText()).replace(/%FONTMONOSPACE%/g, this.getFontMonospace()).replace(/%LINEWIDTH%/g, this.getFileLineWidth()).replace(/%ACCENTCOLOR%/g, this.getAccentColor()).replace(/%FAINTCOLOR%/g, this.getFaintColor()).replace(/%MUTEDCOLOR%/g, this.getMutedColor()).replace(/%BGPRIMARY%/g, this.getBackgroundPrimary()).replace(/%BGPRIMARYALT%/g, this.getBackgroundPrimaryAlt()).replace(/%BGSECONDARY%/g, this.getBackgroundSecondary()).replace(/%BGSECONDARYALT%/g, this.getBackgroundSecondaryAlt()).replace(/%SUCCESSCOLOR%/g, this.getSuccessColor()).replace(/%WARNINGCOLOR%/g, this.getWarningColor()).replace(/%ERRORCOLOR%/g, this.getErrorColor()).replace(/%HEADINGCOLOR%/g, this.getHeadingColor());
+  }
+  cssColorToHex(color) {
+    if (color.startsWith("#")) {
+      return color.slice(1);
+    }
+    const rgbMatch = color.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/
+    );
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1]);
+      const g = parseInt(rgbMatch[2]);
+      const b = parseInt(rgbMatch[3]);
+      const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+      return toHex(r) + toHex(g) + toHex(b);
+    }
+    const hslMatch = color.match(
+      /hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/
+    );
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360;
+      const s = parseInt(hslMatch[2]) / 100;
+      const l = parseInt(hslMatch[3]) / 100;
+      const hslToRgb = (h2, s2, l2) => {
+        let r, g, b;
+        if (s2 === 0) {
+          r = g = b = l2;
+        } else {
+          const hue2rgb = (p2, q2, t2) => {
+            if (t2 < 0)
+              t2 += 1;
+            if (t2 > 1)
+              t2 -= 1;
+            if (t2 < 1 / 6)
+              return p2 + (q2 - p2) * 6 * t2;
+            if (t2 < 1 / 2)
+              return q2;
+            if (t2 < 2 / 3)
+              return p2 + (q2 - p2) * (2 / 3 - t2) * 6;
+            return p2;
+          };
+          const q = l2 < 0.5 ? l2 * (1 + s2) : l2 + s2 - l2 * s2;
+          const p = 2 * l2 - q;
+          r = hue2rgb(p, q, h2 + 1 / 3);
+          g = hue2rgb(p, q, h2);
+          b = hue2rgb(p, q, h2 - 1 / 3);
+        }
+        const toHex = (x) => {
+          const hex = Math.round(x * 255).toString(16);
+          return hex.length === 1 ? "0" + hex : hex;
+        };
+        return toHex(r) + toHex(g) + toHex(b);
+      };
+      return hslToRgb(h, s, l);
+    }
+    try {
+      const tempEl = document.createElement("div");
+      tempEl.style.color = color;
+      document.body.appendChild(tempEl);
+      const computed = getComputedStyle(tempEl).color;
+      document.body.removeChild(tempEl);
+      return this.cssColorToHex(computed);
+    } catch (e) {
+      console.warn("Failed to convert color:", color, e);
+      return "ffffff";
+    }
+  }
+  getCssVariable(variableName, fallback = "000000") {
+    const bodyStyle = getComputedStyle(document.body);
+    const value = bodyStyle.getPropertyValue(variableName).trim();
+    if (value) {
+      if (variableName.includes("color") || variableName.includes("background") || variableName.includes("text-")) {
+        return this.cssColorToHex(value);
+      }
+      return value;
+    }
+    return fallback;
+  }
+  getThemeTextColor() {
+    const bodyStyle = getComputedStyle(document.body);
+    const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
+    if (textColor) {
+      return this.cssColorToHex(textColor);
+    }
+    return "ffffff";
+  }
+  getCssFontSize() {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontSize = bodyStyle.getPropertyValue("--font-text-size").trim();
+    if (fontSize) {
+      const pxValue = parseFloat(fontSize.replace("px", ""));
+      const ptValue = pxValue * 0.75;
+      return `${ptValue}pt`;
+    }
+    return "16pt";
+  }
+  getThemeBGColor() {
+    const bodyStyle = getComputedStyle(document.body);
+    const bgColor = bodyStyle.getPropertyValue("--background-primary").trim();
+    if (bgColor) {
+      return this.cssColorToHex(bgColor);
+    }
+    return "ffffff";
+  }
+  getFileLineWidth() {
+    const bodyStyle = getComputedStyle(document.body);
+    const fileLineWidth = bodyStyle.getPropertyValue("--file-line-width").trim();
+    if (fileLineWidth) {
+      return fileLineWidth.replace("px", "");
+    }
+    return "700";
+  }
+  getAccentColor() {
+    return this.getCssVariable("--text-accent", "ffffff");
+  }
+  getFaintColor() {
+    return this.getCssVariable("--text-faint", "888888");
+  }
+  getMutedColor() {
+    return this.getCssVariable("--text-muted", "999999");
+  }
+  getBackgroundPrimary() {
+    return this.getCssVariable("--background-primary", "ffffff");
+  }
+  getBackgroundPrimaryAlt() {
+    return this.getCssVariable("--background-primary-alt", "f5f5f5");
+  }
+  getBackgroundSecondary() {
+    return this.getCssVariable("--background-secondary", "f0f0f0");
+  }
+  getBackgroundSecondaryAlt() {
+    return this.getCssVariable("--background-secondary-alt", "e8e8e8");
+  }
+  getSuccessColor() {
+    return this.getCssVariable("--text-success", "00ff00");
+  }
+  getWarningColor() {
+    return this.getCssVariable("--text-warning", "ffaa00");
+  }
+  getErrorColor() {
+    return this.getCssVariable("--text-error", "ff0000");
+  }
+  getFontText() {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontText = bodyStyle.getPropertyValue("--font-text").trim();
+    return fontText || "sans-serif";
+  }
+  getFontMonospace() {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontMono = bodyStyle.getPropertyValue("--font-monospace").trim();
+    return fontMono || "monospace";
+  }
+  getHeadingColor() {
+    const bodyStyle = getComputedStyle(document.body);
+    const headingColor = bodyStyle.getPropertyValue("--text-heading").trim() || bodyStyle.getPropertyValue("--text-normal").trim();
+    if (headingColor) {
+      return this.cssColorToHex(headingColor);
+    }
+    return this.getThemeTextColor();
+  }
+};
 
-// src/main.ts
-var import_js_untar = __toESM(require_untar());
+// src/PackageManager.ts
+var import_obsidian6 = require("obsidian");
 
 // node_modules/fflate/esm/browser.js
 var u8 = Uint8Array;
@@ -26909,20 +27068,137 @@ try {
 } catch (e) {
 }
 
+// src/PackageManager.ts
+var import_js_untar = __toESM(require_untar());
+var PackageManager = class {
+  constructor(plugin) {
+    this.plugin = plugin;
+    if (import_obsidian6.Platform.isDesktopApp) {
+      this.fs = require("fs");
+    }
+  }
+  async preparePackage(spec) {
+    if (import_obsidian6.Platform.isDesktopApp) {
+      let subdir = "/typst/packages/" + spec;
+      let dir = require("path").normalize(this.getDataDir() + subdir);
+      if (this.fs.existsSync(dir)) {
+        return dir;
+      }
+      dir = require("path").normalize(this.getCacheDir() + subdir);
+      if (this.fs.existsSync(dir)) {
+        return dir;
+      }
+    }
+    const folder = this.plugin.packagePath + spec + "/";
+    if (await this.plugin.app.vault.adapter.exists(folder)) {
+      return folder;
+    }
+    if (spec.startsWith("preview") && this.plugin.settings.autoDownloadPackages) {
+      const [namespace, name, version2] = spec.split("/");
+      try {
+        await this.fetchPackage(folder, name, version2);
+        return folder;
+      } catch (e) {
+        if (e == 2) {
+          throw e;
+        }
+        console.error(e);
+        throw 3;
+      }
+    }
+    throw 2;
+  }
+  async fetchPackage(folder, name, version2) {
+    console.log("Fetching package:", name, version2);
+    const url = `https://packages.typst.org/preview/${name}-${version2}.tar.gz`;
+    const response = await fetch(url);
+    if (response.status == 404) {
+      throw 2;
+    }
+    await this.plugin.app.vault.adapter.mkdir(folder);
+    const decompressed = decompressSync(
+      new Uint8Array(await response.arrayBuffer())
+    );
+    const untarrer = (0, import_js_untar.untar)(decompressed.buffer);
+    await untarrer.progress(async (file) => {
+      if (file.type == "5" && file.name != ".") {
+        await this.plugin.app.vault.adapter.mkdir(folder + file.name);
+      }
+      if (file.type === "0") {
+        await this.plugin.app.vault.adapter.writeBinary(
+          folder + file.name,
+          file.buffer
+        );
+      }
+    });
+  }
+  async getFileString(path) {
+    try {
+      if (import_obsidian6.Platform.isDesktopApp && require("path").isAbsolute(path)) {
+        return await this.fs.promises.readFile(path, { encoding: "utf8" });
+      } else {
+        return await this.plugin.app.vault.adapter.read((0, import_obsidian6.normalizePath)(path));
+      }
+    } catch (error) {
+      console.error("Failed to read file:", path, error);
+      throw 2;
+    }
+  }
+  getDataDir() {
+    if (import_obsidian6.Platform.isLinux) {
+      if ("XDG_DATA_HOME" in process.env) {
+        return process.env["XDG_DATA_HOME"];
+      } else {
+        return process.env["HOME"] + "/.local/share";
+      }
+    } else if (import_obsidian6.Platform.isWin) {
+      return process.env["APPDATA"];
+    } else if (import_obsidian6.Platform.isMacOS) {
+      return process.env["HOME"] + "/Library/Application Support";
+    }
+    throw "Cannot find data directory on an unknown platform";
+  }
+  getCacheDir() {
+    if (import_obsidian6.Platform.isLinux) {
+      if ("XDG_CACHE_HOME" in process.env) {
+        return process.env["XDG_CACHE_HOME"];
+      } else {
+        return process.env["HOME"] + "/.cache";
+      }
+    } else if (import_obsidian6.Platform.isWin) {
+      return process.env["LOCALAPPDATA"];
+    } else if (import_obsidian6.Platform.isMacOS) {
+      return process.env["HOME"] + "/Library/Caches";
+    }
+    throw "Cannot find cache directory on an unknown platform";
+  }
+};
+
+// src/compiler.worker.ts
+function inlineWorker() {
+  let blob = new Blob(['var Q={},s;function B(t){let e=s.__externref_table_alloc();return s.__wbindgen_export_2.set(e,t),e}function v(t,e){try{return t.apply(this,e)}catch(n){let r=B(n);s.__wbindgen_exn_store(r)}}var m=null;function w(){return(m===null||m.byteLength===0)&&(m=new Uint8Array(s.memory.buffer)),m}var M=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0});M.decode();var L=2146435072,k=0;function j(t,e){return k+=e,k>=L&&(M=new TextDecoder("utf-8",{ignoreBOM:!0,fatal:!0}),M.decode(),k=e),M.decode(w().subarray(t,t+e))}function x(t,e){return t=t>>>0,j(t,e)}var y=null;function q(){return(y===null||y.byteLength===0)&&(y=new Uint8ClampedArray(s.memory.buffer)),y}function V(t,e){return t=t>>>0,q().subarray(t/1,t/1+e)}var _=0,h=new TextEncoder;"encodeInto"in h||(h.encodeInto=function(t,e){let n=h.encode(t);return e.set(n),{read:t.length,written:n.length}});function l(t,e,n){if(n===void 0){let a=h.encode(t),f=e(a.length,1)>>>0;return w().subarray(f,f+a.length).set(a),_=a.length,f}let r=t.length,o=e(r,1)>>>0,c=w(),i=0;for(;i<r;i++){let a=t.charCodeAt(i);if(a>127)break;c[o+i]=a}if(i!==r){i!==0&&(t=t.slice(i)),o=n(o,r,r=i+t.length*3,1)>>>0;let a=w().subarray(o+i,o+r),f=h.encodeInto(t,a);i+=f.written,o=n(o,r,i,1)>>>0}return _=i,o}var d=null;function u(){return(d===null||d.buffer.detached===!0||d.buffer.detached===void 0&&d.buffer!==s.memory.buffer)&&(d=new DataView(s.memory.buffer)),d}function W(t){return t==null}function A(t){let e=s.__wbindgen_export_2.get(t);return s.__externref_table_dealloc(t),e}function N(t,e){return t=t>>>0,w().subarray(t/1,t/1+e)}function X(t,e){let n=e(t.length*1,1)>>>0;return w().set(t,n/1),_=t.length,n}var I=typeof FinalizationRegistry=="undefined"?{register:()=>{},unregister:()=>{}}:new FinalizationRegistry(t=>s.__wbg_compiler_free(t>>>0,1)),p=class{__destroy_into_raw(){let e=this.__wbg_ptr;return this.__wbg_ptr=0,I.unregister(this),e}free(){let e=this.__destroy_into_raw();s.__wbg_compiler_free(e,0)}constructor(e,n){let r=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),o=_,c=s.compiler_new(r,o,n);return this.__wbg_ptr=c>>>0,I.register(this,this.__wbg_ptr,this),this}compile_image(e,n,r,o,c,i){let a=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),f=_,E=l(n,s.__wbindgen_malloc,s.__wbindgen_realloc),S=_,g=l(o,s.__wbindgen_malloc,s.__wbindgen_realloc),z=_,C=s.compiler_compile_image(this.__wbg_ptr,a,f,E,S,r,g,z,c,i);if(C[2])throw A(C[1]);return A(C[0])}compile_svg(e,n){let r,o;try{let a=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),f=_,E=l(n,s.__wbindgen_malloc,s.__wbindgen_realloc),S=_,g=s.compiler_compile_svg(this.__wbg_ptr,a,f,E,S);var c=g[0],i=g[1];if(g[3])throw c=0,i=0,A(g[2]);return r=c,o=i,x(c,i)}finally{s.__wbindgen_free(r,o,1)}}compile_pdf(e,n){let r=l(e,s.__wbindgen_malloc,s.__wbindgen_realloc),o=_,c=l(n,s.__wbindgen_malloc,s.__wbindgen_realloc),i=_,a=s.compiler_compile_pdf(this.__wbg_ptr,r,o,c,i);if(a[3])throw A(a[2]);var f=N(a[0],a[1]).slice();return s.__wbindgen_free(a[0],a[1]*1,1),f}add_font(e){let n=X(e,s.__wbindgen_malloc),r=_;s.compiler_add_font(this.__wbg_ptr,n,r)}};Symbol.dispose&&(p.prototype[Symbol.dispose]=p.prototype.free);var Y=new Set(["basic","cors","default"]);async function G(t,e){if(typeof Response=="function"&&t instanceof Response){if(typeof WebAssembly.instantiateStreaming=="function")try{return await WebAssembly.instantiateStreaming(t,e)}catch(r){if(t.ok&&Y.has(t.type)&&t.headers.get("Content-Type")!=="application/wasm")console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\\n",r);else throw r}let n=await t.arrayBuffer();return await WebAssembly.instantiate(n,e)}else{let n=await WebAssembly.instantiate(t,e);return n instanceof WebAssembly.Instance?{instance:n,module:t}:n}}function H(){let t={};return t.wbg={},t.wbg.__wbg_call_a5400b25a865cfd8=function(){return v(function(e,n,r){return e.call(n,r)},arguments)},t.wbg.__wbg_error_7534b8e9a36f1ab4=function(e,n){let r,o;try{r=e,o=n,console.error(x(e,n))}finally{s.__wbindgen_free(r,o,1)}},t.wbg.__wbg_getTime_6bb3f64e0f18f817=function(e){return e.getTime()},t.wbg.__wbg_getTimezoneOffset_1e3ddc1382e7c8b0=function(e){return e.getTimezoneOffset()},t.wbg.__wbg_new0_b0a0a38c201e6df5=function(){return new Date},t.wbg.__wbg_new_5a2ae4557f92b50e=function(e){return new Date(e)},t.wbg.__wbg_new_8a6f238a6ece86ea=function(){return new Error},t.wbg.__wbg_newwithu8clampedarrayandsh_132382d049b78e28=function(){return v(function(e,n,r,o){return new ImageData(V(e,n),r>>>0,o>>>0)},arguments)},t.wbg.__wbg_stack_0ed75d68575b0f3c=function(e,n){let r=n.stack,o=l(r,s.__wbindgen_malloc,s.__wbindgen_realloc),c=_;u().setInt32(e+4*1,c,!0),u().setInt32(e+4*0,o,!0)},t.wbg.__wbg_wbindgennumberget_f74b4c7525ac05cb=function(e,n){let r=n,o=typeof r=="number"?r:void 0;u().setFloat64(e+8*1,W(o)?0:o,!0),u().setInt32(e+4*0,!W(o),!0)},t.wbg.__wbg_wbindgenstringget_0f16a6ddddef376f=function(e,n){let r=n,o=typeof r=="string"?r:void 0;var c=W(o)?0:l(o,s.__wbindgen_malloc,s.__wbindgen_realloc),i=_;u().setInt32(e+4*1,i,!0),u().setInt32(e+4*0,c,!0)},t.wbg.__wbg_wbindgenthrow_451ec1a8469d7eb6=function(e,n){throw new Error(x(e,n))},t.wbg.__wbindgen_cast_2241b6af4c4b2941=function(e,n){return x(e,n)},t.wbg.__wbindgen_cast_d6cd19b81560fd6e=function(e){return e},t.wbg.__wbindgen_init_externref_table=function(){let e=s.__wbindgen_export_2,n=e.grow(4);e.set(0,void 0),e.set(n+0,void 0),e.set(n+1,null),e.set(n+2,!0),e.set(n+3,!1)},t}function J(t,e){return s=t.exports,U.__wbindgen_wasm_module=e,d=null,m=null,y=null,s.__wbindgen_start(),s}async function U(t){if(s!==void 0)return s;typeof t!="undefined"&&(Object.getPrototypeOf(t)===Object.prototype?{module_or_path:t}=t:console.warn("using deprecated parameters for the initialization function; pass a single object instead")),typeof t=="undefined"&&(t=new URL("obsidian_typst_bg.wasm",Q.url));let e=H();(typeof t=="string"||typeof Request=="function"&&t instanceof Request||typeof URL=="function"&&t instanceof URL)&&(t=fetch(t));let{instance:n,module:r}=await G(await t,e);return J(n,r)}var D=U;var R=!1,Z=new TextDecoder,O,F,P=[],T=new XMLHttpRequest;function $(t){try{if(!R){if(t.startsWith("@")){if(P.includes(t.slice(1)))return F+t.slice(1);throw 2}t="http://localhost/_capacitor_file_"+O+"/"+t,T.open("GET",t,!1);try{T.send()}catch(r){throw console.error(r),3}if(T.status==404)throw 2;return T.responseText}let e=new Int32Array(new SharedArrayBuffer(4,{maxByteLength:1e8}));e[0]=0,postMessage({buffer:e,path:t});let n=Atomics.wait(e,0,0);if(e[0]==0)return Z.decode(Uint8Array.from(e.slice(1)));throw e[0]}catch(e){throw typeof e!="number"?(console.error(e),1):e}}var b;onmessage=t=>{let e=t.data;switch(e.type){case"canUseSharedArrayBuffer":R=e.data;break;case"startup":D(e.data.wasm).then(n=>{b=new p("",$),postMessage({type:"ready"})}).catch(n=>{postMessage({type:"error",error:n.toString()})}),O=e.data.basePath,F=e.data.packagePath;break;case"fonts":if(!b)break;e.data.forEach(n=>b.add_font(new Uint8Array(n)));break;case"compile":if(!b){postMessage({error:"Compiler not initialized"});return}try{if(e.data.format=="image"){let n=e.data,r=b.compile_image(n.source,n.path,n.pixel_per_pt,n.fill,n.size,n.display);postMessage(r)}else if(e.data.format=="svg"){let n=b.compile_svg(e.data.source,e.data.path);postMessage(n)}else if(e.data.format=="pdf"){let n=e.data,r=b.compile_pdf(n.source,n.path);postMessage(r)}}catch(n){postMessage({error:n.toString()})}break;case"packages":P=e.data;break;default:throw console.error("Worker: Unknown message type:",e),e}};\n']);
+  let url = URL.createObjectURL(blob);
+  let worker = new Worker(url);
+  URL.revokeObjectURL(url);
+  return worker;
+}
+
 // src/main.ts
-var TypstForObsidian = class extends import_obsidian6.Plugin {
+var TypstForObsidian = class extends import_obsidian7.Plugin {
   async onload() {
     this.textEncoder = new TextEncoder();
+    this.templateProvider = new TemplateVariableProvider();
     await this.loadSettings();
     this.pluginPath = this.app.vault.configDir + `/plugins/${pluginId}/`;
     this.packagePath = this.pluginPath + "packages/";
     this.wasmPath = this.pluginPath + "obsidian_typst_bg.wasm";
+    this.packageManager = new PackageManager(this);
     this.compilerWorker = new inlineWorker();
     if (!await this.app.vault.adapter.exists(this.wasmPath)) {
       try {
         await this.fetchWasm();
       } catch (error) {
-        new import_obsidian6.Notice("Failed to fetch component: " + error, 0);
+        new import_obsidian7.Notice("Failed to fetch component: " + error, 0);
         console.error("Failed to fetch component: " + error);
       }
     }
@@ -26939,7 +27215,7 @@ var TypstForObsidian = class extends import_obsidian6.Plugin {
         packagePath: this.packagePath
       }
     });
-    if (import_obsidian6.Platform.isDesktopApp) {
+    if (import_obsidian7.Platform.isDesktopApp) {
       this.compilerWorker.postMessage({
         type: "canUseSharedArrayBuffer",
         data: true
@@ -26956,7 +27232,7 @@ var TypstForObsidian = class extends import_obsidian6.Plugin {
       const packages = await this.getPackageList();
       this.compilerWorker.postMessage({ type: "packages", data: packages });
     }
-    (0, import_obsidian6.addIcon)("typst-file", TypstIcon);
+    (0, import_obsidian7.addIcon)("typst-file", TypstIcon);
     this.registerExtensions(["typ"], "typst-view");
     this.registerView("typst-view", (leaf) => new TypstView(leaf, this));
     registerCommands(this);
@@ -27035,51 +27311,7 @@ var TypstForObsidian = class extends import_obsidian6.Plugin {
     if (compileType === "internal") {
       finalSource = finalSource + "#linebreak()\n#linebreak()";
     }
-    finalSource = finalSource.replace(
-      /%THEMECOLOR%/g,
-      this.getThemeTextColor()
-    );
-    finalSource = finalSource.replace(/%FONTSIZE%/g, this.getCssFontSize());
-    finalSource = finalSource.replace(/%BGCOLOR%/g, this.getThemeBGColor());
-    finalSource = finalSource.replace(
-      /%LINEWIDTH%/g,
-      this.pxToPt(this.getFileLineWidth())
-    );
-    finalSource = finalSource.replace(/%ACCENTCOLOR%/g, this.getAccentColor());
-    finalSource = finalSource.replace(/%FAINTCOLOR%/g, this.getFaintColor());
-    finalSource = finalSource.replace(/%MUTEDCOLOR%/g, this.getMutedColor());
-    finalSource = finalSource.replace(
-      /%BGPRIMARY%/g,
-      this.getBackgroundPrimary()
-    );
-    finalSource = finalSource.replace(
-      /%BGPRIMARYALT%/g,
-      this.getBackgroundPrimaryAlt()
-    );
-    finalSource = finalSource.replace(
-      /%BGSECONDARY%/g,
-      this.getBackgroundSecondary()
-    );
-    finalSource = finalSource.replace(
-      /%BGSECONDARYALT%/g,
-      this.getBackgroundSecondaryAlt()
-    );
-    finalSource = finalSource.replace(
-      /%SUCCESSCOLOR%/g,
-      this.getSuccessColor()
-    );
-    finalSource = finalSource.replace(
-      /%WARNINGCOLOR%/g,
-      this.getWarningColor()
-    );
-    finalSource = finalSource.replace(/%ERRORCOLOR%/g, this.getErrorColor());
-    finalSource = finalSource.replace(
-      /%HEADINGCOLOR%/g,
-      this.getHeadingColor()
-    );
-    finalSource = finalSource.replace(/%FONTTEXT%/g, this.getFontText());
-    finalSource = finalSource.replace(/%FONTMONO%/g, this.getFontMonospace());
-    finalSource = finalSource.replace(/%BORDERWIDTH%/g, this.getBorderWidth());
+    finalSource = this.templateProvider.replaceVariables(finalSource);
     const message = {
       type: "compile",
       data: {
@@ -27123,180 +27355,9 @@ var TypstForObsidian = class extends import_obsidian6.Plugin {
       }
     }
   }
-  pxToPt(px) {
-    const pxValue = parseFloat(px.replace("px", ""));
-    const ptValue = pxValue / 1.5;
-    return `${ptValue}`;
-  }
-  cssColorToHex(color) {
-    if (color.startsWith("#")) {
-      return color.slice(1);
-    }
-    const rgbMatch = color.match(
-      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/
-    );
-    if (rgbMatch) {
-      const r = parseInt(rgbMatch[1]);
-      const g = parseInt(rgbMatch[2]);
-      const b = parseInt(rgbMatch[3]);
-      const toHex = (n) => {
-        const hex = n.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-      };
-      return toHex(r) + toHex(g) + toHex(b);
-    }
-    const hslMatch = color.match(
-      /hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/
-    );
-    if (hslMatch) {
-      const h = parseInt(hslMatch[1]) / 360;
-      const s = parseInt(hslMatch[2]) / 100;
-      const l = parseInt(hslMatch[3]) / 100;
-      const hslToRgb = (h2, s2, l2) => {
-        let r, g, b;
-        if (s2 === 0) {
-          r = g = b = l2;
-        } else {
-          const hue2rgb = (p2, q2, t2) => {
-            if (t2 < 0)
-              t2 += 1;
-            if (t2 > 1)
-              t2 -= 1;
-            if (t2 < 1 / 6)
-              return p2 + (q2 - p2) * 6 * t2;
-            if (t2 < 1 / 2)
-              return q2;
-            if (t2 < 2 / 3)
-              return p2 + (q2 - p2) * (2 / 3 - t2) * 6;
-            return p2;
-          };
-          const q = l2 < 0.5 ? l2 * (1 + s2) : l2 + s2 - l2 * s2;
-          const p = 2 * l2 - q;
-          r = hue2rgb(p, q, h2 + 1 / 3);
-          g = hue2rgb(p, q, h2);
-          b = hue2rgb(p, q, h2 - 1 / 3);
-        }
-        const toHex = (x) => {
-          const hex = Math.round(x * 255).toString(16);
-          return hex.length === 1 ? "0" + hex : hex;
-        };
-        return toHex(r) + toHex(g) + toHex(b);
-      };
-      return hslToRgb(h, s, l);
-    }
-    try {
-      const tempEl = document.createElement("div");
-      tempEl.style.color = color;
-      document.body.appendChild(tempEl);
-      const computed = getComputedStyle(tempEl).color;
-      document.body.removeChild(tempEl);
-      return this.cssColorToHex(computed);
-    } catch (e) {
-      console.warn("Failed to convert color:", color, e);
-      return "ffffff";
-    }
-  }
-  getThemeTextColor() {
-    const bodyStyle = getComputedStyle(document.body);
-    const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
-    if (textColor) {
-      return this.cssColorToHex(textColor);
-    }
-    return "ffffff";
-  }
-  getCssFontSize() {
-    const bodyStyle = getComputedStyle(document.body);
-    const fontSize = bodyStyle.getPropertyValue("--font-text-size").trim();
-    if (fontSize) {
-      const pxValue = parseFloat(fontSize.replace("px", ""));
-      const ptValue = pxValue * 0.75;
-      return `${ptValue}pt`;
-    }
-    return "16pt";
-  }
-  getThemeBGColor() {
-    const bodyStyle = getComputedStyle(document.body);
-    const bgColor = bodyStyle.getPropertyValue("--background-primary").trim();
-    if (bgColor) {
-      return this.cssColorToHex(bgColor);
-    }
-    return "ffffff";
-  }
-  getFileLineWidth() {
-    const bodyStyle = getComputedStyle(document.body);
-    const fileLineWidth = bodyStyle.getPropertyValue("--file-line-width").trim();
-    if (fileLineWidth) {
-      return fileLineWidth;
-    }
-    return "700";
-  }
-  getCssVariable(variableName, fallback = "000000") {
-    const bodyStyle = getComputedStyle(document.body);
-    const value = bodyStyle.getPropertyValue(variableName).trim();
-    if (value) {
-      if (variableName.includes("color") || variableName.includes("background") || variableName.includes("text-")) {
-        return this.cssColorToHex(value);
-      }
-      return value;
-    }
-    return fallback;
-  }
-  getAccentColor() {
-    return this.getCssVariable("--text-accent", "ffffff");
-  }
-  getFaintColor() {
-    return this.getCssVariable("--text-faint", "888888");
-  }
-  getMutedColor() {
-    return this.getCssVariable("--text-muted", "999999");
-  }
-  getBackgroundPrimary() {
-    return this.getCssVariable("--background-primary", "ffffff");
-  }
-  getBackgroundPrimaryAlt() {
-    return this.getCssVariable("--background-primary-alt", "f5f5f5");
-  }
-  getBackgroundSecondary() {
-    return this.getCssVariable("--background-secondary", "f0f0f0");
-  }
-  getBackgroundSecondaryAlt() {
-    return this.getCssVariable("--background-secondary-alt", "e8e8e8");
-  }
-  getSuccessColor() {
-    return this.getCssVariable("--text-success", "00ff00");
-  }
-  getWarningColor() {
-    return this.getCssVariable("--text-warning", "ffaa00");
-  }
-  getErrorColor() {
-    return this.getCssVariable("--text-error", "ff0000");
-  }
-  getFontText() {
-    const bodyStyle = getComputedStyle(document.body);
-    const fontText = bodyStyle.getPropertyValue("--font-text").trim();
-    return fontText || "sans-serif";
-  }
-  getFontMonospace() {
-    const bodyStyle = getComputedStyle(document.body);
-    const fontMono = bodyStyle.getPropertyValue("--font-monospace").trim();
-    return fontMono || "monospace";
-  }
-  getBorderWidth() {
-    const bodyStyle = getComputedStyle(document.body);
-    const borderWidth = bodyStyle.getPropertyValue("--border-width").trim();
-    return borderWidth || "1px";
-  }
-  getHeadingColor() {
-    const bodyStyle = getComputedStyle(document.body);
-    const headingColor = bodyStyle.getPropertyValue("--text-heading").trim() || bodyStyle.getPropertyValue("--text-normal").trim();
-    if (headingColor) {
-      return this.cssColorToHex(headingColor);
-    }
-    return this.getThemeTextColor();
-  }
   async handleWorkerRequest({ buffer: wbuffer, path }) {
     try {
-      const text = await (path.startsWith("@") ? this.preparePackage(path.slice(1)) : this.getFileString(path));
+      const text = await (path.startsWith("@") ? this.packageManager.preparePackage(path.slice(1)) : this.packageManager.getFileString(path));
       if (text) {
         let buffer = Int32Array.from(this.textEncoder.encode(text));
         if (wbuffer.byteLength < buffer.byteLength + 4) {
@@ -27314,101 +27375,6 @@ var TypstForObsidian = class extends import_obsidian6.Plugin {
       }
     } finally {
       Atomics.notify(wbuffer, 0);
-    }
-  }
-  async preparePackage(spec) {
-    if (import_obsidian6.Platform.isDesktopApp) {
-      let subdir = "/typst/packages/" + spec;
-      let dir = require("path").normalize(this.getDataDir() + subdir);
-      if (this.fs.existsSync(dir)) {
-        return dir;
-      }
-      dir = require("path").normalize(this.getCacheDir() + subdir);
-      if (this.fs.existsSync(dir)) {
-        return dir;
-      }
-    }
-    const folder = this.packagePath + spec + "/";
-    if (await this.app.vault.adapter.exists(folder)) {
-      return folder;
-    }
-    if (spec.startsWith("preview") && this.settings.autoDownloadPackages) {
-      const [namespace, name, version2] = spec.split("/");
-      try {
-        await this.fetchPackage(folder, name, version2);
-        return folder;
-      } catch (e) {
-        if (e == 2) {
-          throw e;
-        }
-        console.error(e);
-        throw 3;
-      }
-    }
-    throw 2;
-  }
-  getDataDir() {
-    if (import_obsidian6.Platform.isLinux) {
-      if ("XDG_DATA_HOME" in process.env) {
-        return process.env["XDG_DATA_HOME"];
-      } else {
-        return process.env["HOME"] + "/.local/share";
-      }
-    } else if (import_obsidian6.Platform.isWin) {
-      return process.env["APPDATA"];
-    } else if (import_obsidian6.Platform.isMacOS) {
-      return process.env["HOME"] + "/Library/Application Support";
-    }
-    throw "Cannot find data directory on an unknown platform";
-  }
-  getCacheDir() {
-    if (import_obsidian6.Platform.isLinux) {
-      if ("XDG_CACHE_HOME" in process.env) {
-        return process.env["XDG_CACHE_HOME"];
-      } else {
-        return process.env["HOME"] + "/.cache";
-      }
-    } else if (import_obsidian6.Platform.isWin) {
-      return process.env["LOCALAPPDATA"];
-    } else if (import_obsidian6.Platform.isMacOS) {
-      return process.env["HOME"] + "/Library/Caches";
-    }
-    throw "Cannot find cache directory on an unknown platform";
-  }
-  async fetchPackage(folder, name, version2) {
-    console.log("Fetching package:", name, version2);
-    const url = `https://packages.typst.org/preview/${name}-${version2}.tar.gz`;
-    const response = await fetch(url);
-    if (response.status == 404) {
-      throw 2;
-    }
-    await this.app.vault.adapter.mkdir(folder);
-    const decompressed = decompressSync(
-      new Uint8Array(await response.arrayBuffer())
-    );
-    const untarrer = (0, import_js_untar.default)(decompressed.buffer);
-    await untarrer.progress(async (file) => {
-      if (file.type == "5" && file.name != ".") {
-        await this.app.vault.adapter.mkdir(folder + file.name);
-      }
-      if (file.type === "0") {
-        await this.app.vault.adapter.writeBinary(
-          folder + file.name,
-          file.buffer
-        );
-      }
-    });
-  }
-  async getFileString(path) {
-    try {
-      if (require("path").isAbsolute(path)) {
-        return await this.fs.promises.readFile(path, { encoding: "utf8" });
-      } else {
-        return await this.app.vault.adapter.read((0, import_obsidian6.normalizePath)(path));
-      }
-    } catch (error) {
-      console.error("Failed to read file:", path, error);
-      throw 2;
     }
   }
 };
