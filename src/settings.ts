@@ -21,7 +21,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
-  width: %LINEWIDTH%pt,
+  width: %LINEWIDTH%,
   height: auto,
   margin: (x: 0.25em, y: 0.25em),
   fill: rgb("%BGCOLOR%")

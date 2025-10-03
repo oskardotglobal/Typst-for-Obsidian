@@ -26245,7 +26245,11 @@ var TypstView = class extends import_obsidian2.TextFileView {
       await this.pdfRenderer.renderPdf(pdfData, readingDiv);
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
       if (savedScroll > 0) {
-        this.stateManager.restoreReadingScrollTop(contentEl);
+        setTimeout(() => {
+          if (contentEl) {
+            contentEl.scrollTop = savedScroll;
+          }
+        }, 0);
       }
     } catch (error) {
       console.error("PDF rendering failed:", error);
@@ -26387,7 +26391,7 @@ var DEFAULT_SETTINGS = {
   pdfLayoutFunctions: "",
   // prettier-ignore
   customLayoutFunctions: `#set page(
-  width: %LINEWIDTH%pt,
+  width: %LINEWIDTH%,
   height: auto,
   margin: (x: 0.25em, y: 0.25em),
   fill: rgb("%BGCOLOR%")
@@ -26612,9 +26616,12 @@ var TemplateVariableProvider = class {
     const bodyStyle = getComputedStyle(document.body);
     const fileLineWidth = bodyStyle.getPropertyValue("--file-line-width").trim();
     if (fileLineWidth) {
-      return fileLineWidth.replace("px", "");
+      const pxValue = parseFloat(fileLineWidth.replace("px", ""));
+      const ptValue = pxValue / 1.5;
+      return `${ptValue}pt`;
     }
-    return "700";
+    console.log("nope");
+    return "525pt";
   }
   getAccentColor() {
     return this.getCssVariable("--text-accent", "ffffff");

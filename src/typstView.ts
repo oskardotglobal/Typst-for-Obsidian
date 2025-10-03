@@ -240,11 +240,13 @@ export class TypstView extends TextFileView {
 
     try {
       await this.pdfRenderer.renderPdf(pdfData, readingDiv);
-
-      // Restore scroll position
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
       if (savedScroll > 0) {
-        this.stateManager.restoreReadingScrollTop(contentEl);
+        setTimeout(() => {
+          if (contentEl) {
+            contentEl.scrollTop = savedScroll;
+          }
+        }, 0);
       }
     } catch (error) {
       console.error("PDF rendering failed:", error);

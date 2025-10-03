@@ -158,9 +158,11 @@ export class TemplateVariableProvider {
       .getPropertyValue("--file-line-width")
       .trim();
     if (fileLineWidth) {
-      return fileLineWidth.replace("px", "");
+      const pxValue = parseFloat(fileLineWidth.replace("px", ""));
+      const ptValue = pxValue / 1.5;
+      return `${ptValue}pt`;
     }
-    return "700";
+    return "525pt";
   }
 
   private getAccentColor(): string {
