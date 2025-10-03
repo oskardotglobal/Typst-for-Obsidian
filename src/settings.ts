@@ -40,7 +40,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
 
 #set block(fill: none)
 #set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set box(fill: none, stroke: rgb("%THEMECOLOR%"))
+#set box(fill: none)
 #set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
 #set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
 #set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))

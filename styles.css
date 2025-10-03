@@ -88,20 +88,27 @@
 }
 
 .typst-editor-container .cm-gutters {
+  padding: 0;
   background: transparent;
   border: none;
   color: var(--text-faint);
-  font-family: var(--font-ui);
+  font-family: var(--font-monospace);
   min-width: 3.5ch;
   padding-left: var(--size-4-3);
+  line-height: var(--line-height-normal);
+  font-size: var(--font-ui-small);
 }
 
 .typst-editor-container .cm-lineNumbers .cm-gutterElement {
-  font-size: var(--font-ui-smaller);
+  font-size: var(--font-ui-small);
   color: var(--text-faint);
   text-align: right;
   min-width: 3ch;
-  display: block;
+  line-height: var(--line-height-normal) !important;
+  padding: 0;
+  font-family: var(--font-monospace);
+  display: flex;
+  align-items: center;
 }
 
 .typst-editor-container .cm-editor.cm-focused {
@@ -135,9 +142,10 @@
 
 /* Typst Reading Mode Styling */
 .typst-reading-mode {
-  padding-top: var(--file-margins);
+  padding: var(--file-margins);
+  /* padding-top: var(--file-margins);
   padding-bottom: var(--file-margins);
-  max-width: var(--file-line-width);
+  max-width: var(--file-line-width); */
   margin: 0 auto;
   width: 100%;
   background: var(--background-primary);

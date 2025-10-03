@@ -98,6 +98,102 @@ export class TypstEditor {
       }),
       parent: editorContainer,
     });
+
+    // Debug: Log computed styles for alignment
+    setTimeout(() => {
+      this.logComputedStyles();
+    }, 100);
+  }
+
+  private logComputedStyles(): void {
+    if (!this.editorView) return;
+
+    const editorElement = this.editorView.dom;
+    const gutterElement = editorElement.querySelector(
+      ".cm-gutters"
+    ) as HTMLElement;
+    const lineNumberElement = editorElement.querySelector(
+      ".cm-lineNumbers .cm-gutterElement"
+    ) as HTMLElement;
+    const contentElement = editorElement.querySelector(
+      ".cm-content"
+    ) as HTMLElement;
+    const lineElement = editorElement.querySelector(".cm-line") as HTMLElement;
+
+    console.group("🔍 CodeMirror Alignment Debug");
+
+    if (gutterElement) {
+      const gutterStyles = window.getComputedStyle(gutterElement);
+      console.log("📏 .cm-gutters:", {
+        fontSize: gutterStyles.fontSize,
+        fontFamily: gutterStyles.fontFamily,
+        lineHeight: gutterStyles.lineHeight,
+        paddingTop: gutterStyles.paddingTop,
+        paddingBottom: gutterStyles.paddingBottom,
+        height: gutterStyles.height,
+      });
+    }
+
+    if (lineNumberElement) {
+      const lineNumStyles = window.getComputedStyle(lineNumberElement);
+      const rect = lineNumberElement.getBoundingClientRect();
+      console.log("🔢 .cm-gutterElement (line number):", {
+        fontSize: lineNumStyles.fontSize,
+        fontFamily: lineNumStyles.fontFamily,
+        lineHeight: lineNumStyles.lineHeight,
+        height: lineNumStyles.height,
+        top: lineNumStyles.top,
+        paddingTop: lineNumStyles.paddingTop,
+        paddingBottom: lineNumStyles.paddingBottom,
+        marginTop: lineNumStyles.marginTop,
+        marginBottom: lineNumStyles.marginBottom,
+        verticalAlign: lineNumStyles.verticalAlign,
+        display: lineNumStyles.display,
+        boundingTop: rect.top,
+      });
+    }
+
+    if (contentElement) {
+      const contentStyles = window.getComputedStyle(contentElement);
+      console.log("📝 .cm-content:", {
+        fontSize: contentStyles.fontSize,
+        fontFamily: contentStyles.fontFamily,
+        lineHeight: contentStyles.lineHeight,
+        paddingTop: contentStyles.paddingTop,
+        paddingBottom: contentStyles.paddingBottom,
+      });
+    }
+
+    if (lineElement) {
+      const lineStyles = window.getComputedStyle(lineElement);
+      const rect = lineElement.getBoundingClientRect();
+      console.log("📄 .cm-line:", {
+        fontSize: lineStyles.fontSize,
+        fontFamily: lineStyles.fontFamily,
+        lineHeight: lineStyles.lineHeight,
+        height: lineStyles.height,
+        paddingTop: lineStyles.paddingTop,
+        paddingBottom: lineStyles.paddingBottom,
+        boundingTop: rect.top,
+      });
+    }
+
+    // Get CSS variable values
+    const rootStyles = window.getComputedStyle(document.documentElement);
+    console.log("🎨 CSS Variables:", {
+      "--font-monospace": rootStyles
+        .getPropertyValue("--font-monospace")
+        .trim(),
+      "--font-text-size": rootStyles
+        .getPropertyValue("--font-text-size")
+        .trim(),
+      "--line-height-normal": rootStyles
+        .getPropertyValue("--line-height-normal")
+        .trim(),
+      "--file-margins": rootStyles.getPropertyValue("--file-margins").trim(),
+    });
+
+    console.groupEnd();
   }
 
   public getContent(): string {
