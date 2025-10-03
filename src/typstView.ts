@@ -17,6 +17,7 @@ export class TypstView extends TextFileView {
     cursorPos: number;
     scrollTop: number;
   } | null = null;
+  private savedReadingScrollTop: number = 0;
 
   constructor(leaf: WorkspaceLeaf, plugin: TypstForObsidian) {
     super(leaf);
@@ -118,6 +119,9 @@ export class TypstView extends TextFileView {
   }
 
   private switchToSourceMode(): void {
+    // Save reading mode state before switching away
+    this.saveEditorState();
+    
     this.setMode("source");
     this.showSourceMode();
 
@@ -230,6 +234,12 @@ export class TypstView extends TextFileView {
       if (state) {
         this.savedEditorState = state;
       }
+    } else if (this.currentMode === "reading") {
+      // Save reading mode scroll position
+      const contentEl = this.getContentElement();
+      if (contentEl) {
+        this.savedReadingScrollTop = contentEl.scrollTop;
+      }
     }
   }
 
@@ -271,6 +281,15 @@ export class TypstView extends TextFileView {
         pageNumber++
       ) {
         await this.renderPage(pdfDocument, pageNumber, readingDiv);
+      }
+      
+      // Restore scroll position after rendering
+      if (this.savedReadingScrollTop > 0) {
+        setTimeout(() => {
+          if (contentEl) {
+            contentEl.scrollTop = this.savedReadingScrollTop;
+          }
+        }, 0);
       }
     } catch (error) {
       console.error("🔴 TypstView: PDF rendering failed:", error);

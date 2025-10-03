@@ -25551,6 +25551,7 @@ var TypstView = class extends import_obsidian.TextFileView {
     this.typstEditor = null;
     this.fileContent = "";
     this.savedEditorState = null;
+    this.savedReadingScrollTop = 0;
     this.plugin = plugin;
     this.currentMode = plugin.settings.defaultMode;
     GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
@@ -25630,6 +25631,7 @@ var TypstView = class extends import_obsidian.TextFileView {
     await this.showReadingMode(pdfData);
   }
   switchToSourceMode() {
+    this.saveEditorState();
     this.setMode("source");
     this.showSourceMode();
     this.restoreEditorState();
@@ -25724,6 +25726,11 @@ var TypstView = class extends import_obsidian.TextFileView {
       if (state) {
         this.savedEditorState = state;
       }
+    } else if (this.currentMode === "reading") {
+      const contentEl = this.getContentElement();
+      if (contentEl) {
+        this.savedReadingScrollTop = contentEl.scrollTop;
+      }
     }
   }
   restoreEditorState() {
@@ -25753,6 +25760,13 @@ var TypstView = class extends import_obsidian.TextFileView {
       const pdfDocument = await loadingTask.promise;
       for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
         await this.renderPage(pdfDocument, pageNumber, readingDiv);
+      }
+      if (this.savedReadingScrollTop > 0) {
+        setTimeout(() => {
+          if (contentEl) {
+            contentEl.scrollTop = this.savedReadingScrollTop;
+          }
+        }, 0);
       }
     } catch (error) {
       console.error("\u{1F534} TypstView: PDF rendering failed:", error);
