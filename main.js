@@ -156,10 +156,10 @@ __export(main_exports, {
   default: () => TypstForObsidian
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian5 = require("obsidian");
+var import_obsidian6 = require("obsidian");
 
 // src/TypstView.ts
-var import_obsidian = require("obsidian");
+var import_obsidian2 = require("obsidian");
 
 // src/TypstEditor.ts
 var import_view2 = require("@codemirror/view");
@@ -25762,19 +25762,341 @@ globalThis.pdfjsLib = {
   XfaLayer
 };
 
+// src/PdfRenderer.ts
+var PdfRenderer = class {
+  constructor() {
+    GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
+  }
+  /**
+   * Renders a PDF document into a container element
+   */
+  async renderPdf(pdfData, container) {
+    try {
+      const loadingTask = getDocument({ data: pdfData });
+      const pdfDocument = await loadingTask.promise;
+      for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
+        await this.renderPage(pdfDocument, pageNumber, container);
+      }
+    } catch (error) {
+      console.error("\u{1F534} PdfRenderer: PDF rendering failed:", error);
+      throw error;
+    }
+  }
+  /**
+   * Renders a single page of a PDF document
+   */
+  async renderPage(pdfDocument, pageNumber, container) {
+    try {
+      const page = await pdfDocument.getPage(pageNumber);
+      const scale = 1.5;
+      const outputScale = window.devicePixelRatio || 1;
+      const viewport = page.getViewport({ scale: scale * outputScale });
+      const pageContainer = container.createDiv("typst-pdf-page");
+      pageContainer.style.position = "relative";
+      pageContainer.style.width = `${viewport.width / outputScale}px`;
+      pageContainer.style.height = `${viewport.height / outputScale}px`;
+      pageContainer.style.marginBottom = "20px";
+      pageContainer.style.setProperty("--scale-factor", scale.toString());
+      pageContainer.style.opacity = "0";
+      await this.renderCanvas(page, viewport, pageContainer, outputScale);
+      await this.renderTextLayer(page, viewport, pageContainer, outputScale);
+      await this.renderAnnotations(
+        page,
+        viewport,
+        pageContainer,
+        pdfDocument
+      );
+      pageContainer.style.opacity = "1";
+    } catch (error) {
+      console.error(`Failed to render page ${pageNumber}:`, error);
+    }
+  }
+  /**
+   * Renders the canvas layer for a page
+   */
+  async renderCanvas(page, viewport, pageContainer, outputScale) {
+    const canvas = pageContainer.createEl("canvas");
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    canvas.style.display = "block";
+    canvas.style.width = `${Math.floor(viewport.width / outputScale)}px`;
+    canvas.style.height = `${Math.floor(viewport.height / outputScale)}px`;
+    const context = canvas.getContext("2d");
+    const renderContext = {
+      canvasContext: context,
+      viewport,
+      canvas
+    };
+    const renderTask = page.render(renderContext);
+    await renderTask.promise;
+  }
+  /**
+   * Renders the text layer for a page (for text selection)
+   */
+  async renderTextLayer(page, viewport, pageContainer, outputScale) {
+    const textContent = await page.getTextContent();
+    const textLayerDiv = pageContainer.createDiv("textLayer");
+    textLayerDiv.style.position = "absolute";
+    textLayerDiv.style.left = "0";
+    textLayerDiv.style.top = "0";
+    textLayerDiv.style.width = `${Math.floor(viewport.width / outputScale)}px`;
+    textLayerDiv.style.height = `${Math.floor(
+      viewport.height / outputScale
+    )}px`;
+    textLayerDiv.style.overflow = "hidden";
+    textLayerDiv.style.lineHeight = "1.0";
+    const textLayer = new TextLayer({
+      textContentSource: textContent,
+      container: textLayerDiv,
+      viewport
+    });
+    await textLayer.render();
+  }
+  /**
+   * Renders annotations for a page (links, etc.)
+   */
+  async renderAnnotations(page, viewport, pageContainer, pdfDocument) {
+    const annotations = await page.getAnnotations();
+    if (annotations.length === 0)
+      return;
+    const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
+    annotationLayerDiv.style.position = "absolute";
+    annotationLayerDiv.style.left = "0";
+    annotationLayerDiv.style.top = "0";
+    annotationLayerDiv.style.right = "0";
+    annotationLayerDiv.style.bottom = "0";
+    const annotationViewport = viewport.clone({ dontFlip: true });
+    const annotationLayer = new AnnotationLayer({
+      div: annotationLayerDiv,
+      accessibilityManager: null,
+      annotationCanvasMap: null,
+      annotationEditorUIManager: null,
+      page,
+      viewport: annotationViewport,
+      structTreeLayer: null
+    });
+    await annotationLayer.render({
+      viewport: annotationViewport,
+      div: annotationLayerDiv,
+      annotations,
+      page,
+      linkService: this.createLinkService(pdfDocument),
+      downloadManager: void 0,
+      annotationStorage: void 0,
+      imageResourcesPath: "",
+      renderForms: true,
+      enableScripting: false,
+      hasJSActions: false,
+      fieldObjects: null,
+      annotationCanvasMap: void 0,
+      accessibilityManager: void 0,
+      annotationEditorUIManager: void 0,
+      structTreeLayer: void 0
+    });
+  }
+  /**
+   * Creates a link service for handling PDF internal links
+   */
+  createLinkService(pdfDocument) {
+    return {
+      externalLinkTarget: 2,
+      externalLinkRel: "noopener noreferrer",
+      externalLinkEnabled: true,
+      getDestinationHash: (dest) => {
+        return `#page=${dest}`;
+      },
+      goToDestination: async (dest) => {
+        if (typeof dest === "string") {
+          const explicitDest = await pdfDocument.getDestination(dest);
+          if (explicitDest) {
+            dest = explicitDest;
+          }
+        }
+        if (Array.isArray(dest)) {
+          const pageRef = dest[0];
+          const pageIndex = await pdfDocument.getPageIndex(pageRef);
+          const pageNum = pageIndex + 1;
+          console.log("Navigating to page:", pageNum);
+        }
+      },
+      getPageIndex: async (ref) => {
+        return await pdfDocument.getPageIndex(ref);
+      }
+    };
+  }
+};
+
+// src/ViewActionBar.ts
+var import_obsidian = require("obsidian");
+var ViewActionBar = class {
+  constructor(viewActions, onModeToggle, onExport) {
+    this.viewActions = viewActions;
+    this.onModeToggle = onModeToggle;
+    this.onExport = onExport;
+    this.modeIconContainer = null;
+    this.exportButton = null;
+    this.currentMode = "source";
+  }
+  /**
+   * Initializes the action bar with mode toggle and export buttons
+   */
+  initialize(initialMode) {
+    this.currentMode = initialMode;
+    this.createModeToggleButton();
+    this.createExportButton();
+  }
+  /**
+   * Creates the mode toggle button
+   */
+  createModeToggleButton() {
+    this.modeIconContainer = createDiv("clickable-icon");
+    this.modeIconContainer.addClass("view-action");
+    this.modeIconContainer.addEventListener("click", () => {
+      this.onModeToggle();
+    });
+    this.updateModeIcon();
+    this.viewActions.prepend(this.modeIconContainer);
+  }
+  /**
+   * Creates the PDF export button
+   */
+  createExportButton() {
+    var _a3;
+    this.exportButton = createDiv("clickable-icon");
+    this.exportButton.addClass("view-action");
+    this.exportButton.setAttribute("aria-label", "Export to PDF");
+    (0, import_obsidian.setIcon)(this.exportButton, "file-text");
+    this.exportButton.addEventListener("click", async () => {
+      await this.onExport();
+    });
+    if ((_a3 = this.modeIconContainer) == null ? void 0 : _a3.nextSibling) {
+      this.viewActions.insertBefore(
+        this.exportButton,
+        this.modeIconContainer.nextSibling
+      );
+    } else {
+      this.viewActions.appendChild(this.exportButton);
+    }
+  }
+  /**
+   * Updates the mode to reflect current state
+   */
+  setMode(mode) {
+    this.currentMode = mode;
+    this.updateModeIcon();
+  }
+  /**
+   * Updates the mode icon based on current mode
+   */
+  updateModeIcon() {
+    if (!this.modeIconContainer)
+      return;
+    this.modeIconContainer.empty();
+    if (this.currentMode === "source") {
+      (0, import_obsidian.setIcon)(this.modeIconContainer, "pencil-line");
+      this.modeIconContainer.setAttribute(
+        "aria-label",
+        "Currently in source mode. Click to switch to reading mode."
+      );
+    } else {
+      (0, import_obsidian.setIcon)(this.modeIconContainer, "book-open");
+      this.modeIconContainer.setAttribute(
+        "aria-label",
+        "Currently in reading mode. Click to switch to source mode."
+      );
+    }
+  }
+  /**
+   * Cleanup when view is closed
+   */
+  destroy() {
+    var _a3, _b2;
+    (_a3 = this.modeIconContainer) == null ? void 0 : _a3.remove();
+    (_b2 = this.exportButton) == null ? void 0 : _b2.remove();
+  }
+};
+
+// src/EditorStateManager.ts
+var EditorStateManager = class {
+  constructor() {
+    this.savedEditorState = null;
+    this.savedReadingScrollTop = 0;
+  }
+  /**
+   * Saves the current editor state (cursor position and scroll)
+   */
+  saveEditorState(editor) {
+    if (editor) {
+      const state = editor.getEditorState();
+      if (state) {
+        this.savedEditorState = state;
+      }
+    }
+  }
+  /**
+   * Saves the current reading mode scroll position
+   */
+  saveReadingScrollTop(contentEl) {
+    if (contentEl) {
+      this.savedReadingScrollTop = contentEl.scrollTop;
+    }
+  }
+  /**
+   * Restores editor state (cursor position and scroll)
+   */
+  restoreEditorState(editor) {
+    if (this.savedEditorState && editor) {
+      setTimeout(() => {
+        if (editor && this.savedEditorState) {
+          editor.restoreEditorState(this.savedEditorState);
+          editor.focus();
+        }
+      }, 0);
+    } else if (editor) {
+      setTimeout(() => {
+        editor == null ? void 0 : editor.focus();
+      }, 0);
+    }
+  }
+  /**
+   * Restores reading mode scroll position
+   */
+  restoreReadingScrollTop(contentEl) {
+    if (this.savedReadingScrollTop > 0 && contentEl) {
+      setTimeout(() => {
+        if (contentEl) {
+          contentEl.scrollTop = this.savedReadingScrollTop;
+        }
+      }, 0);
+    }
+  }
+  /**
+   * Gets the saved reading scroll position
+   */
+  getSavedReadingScrollTop() {
+    return this.savedReadingScrollTop;
+  }
+  /**
+   * Clears all saved state
+   */
+  clear() {
+    this.savedEditorState = null;
+    this.savedReadingScrollTop = 0;
+  }
+};
+
 // src/TypstView.ts
-var TypstView = class extends import_obsidian.TextFileView {
+var TypstView = class extends import_obsidian2.TextFileView {
   constructor(leaf, plugin) {
     super(leaf);
     this.currentMode = "source";
-    this.modeIconContainer = null;
     this.typstEditor = null;
     this.fileContent = "";
-    this.savedEditorState = null;
-    this.savedReadingScrollTop = 0;
+    this.actionBar = null;
     this.plugin = plugin;
     this.currentMode = plugin.settings.defaultMode;
-    GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
+    this.pdfRenderer = new PdfRenderer();
+    this.stateManager = new EditorStateManager();
   }
   getViewType() {
     return "typst-view";
@@ -25788,44 +26110,27 @@ var TypstView = class extends import_obsidian.TextFileView {
   }
   async onOpen() {
     await super.onOpen();
-    this.addModeIcon();
+    this.initializeActionBar();
   }
   onResize() {
     super.onResize();
   }
   onClose() {
+    var _a3;
     this.cleanupEditor();
+    (_a3 = this.actionBar) == null ? void 0 : _a3.destroy();
+    this.stateManager.clear();
     return super.onClose();
   }
-  addModeIcon() {
+  initializeActionBar() {
     const viewActions = this.containerEl.querySelector(".view-actions");
     if (viewActions) {
-      this.modeIconContainer = createDiv("clickable-icon");
-      this.modeIconContainer.addClass("view-action");
-      this.modeIconContainer.addEventListener("click", () => {
-        this.toggleMode();
-      });
-      this.updateModeIcon();
-      viewActions.prepend(this.modeIconContainer);
-      this.addPdfExportButton(viewActions);
-    }
-  }
-  addPdfExportButton(viewActions) {
-    var _a3;
-    const exportButton = createDiv("clickable-icon");
-    exportButton.addClass("view-action");
-    exportButton.setAttribute("aria-label", "Export to PDF");
-    (0, import_obsidian.setIcon)(exportButton, "file-text");
-    exportButton.addEventListener("click", async () => {
-      await this.exportToPdf();
-    });
-    if ((_a3 = this.modeIconContainer) == null ? void 0 : _a3.nextSibling) {
-      viewActions.insertBefore(
-        exportButton,
-        this.modeIconContainer.nextSibling
+      this.actionBar = new ViewActionBar(
+        viewActions,
+        () => this.toggleMode(),
+        () => this.exportToPdf()
       );
-    } else {
-      viewActions.appendChild(exportButton);
+      this.actionBar.initialize(this.currentMode);
     }
   }
   async exportToPdf() {
@@ -25859,7 +26164,7 @@ var TypstView = class extends import_obsidian.TextFileView {
       } else {
         await this.app.vault.createBinary(pdfPath, arrayBuffer);
       }
-      new import_obsidian.Notice(`PDF exported to: ${pdfPath}`);
+      new import_obsidian2.Notice(`PDF exported to: ${pdfPath}`);
     } catch (error) {
       console.error("Failed to export PDF:", error);
     }
@@ -25897,8 +26202,9 @@ var TypstView = class extends import_obsidian.TextFileView {
     this.restoreEditorState();
   }
   setMode(mode) {
+    var _a3;
     this.currentMode = mode;
-    this.updateModeIcon();
+    (_a3 = this.actionBar) == null ? void 0 : _a3.setMode(mode);
   }
   async compile() {
     const content = this.getViewData();
@@ -25908,24 +26214,6 @@ var TypstView = class extends import_obsidian.TextFileView {
     } catch (error) {
       console.error("PDF compilation failed:", error);
       throw error;
-    }
-  }
-  updateModeIcon() {
-    if (!this.modeIconContainer)
-      return;
-    this.modeIconContainer.empty();
-    if (this.currentMode === "source") {
-      (0, import_obsidian.setIcon)(this.modeIconContainer, "pencil-line");
-      this.modeIconContainer.setAttribute(
-        "aria-label",
-        "Currently in source mode. Click to switch to reading mode."
-      );
-    } else {
-      (0, import_obsidian.setIcon)(this.modeIconContainer, "book-open");
-      this.modeIconContainer.setAttribute(
-        "aria-label",
-        "Currently in reading mode. Click to switch to source mode."
-      );
     }
   }
   async setViewData(data, clear) {
@@ -25977,32 +26265,15 @@ var TypstView = class extends import_obsidian.TextFileView {
     this.typstEditor.initialize(this.fileContent);
   }
   saveEditorState() {
-    if (this.typstEditor) {
-      const state = this.typstEditor.getEditorState();
-      if (state) {
-        this.savedEditorState = state;
-      }
+    if (this.currentMode === "source") {
+      this.stateManager.saveEditorState(this.typstEditor);
     } else if (this.currentMode === "reading") {
       const contentEl = this.getContentElement();
-      if (contentEl) {
-        this.savedReadingScrollTop = contentEl.scrollTop;
-      }
+      this.stateManager.saveReadingScrollTop(contentEl);
     }
   }
   restoreEditorState() {
-    if (this.savedEditorState && this.typstEditor) {
-      setTimeout(() => {
-        if (this.typstEditor && this.savedEditorState) {
-          this.typstEditor.restoreEditorState(this.savedEditorState);
-          this.typstEditor.focus();
-        }
-      }, 0);
-    } else if (this.typstEditor) {
-      setTimeout(() => {
-        var _a3;
-        (_a3 = this.typstEditor) == null ? void 0 : _a3.focus();
-      }, 0);
-    }
+    this.stateManager.restoreEditorState(this.typstEditor);
   }
   async showReadingMode(pdfData) {
     const contentEl = this.getContentElement();
@@ -26012,136 +26283,14 @@ var TypstView = class extends import_obsidian.TextFileView {
     this.cleanupEditor();
     const readingDiv = contentEl.createDiv("typst-reading-mode");
     try {
-      const loadingTask = getDocument({ data: pdfData });
-      const pdfDocument = await loadingTask.promise;
-      for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-        await this.renderPage(pdfDocument, pageNumber, readingDiv);
-      }
-      if (this.savedReadingScrollTop > 0) {
-        setTimeout(() => {
-          if (contentEl) {
-            contentEl.scrollTop = this.savedReadingScrollTop;
-          }
-        }, 0);
+      await this.pdfRenderer.renderPdf(pdfData, readingDiv);
+      const savedScroll = this.stateManager.getSavedReadingScrollTop();
+      if (savedScroll > 0) {
+        this.stateManager.restoreReadingScrollTop(contentEl);
       }
     } catch (error) {
       console.error("\u{1F534} TypstView: PDF rendering failed:", error);
     }
-  }
-  async renderPage(pdfDocument, pageNumber, container) {
-    try {
-      const page = await pdfDocument.getPage(pageNumber);
-      const scale = 1.5;
-      const outputScale = window.devicePixelRatio || 1;
-      const viewport = page.getViewport({ scale: scale * outputScale });
-      const pageContainer = container.createDiv("typst-pdf-page");
-      pageContainer.style.position = "relative";
-      pageContainer.style.width = `${viewport.width / outputScale}px`;
-      pageContainer.style.height = `${viewport.height / outputScale}px`;
-      pageContainer.style.marginBottom = "20px";
-      pageContainer.style.setProperty("--scale-factor", scale.toString());
-      pageContainer.style.opacity = "0";
-      const canvas = pageContainer.createEl("canvas");
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-      canvas.style.display = "block";
-      canvas.style.width = `${Math.floor(viewport.width / outputScale)}px`;
-      canvas.style.height = `${Math.floor(viewport.height / outputScale)}px`;
-      const context = canvas.getContext("2d");
-      const renderContext = {
-        canvasContext: context,
-        viewport,
-        canvas
-      };
-      const renderTask = page.render(renderContext);
-      await renderTask.promise;
-      const textContent = await page.getTextContent();
-      const textLayerDiv = pageContainer.createDiv("textLayer");
-      textLayerDiv.style.position = "absolute";
-      textLayerDiv.style.left = "0";
-      textLayerDiv.style.top = "0";
-      textLayerDiv.style.width = `${Math.floor(
-        viewport.width / outputScale
-      )}px`;
-      textLayerDiv.style.height = `${Math.floor(
-        viewport.height / outputScale
-      )}px`;
-      textLayerDiv.style.overflow = "hidden";
-      textLayerDiv.style.lineHeight = "1.0";
-      const textLayer = new TextLayer({
-        textContentSource: textContent,
-        container: textLayerDiv,
-        viewport
-      });
-      await textLayer.render();
-      const annotations = await page.getAnnotations();
-      if (annotations.length > 0) {
-        const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
-        annotationLayerDiv.style.position = "absolute";
-        annotationLayerDiv.style.left = "0";
-        annotationLayerDiv.style.top = "0";
-        annotationLayerDiv.style.right = "0";
-        annotationLayerDiv.style.bottom = "0";
-        const annotationViewport = viewport.clone({ dontFlip: true });
-        const annotationLayer = new AnnotationLayer({
-          div: annotationLayerDiv,
-          accessibilityManager: null,
-          annotationCanvasMap: null,
-          annotationEditorUIManager: null,
-          page,
-          viewport: annotationViewport,
-          structTreeLayer: null
-        });
-        await annotationLayer.render({
-          viewport: annotationViewport,
-          div: annotationLayerDiv,
-          annotations,
-          page,
-          linkService: this.createLinkService(pdfDocument),
-          downloadManager: void 0,
-          annotationStorage: void 0,
-          imageResourcesPath: "",
-          renderForms: true,
-          enableScripting: false,
-          hasJSActions: false,
-          fieldObjects: null,
-          annotationCanvasMap: void 0,
-          accessibilityManager: void 0,
-          annotationEditorUIManager: void 0,
-          structTreeLayer: void 0
-        });
-      }
-      pageContainer.style.opacity = "1";
-    } catch (error) {
-      console.error(`Failed to render page ${pageNumber}:`, error);
-    }
-  }
-  createLinkService(pdfDocument) {
-    return {
-      externalLinkTarget: 2,
-      externalLinkRel: "noopener noreferrer",
-      externalLinkEnabled: true,
-      getDestinationHash: (dest) => {
-        return `#page=${dest}`;
-      },
-      goToDestination: async (dest) => {
-        if (typeof dest === "string") {
-          const explicitDest = await pdfDocument.getDestination(dest);
-          if (explicitDest) {
-            dest = explicitDest;
-          }
-        }
-        if (Array.isArray(dest)) {
-          const pageRef = dest[0];
-          const pageIndex = await pdfDocument.getPageIndex(pageRef);
-          const pageNum = pageIndex + 1;
-          console.log("Navigating to page:", pageNum);
-        }
-      },
-      getPageIndex: async (ref) => {
-        return await pdfDocument.getPageIndex(ref);
-      }
-    };
   }
   clear() {
     this.fileContent = "";
@@ -26152,11 +26301,11 @@ var TypstView = class extends import_obsidian.TextFileView {
 };
 
 // src/commands.ts
-var import_obsidian3 = require("obsidian");
+var import_obsidian4 = require("obsidian");
 
 // src/modal.ts
-var import_obsidian2 = require("obsidian");
-var CreateTypstFileModal = class extends import_obsidian2.Modal {
+var import_obsidian3 = require("obsidian");
+var CreateTypstFileModal = class extends import_obsidian3.Modal {
   constructor(app, plugin) {
     super(app);
     this.fileName = "";
@@ -26166,7 +26315,7 @@ var CreateTypstFileModal = class extends import_obsidian2.Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.createEl("h2", { text: "Create New Typst File" });
-    new import_obsidian2.Setting(contentEl).setName("File name").setDesc("Enter the name of the Typst file (without .typ extension)").addText((text) => {
+    new import_obsidian3.Setting(contentEl).setName("File name").setDesc("Enter the name of the Typst file (without .typ extension)").addText((text) => {
       text.setPlaceholder("note").setValue(this.fileName).onChange((value) => {
         this.fileName = value;
       });
@@ -26193,15 +26342,15 @@ var CreateTypstFileModal = class extends import_obsidian2.Modal {
   }
   async createFile() {
     if (!this.fileName.trim()) {
-      new import_obsidian2.Notice("Please enter a file name");
+      new import_obsidian3.Notice("Please enter a file name");
       return;
     }
     try {
       const fileName = this.fileName.trim();
-      const fullPath = (0, import_obsidian2.normalizePath)(`${fileName}.typ`);
+      const fullPath = (0, import_obsidian3.normalizePath)(`${fileName}.typ`);
       const existingFile = this.app.vault.getAbstractFileByPath(fullPath);
-      if (existingFile && existingFile instanceof import_obsidian2.TFile) {
-        new import_obsidian2.Notice("File already exists");
+      if (existingFile && existingFile instanceof import_obsidian3.TFile) {
+        new import_obsidian3.Notice("File already exists");
         const leaf2 = this.app.workspace.getLeaf(true);
         leaf2.openFile(existingFile);
         this.close();
@@ -26213,7 +26362,7 @@ var CreateTypstFileModal = class extends import_obsidian2.Modal {
       this.close();
     } catch (error) {
       console.error("Error creating Typst file:", error);
-      new import_obsidian2.Notice("Error creating file");
+      new import_obsidian3.Notice("Error creating file");
     }
   }
   onClose() {
@@ -26244,7 +26393,7 @@ function registerCommands(plugin) {
         return true;
       }
       if (!inTypstView) {
-        new import_obsidian3.Notice("Must be in a Typst (.typ) file");
+        new import_obsidian4.Notice("Must be in a Typst (.typ) file");
       }
       return false;
     }
@@ -26261,7 +26410,7 @@ function registerCommands(plugin) {
         return true;
       }
       if (!inTypstView) {
-        new import_obsidian3.Notice("Must be in a Typst (.typ) file");
+        new import_obsidian4.Notice("Must be in a Typst (.typ) file");
       }
       return false;
     }
@@ -26269,7 +26418,7 @@ function registerCommands(plugin) {
 }
 
 // src/settings.ts
-var import_obsidian4 = require("obsidian");
+var import_obsidian5 = require("obsidian");
 var DEFAULT_SETTINGS = {
   defaultMode: "source",
   useDefaultLayoutFunctions: true,
@@ -26305,7 +26454,7 @@ var DEFAULT_SETTINGS = {
 #set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
 #set line(stroke: rgb("%THEMECOLOR%"))`
 };
-var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
+var TypstSettingTab = class extends import_obsidian5.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -26313,7 +26462,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian4.Setting(containerEl).setName("Default file mode").setDesc(
+    new import_obsidian5.Setting(containerEl).setName("Default file mode").setDesc(
       "Choose whether Typst files open in source or reading mode by default"
     ).addDropdown(
       (dropdown) => dropdown.addOption("source", "Source mode").addOption("reading", "Reading mode").setValue(this.plugin.settings.defaultMode).onChange(async (value) => {
@@ -26321,7 +26470,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian4.Setting(containerEl).setName("Use default layout functions").setDesc(
+    new import_obsidian5.Setting(containerEl).setName("Use default layout functions").setDesc(
       "Wraps editor content with default page, text, and styling functions."
     ).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.useDefaultLayoutFunctions).onChange(async (value) => {
@@ -26331,7 +26480,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
       })
     );
     if (this.plugin.settings.useDefaultLayoutFunctions) {
-      const layoutSetting = new import_obsidian4.Setting(containerEl).setName("Custom layout functions").setDesc("Customize the default layout functions.");
+      const layoutSetting = new import_obsidian5.Setting(containerEl).setName("Custom layout functions").setDesc("Customize the default layout functions.");
       let textArea;
       layoutSetting.addTextArea((text) => {
         textArea = text.inputEl;
@@ -26350,7 +26499,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
         })
       );
     }
-    new import_obsidian4.Setting(containerEl).setName("Use PDF export layout functions").setDesc(
+    new import_obsidian5.Setting(containerEl).setName("Use PDF export layout functions").setDesc(
       "Prepends custom layout functions to PDF exports only (not editor preview)."
     ).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.usePdfLayoutFunctions).onChange(async (value) => {
@@ -26360,7 +26509,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
       })
     );
     if (this.plugin.settings.usePdfLayoutFunctions) {
-      const pdfLayoutSetting = new import_obsidian4.Setting(containerEl).setName("PDF export layout functions").setDesc("Custom layout functions for PDF exports.");
+      const pdfLayoutSetting = new import_obsidian5.Setting(containerEl).setName("PDF export layout functions").setDesc("Custom layout functions for PDF exports.");
       let pdfTextArea;
       pdfLayoutSetting.addTextArea((text) => {
         pdfTextArea = text.inputEl;
@@ -26379,7 +26528,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
         })
       );
     }
-    new import_obsidian4.Setting(containerEl).setName("Font families").setDesc(
+    new import_obsidian5.Setting(containerEl).setName("Font families").setDesc(
       "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts."
     ).addTextArea(
       (text) => text.setPlaceholder("Arial\nHelvetica\nTimes New Roman").setValue(this.plugin.settings.fontFamilies.join("\n")).onChange(async (value) => {
@@ -26802,7 +26951,7 @@ try {
 }
 
 // src/main.ts
-var TypstForObsidian = class extends import_obsidian5.Plugin {
+var TypstForObsidian = class extends import_obsidian6.Plugin {
   async onload() {
     this.textEncoder = new TextEncoder();
     await this.loadSettings();
@@ -26814,7 +26963,7 @@ var TypstForObsidian = class extends import_obsidian5.Plugin {
       try {
         await this.fetchWasm();
       } catch (error) {
-        new import_obsidian5.Notice("Failed to fetch component: " + error, 0);
+        new import_obsidian6.Notice("Failed to fetch component: " + error, 0);
         console.error("Failed to fetch component: " + error);
       }
     }
@@ -26831,7 +26980,7 @@ var TypstForObsidian = class extends import_obsidian5.Plugin {
         packagePath: this.packagePath
       }
     });
-    if (import_obsidian5.Platform.isDesktopApp) {
+    if (import_obsidian6.Platform.isDesktopApp) {
       this.compilerWorker.postMessage({
         type: "canUseSharedArrayBuffer",
         data: true
@@ -26848,7 +26997,7 @@ var TypstForObsidian = class extends import_obsidian5.Plugin {
       const packages = await this.getPackageList();
       this.compilerWorker.postMessage({ type: "packages", data: packages });
     }
-    (0, import_obsidian5.addIcon)("typst-file", TypstIcon);
+    (0, import_obsidian6.addIcon)("typst-file", TypstIcon);
     this.registerExtensions(["typ"], "typst-view");
     this.registerView("typst-view", (leaf) => new TypstView(leaf, this));
     registerCommands(this);
@@ -27209,7 +27358,7 @@ var TypstForObsidian = class extends import_obsidian5.Plugin {
     }
   }
   async preparePackage(spec) {
-    if (import_obsidian5.Platform.isDesktopApp) {
+    if (import_obsidian6.Platform.isDesktopApp) {
       let subdir = "/typst/packages/" + spec;
       let dir = require("path").normalize(this.getDataDir() + subdir);
       if (this.fs.existsSync(dir)) {
@@ -27240,29 +27389,29 @@ var TypstForObsidian = class extends import_obsidian5.Plugin {
     throw 2;
   }
   getDataDir() {
-    if (import_obsidian5.Platform.isLinux) {
+    if (import_obsidian6.Platform.isLinux) {
       if ("XDG_DATA_HOME" in process.env) {
         return process.env["XDG_DATA_HOME"];
       } else {
         return process.env["HOME"] + "/.local/share";
       }
-    } else if (import_obsidian5.Platform.isWin) {
+    } else if (import_obsidian6.Platform.isWin) {
       return process.env["APPDATA"];
-    } else if (import_obsidian5.Platform.isMacOS) {
+    } else if (import_obsidian6.Platform.isMacOS) {
       return process.env["HOME"] + "/Library/Application Support";
     }
     throw "Cannot find data directory on an unknown platform";
   }
   getCacheDir() {
-    if (import_obsidian5.Platform.isLinux) {
+    if (import_obsidian6.Platform.isLinux) {
       if ("XDG_CACHE_HOME" in process.env) {
         return process.env["XDG_CACHE_HOME"];
       } else {
         return process.env["HOME"] + "/.cache";
       }
-    } else if (import_obsidian5.Platform.isWin) {
+    } else if (import_obsidian6.Platform.isWin) {
       return process.env["LOCALAPPDATA"];
-    } else if (import_obsidian5.Platform.isMacOS) {
+    } else if (import_obsidian6.Platform.isMacOS) {
       return process.env["HOME"] + "/Library/Caches";
     }
     throw "Cannot find cache directory on an unknown platform";
@@ -27296,7 +27445,7 @@ var TypstForObsidian = class extends import_obsidian5.Plugin {
       if (require("path").isAbsolute(path)) {
         return await this.fs.promises.readFile(path, { encoding: "utf8" });
       } else {
-        return await this.app.vault.adapter.read((0, import_obsidian5.normalizePath)(path));
+        return await this.app.vault.adapter.read((0, import_obsidian6.normalizePath)(path));
       }
     } catch (error) {
       console.error("Failed to read file:", path, error);
