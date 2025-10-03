@@ -687,8 +687,18 @@ var TypstEditor = class {
       import_state.EditorState.allowMultipleSelections.of(true),
       // Key bindings
       import_view2.keymap.of([
-        ...import_autocomplete.completionKeymap,
+        // Tab handler: accept completion if open, otherwise indent
+        {
+          key: "Tab",
+          run: (view) => {
+            if ((0, import_autocomplete.completionStatus)(view.state) === "active") {
+              return (0, import_autocomplete.acceptCompletion)(view);
+            }
+            return false;
+          }
+        },
         import_commands.indentWithTab,
+        ...import_autocomplete.completionKeymap,
         ...import_commands.historyKeymap,
         ...import_commands.defaultKeymap,
         ...import_search.searchKeymap

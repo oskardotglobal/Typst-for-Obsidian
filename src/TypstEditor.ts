@@ -22,6 +22,8 @@ import {
   autocompletion,
   completionKeymap,
   CompletionContext,
+  acceptCompletion,
+  completionStatus,
 } from "@codemirror/autocomplete";
 import { typst } from "./grammar/typst";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
@@ -251,8 +253,19 @@ export class TypstEditor {
 
       // Key bindings
       keymap.of([
-        ...completionKeymap,
+        // Tab handler: accept completion if open, otherwise indent
+        {
+          key: "Tab",
+          run: (view) => {
+            if (completionStatus(view.state) === "active") {
+              return acceptCompletion(view);
+            }
+            // Fall through to default tab behavior
+            return false;
+          },
+        },
         indentWithTab,
+        ...completionKeymap,
         ...historyKeymap,
         ...defaultKeymap,
         ...searchKeymap,
