@@ -31397,11 +31397,75 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     });
     return result;
   }
+  cssColorToHex(color) {
+    if (color.startsWith("#")) {
+      return color.slice(1);
+    }
+    const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1]);
+      const g = parseInt(rgbMatch[2]);
+      const b = parseInt(rgbMatch[3]);
+      const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+      return toHex(r) + toHex(g) + toHex(b);
+    }
+    const hslMatch = color.match(/hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/);
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360;
+      const s = parseInt(hslMatch[2]) / 100;
+      const l = parseInt(hslMatch[3]) / 100;
+      const hslToRgb = (h2, s2, l2) => {
+        let r, g, b;
+        if (s2 === 0) {
+          r = g = b = l2;
+        } else {
+          const hue2rgb = (p2, q2, t2) => {
+            if (t2 < 0)
+              t2 += 1;
+            if (t2 > 1)
+              t2 -= 1;
+            if (t2 < 1 / 6)
+              return p2 + (q2 - p2) * 6 * t2;
+            if (t2 < 1 / 2)
+              return q2;
+            if (t2 < 2 / 3)
+              return p2 + (q2 - p2) * (2 / 3 - t2) * 6;
+            return p2;
+          };
+          const q = l2 < 0.5 ? l2 * (1 + s2) : l2 + s2 - l2 * s2;
+          const p = 2 * l2 - q;
+          r = hue2rgb(p, q, h2 + 1 / 3);
+          g = hue2rgb(p, q, h2);
+          b = hue2rgb(p, q, h2 - 1 / 3);
+        }
+        const toHex = (x) => {
+          const hex = Math.round(x * 255).toString(16);
+          return hex.length === 1 ? "0" + hex : hex;
+        };
+        return toHex(r) + toHex(g) + toHex(b);
+      };
+      return hslToRgb(h, s, l);
+    }
+    try {
+      const tempEl = document.createElement("div");
+      tempEl.style.color = color;
+      document.body.appendChild(tempEl);
+      const computed = getComputedStyle(tempEl).color;
+      document.body.removeChild(tempEl);
+      return this.cssColorToHex(computed);
+    } catch (e) {
+      console.warn("Failed to convert color:", color, e);
+      return "ffffff";
+    }
+  }
   getThemeTextColor() {
     const bodyStyle = getComputedStyle(document.body);
     const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
     if (textColor) {
-      return textColor.startsWith("#") ? textColor.slice(1) : textColor;
+      return this.cssColorToHex(textColor);
     }
     return "ffffff";
   }
@@ -31421,7 +31485,7 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     const bodyStyle = getComputedStyle(document.body);
     const bgColor = bodyStyle.getPropertyValue("--background-primary").trim();
     if (bgColor) {
-      return bgColor.startsWith("#") ? bgColor.slice(1) : bgColor;
+      return this.cssColorToHex(bgColor);
     }
     return "ffffff";
   }

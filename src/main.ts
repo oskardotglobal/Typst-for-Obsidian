@@ -469,12 +469,94 @@ export default class TypstForObsidian extends Plugin {
     return result;
   }
 
+  private cssColorToHex(color: string): string {
+    // Already hex format
+    if (color.startsWith("#")) {
+      return color.slice(1);
+    }
+
+    // Handle rgb/rgba format: rgb(r, g, b) or rgba(r, g, b, a)
+    const rgbMatch = color.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/
+    );
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1]);
+      const g = parseInt(rgbMatch[2]);
+      const b = parseInt(rgbMatch[3]);
+
+      const toHex = (n: number) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+
+      return toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // Handle hsl/hsla format: hsl(h, s%, l%) or hsla(h, s%, l%, a)
+    const hslMatch = color.match(
+      /hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/
+    );
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360;
+      const s = parseInt(hslMatch[2]) / 100;
+      const l = parseInt(hslMatch[3]) / 100;
+
+      const hslToRgb = (h: number, s: number, l: number) => {
+        let r, g, b;
+
+        if (s === 0) {
+          r = g = b = l;
+        } else {
+          const hue2rgb = (p: number, q: number, t: number) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+          };
+
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+          const p = 2 * l - q;
+          r = hue2rgb(p, q, h + 1 / 3);
+          g = hue2rgb(p, q, h);
+          b = hue2rgb(p, q, h - 1 / 3);
+        }
+
+        const toHex = (x: number) => {
+          const hex = Math.round(x * 255).toString(16);
+          return hex.length === 1 ? "0" + hex : hex;
+        };
+
+        return toHex(r) + toHex(g) + toHex(b);
+      };
+
+      return hslToRgb(h, s, l);
+    }
+
+    // If it's a named color or unsupported format, try to use a temporary element
+    // to get the computed RGB value
+    try {
+      const tempEl = document.createElement("div");
+      tempEl.style.color = color;
+      document.body.appendChild(tempEl);
+      const computed = getComputedStyle(tempEl).color;
+      document.body.removeChild(tempEl);
+
+      // Now computed should be in rgb() format
+      return this.cssColorToHex(computed);
+    } catch (e) {
+      console.warn("Failed to convert color:", color, e);
+      return "ffffff"; // fallback to white
+    }
+  }
+
   private getThemeTextColor(): string {
     const bodyStyle = getComputedStyle(document.body);
     const textColor = bodyStyle.getPropertyValue("--text-normal").trim();
 
     if (textColor) {
-      return textColor.startsWith("#") ? textColor.slice(1) : textColor;
+      return this.cssColorToHex(textColor);
     }
 
     return "ffffff";
@@ -501,7 +583,7 @@ export default class TypstForObsidian extends Plugin {
     const bgColor = bodyStyle.getPropertyValue("--background-primary").trim();
 
     if (bgColor) {
-      return bgColor.startsWith("#") ? bgColor.slice(1) : bgColor;
+      return this.cssColorToHex(bgColor);
     }
 
     return "ffffff"; // fallback
