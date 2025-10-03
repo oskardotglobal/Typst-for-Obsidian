@@ -367,16 +367,6 @@ export default class TypstForObsidian extends Plugin {
       ) {
         console.log("🔶 Main: Got PDF bytes result");
 
-        // Quick and dirty: Save PDF to vault
-        try {
-          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-          const pdfPath = `typst-output-${timestamp}.pdf`;
-          await this.app.vault.adapter.writeBinary(pdfPath, result);
-          console.log(`📄 Saved PDF to vault: ${pdfPath}`);
-        } catch (error) {
-          console.error("🔴 Failed to save PDF:", error);
-        }
-
         return result;
       } else if (result && result.error) {
         throw new Error(result.error);

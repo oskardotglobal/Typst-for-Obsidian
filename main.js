@@ -25719,33 +25719,36 @@ var TypstView = class extends import_obsidian.TextFileView {
       console.log(`\u{1F4C4} Starting to render page ${pageNumber}`);
       const page = await pdfDocument.getPage(pageNumber);
       const scale = 1.5;
-      const viewport = page.getViewport({ scale });
+      const outputScale = window.devicePixelRatio || 1;
+      const viewport = page.getViewport({ scale: scale * outputScale });
       console.log(
-        `\u{1F4D0} Viewport dimensions: ${viewport.width}x${viewport.height}, scale: ${scale}`
+        `\u{1F4D0} Viewport: ${viewport.width / outputScale}x${viewport.height / outputScale}px, scale: ${scale}, DPI: ${outputScale}`
       );
       const pageContainer = container.createDiv("typst-pdf-page");
       pageContainer.style.position = "relative";
-      pageContainer.style.width = `${viewport.width}px`;
-      pageContainer.style.height = `${viewport.height}px`;
+      pageContainer.style.width = `${viewport.width / outputScale}px`;
+      pageContainer.style.height = `${viewport.height / outputScale}px`;
       pageContainer.style.marginBottom = "20px";
       pageContainer.style.setProperty("--scale-factor", scale.toString());
       console.log(
-        `\u{1F4E6} Page container created with dimensions: ${viewport.width}x${viewport.height}`
+        `\u{1F4E6} Page container created with dimensions: ${viewport.width / outputScale}x${viewport.height / outputScale}`
       );
       pageContainer.style.opacity = "0";
       const canvas = pageContainer.createEl("canvas");
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
       canvas.style.display = "block";
-      canvas.style.width = `${viewport.width}px`;
-      canvas.style.height = `${viewport.height}px`;
+      canvas.style.width = `${Math.floor(viewport.width / outputScale)}px`;
+      canvas.style.height = `${Math.floor(viewport.height / outputScale)}px`;
       const context = canvas.getContext("2d");
       const renderContext = {
         canvasContext: context,
         viewport,
         canvas
       };
-      console.log(`\u{1F3A8} Rendering canvas for page ${pageNumber}...`);
+      console.log(
+        `\u{1F3A8} Rendering canvas for page ${pageNumber} at ${canvas.width}x${canvas.height} (display: ${canvas.style.width}x${canvas.style.height})...`
+      );
       const renderTask = page.render(renderContext);
       await renderTask.promise;
       console.log(`\u2705 Canvas rendered successfully for page ${pageNumber}`);
@@ -25759,12 +25762,18 @@ var TypstView = class extends import_obsidian.TextFileView {
       textLayerDiv.style.position = "absolute";
       textLayerDiv.style.left = "0";
       textLayerDiv.style.top = "0";
-      textLayerDiv.style.width = `${viewport.width}px`;
-      textLayerDiv.style.height = `${viewport.height}px`;
+      textLayerDiv.style.width = `${Math.floor(
+        viewport.width / outputScale
+      )}px`;
+      textLayerDiv.style.height = `${Math.floor(
+        viewport.height / outputScale
+      )}px`;
       textLayerDiv.style.overflow = "hidden";
       textLayerDiv.style.lineHeight = "1.0";
       console.log(
-        `\u{1F3AD} Text layer div created with dimensions: ${viewport.width}x${viewport.height}`
+        `\u{1F3AD} Text layer div created with dimensions: ${Math.floor(
+          viewport.width / outputScale
+        )}x${Math.floor(viewport.height / outputScale)}`
       );
       console.log(`\u{1F527} Creating TextLayer instance...`);
       const textLayer = new TextLayer({
@@ -31102,14 +31111,6 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
       });
       if (result instanceof Uint8Array || result && result.constructor && result.constructor.name === "Uint8Array") {
         console.log("\u{1F536} Main: Got PDF bytes result");
-        try {
-          const timestamp = (/* @__PURE__ */ new Date()).toISOString().replace(/[:.]/g, "-");
-          const pdfPath = `typst-output-${timestamp}.pdf`;
-          await this.app.vault.adapter.writeBinary(pdfPath, result);
-          console.log(`\u{1F4C4} Saved PDF to vault: ${pdfPath}`);
-        } catch (error) {
-          console.error("\u{1F534} Failed to save PDF:", error);
-        }
         return result;
       } else if (result && result.error) {
         throw new Error(result.error);
