@@ -2,7 +2,10 @@ import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
 import TypstForObsidian from "./main";
 import * as pdfjsLib from "pdfjs-dist";
-import type { TextItem } from "pdfjs-dist/types/src/display/api";
+import { TextLayer } from "pdfjs-dist";
+import { AnnotationLayer } from "pdfjs-dist";
+import "./pdf_viewer.css";
+// import PDFWorker from 'pdfjs-dist/build/pdf.worker.min.mjs';
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -219,27 +222,11 @@ export class TypstView extends TextFileView {
     this.cleanupEditor();
 
     const readingDiv = contentEl.createDiv("typst-reading-mode");
-    console.log(
-      "🔍 TypstView: Reading div created, clientWidth:",
-      readingDiv.clientWidth,
-      "offsetWidth:",
-      readingDiv.offsetWidth
-    );
-    console.log(
-      "🔍 TypstView: ContentEl clientWidth:",
-      contentEl.clientWidth,
-      "offsetWidth:",
-      contentEl.offsetWidth
-    );
 
     try {
       // Load PDF document
       const loadingTask = pdfjsLib.getDocument({ data: pdfData });
       const pdfDocument = await loadingTask.promise;
-
-      console.log(
-        `🟡 TypstView: PDF loaded with ${pdfDocument.numPages} pages`
-      );
 
       // Render each page
       for (
@@ -260,79 +247,192 @@ export class TypstView extends TextFileView {
     container: HTMLElement
   ): Promise<void> {
     try {
-      const isTextItem = (item: TextItem | any): item is TextItem => {
-        return typeof item === "object" && "str" in item && "transform" in item;
-      };
-
+      console.log(`📄 Starting to render page ${pageNumber}`);
       const page = await pdfDocument.getPage(pageNumber);
       const scale = 1.5;
       const viewport = page.getViewport({ scale });
-      const outputScale = window.devicePixelRatio || 1;
+      console.log(
+        `📐 Viewport dimensions: ${viewport.width}x${viewport.height}, scale: ${scale}`
+      );
 
       // --- Page container ---
       const pageContainer = container.createDiv("typst-pdf-page");
       pageContainer.style.position = "relative";
-      pageContainer.style.width = `${Math.floor(viewport.width)}px`;
-      pageContainer.style.height = `${Math.floor(viewport.height)}px`;
+      pageContainer.style.width = `${viewport.width}px`;
+      pageContainer.style.height = `${viewport.height}px`;
       pageContainer.style.marginBottom = "20px";
-      pageContainer.style.opacity = "0";
+      pageContainer.style.setProperty("--scale-factor", scale.toString());
+      console.log(
+        `📦 Page container created with dimensions: ${viewport.width}x${viewport.height}`
+      );
 
-      // --- Canvas rendering ---
+      // --- Canvas layer (bottom) ---
       const canvas = pageContainer.createEl("canvas");
-      canvas.width = Math.floor(viewport.width * outputScale);
-      canvas.height = Math.floor(viewport.height * outputScale);
-      canvas.style.width = `${Math.floor(viewport.width)}px`;
-      canvas.style.height = `${Math.floor(viewport.height)}px`;
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.display = "block";
+      canvas.style.width = `${viewport.width}px`;
+      canvas.style.height = `${viewport.height}px`;
 
       const context = canvas.getContext("2d")!;
-      await page.render({ canvasContext: context, viewport, canvas }).promise;
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+        canvas: canvas,
+      };
 
-      // --- Text layer ---
+      console.log(`🎨 Rendering canvas for page ${pageNumber}...`);
+      const renderTask = page.render(renderContext);
+      await renderTask.promise;
+      console.log(`✅ Canvas rendered successfully for page ${pageNumber}`);
+
+      // --- Text layer (middle) ---
+      console.log(`📝 Getting text content for page ${pageNumber}...`);
       const textContent = await page.getTextContent();
+      console.log(`📝 Text content retrieved:`, {
+        items: textContent.items.length,
+        styles: Object.keys(textContent.styles || {}).length,
+      });
+
       const textLayerDiv = pageContainer.createDiv("textLayer");
       textLayerDiv.style.position = "absolute";
-      textLayerDiv.style.top = "0";
       textLayerDiv.style.left = "0";
-      textLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
-      textLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
-      textLayerDiv.style.pointerEvents = "auto"; // Enable selection
+      textLayerDiv.style.top = "0";
+      textLayerDiv.style.width = `${viewport.width}px`;
+      textLayerDiv.style.height = `${viewport.height}px`;
+      textLayerDiv.style.overflow = "hidden";
+      textLayerDiv.style.lineHeight = "1.0";
 
-      // Manually render text content
-      textContent.items.forEach((item) => {
-        if (isTextItem(item)) {
-          const span = document.createElement("span");
-          span.textContent = item.str;
-          span.style.transform = `translate(${item.transform[4]}px, ${item.transform[5]}px)`;
-          span.style.fontSize = `${item.height}px`;
-          span.style.whiteSpace = "pre";
-          textLayerDiv.appendChild(span);
-        }
+      console.log(
+        `🎭 Text layer div created with dimensions: ${viewport.width}x${viewport.height}`
+      );
+
+      // Create TextLayer instance using the modern API
+      console.log(`🔧 Creating TextLayer instance...`);
+      const textLayer = new TextLayer({
+        textContentSource: textContent,
+        container: textLayerDiv,
+        viewport: viewport,
       });
 
-      // --- Annotation layer ---
+      console.log(`⚙️ Rendering text layer...`);
+      await textLayer.render();
+      console.log(`✅ Text layer rendered successfully`);
+      console.log(
+        `📊 Text layer children count: ${textLayerDiv.children.length}`
+      );
+      console.log(
+        `📊 Text layer HTML:`,
+        textLayerDiv.innerHTML.substring(0, 500)
+      );
+
+      // Check computed styles
+      const computedStyle = window.getComputedStyle(textLayerDiv);
+      console.log(`🎨 Text layer computed styles:`, {
+        position: computedStyle.position,
+        zIndex: computedStyle.zIndex,
+        pointerEvents: computedStyle.pointerEvents,
+        userSelect: computedStyle.userSelect,
+        color: computedStyle.color,
+        opacity: computedStyle.opacity,
+      });
+
+      // --- Annotation layer (top) ---
       const annotations = await page.getAnnotations();
-      const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
-      annotationLayerDiv.style.position = "absolute";
-      annotationLayerDiv.style.top = "0";
-      annotationLayerDiv.style.left = "0";
-      annotationLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
-      annotationLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
+      console.log(`🔖 Annotations found: ${annotations.length}`);
 
-      annotations.forEach((annotation) => {
-        const div = document.createElement("div");
-        div.className = "annotation";
-        div.style.position = "absolute";
-        div.style.left = `${annotation.rect[0]}px`;
-        div.style.top = `${annotation.rect[1]}px`;
-        div.style.width = `${annotation.rect[2] - annotation.rect[0]}px`;
-        div.style.height = `${annotation.rect[3] - annotation.rect[1]}px`;
-        annotationLayerDiv.appendChild(div);
-      });
+      if (annotations.length > 0) {
+        const annotationLayerDiv = pageContainer.createDiv("annotationLayer");
+        annotationLayerDiv.style.position = "absolute";
+        annotationLayerDiv.style.left = "0";
+        annotationLayerDiv.style.top = "0";
+        annotationLayerDiv.style.right = "0";
+        annotationLayerDiv.style.bottom = "0";
+
+        // Clone viewport with dontFlip for annotations
+        const annotationViewport = viewport.clone({ dontFlip: true });
+
+        // Create AnnotationLayer instance
+        const annotationLayer = new AnnotationLayer({
+          div: annotationLayerDiv,
+          accessibilityManager: null,
+          annotationCanvasMap: null,
+          annotationEditorUIManager: null,
+          page: page,
+          viewport: annotationViewport,
+          structTreeLayer: null,
+        });
+
+        console.log(`🔖 Rendering annotation layer...`);
+        // Render with parameters
+        await annotationLayer.render({
+          viewport: annotationViewport,
+          div: annotationLayerDiv,
+          annotations: annotations,
+          page: page,
+          linkService: this.createLinkService(pdfDocument),
+          downloadManager: undefined,
+          annotationStorage: undefined,
+          imageResourcesPath: "",
+          renderForms: true,
+          enableScripting: false,
+          hasJSActions: false,
+          fieldObjects: null,
+          annotationCanvasMap: undefined,
+          accessibilityManager: undefined,
+          annotationEditorUIManager: undefined,
+          structTreeLayer: undefined,
+        });
+        console.log(`✅ Annotation layer rendered successfully`);
+      }
 
       pageContainer.style.opacity = "1";
+
+      console.log(
+        `🎉 Page ${pageNumber} fully rendered. Final layer structure:`,
+        {
+          pageContainer: pageContainer.className,
+          canvas: !!canvas,
+          textLayer: !!textLayerDiv,
+          textLayerSpans: textLayerDiv.querySelectorAll("span").length,
+          annotationLayer: annotations.length > 0,
+        }
+      );
     } catch (error) {
-      console.error(`Failed to render page ${pageNumber}:`, error);
+      console.error(`❌ Failed to render page ${pageNumber}:`, error);
     }
+  }
+
+  private createLinkService(pdfDocument: pdfjsLib.PDFDocumentProxy): any {
+    return {
+      externalLinkTarget: 2,
+      externalLinkRel: "noopener noreferrer",
+      externalLinkEnabled: true,
+
+      getDestinationHash: (dest: any) => {
+        return `#page=${dest}`;
+      },
+
+      goToDestination: async (dest: any) => {
+        if (typeof dest === "string") {
+          const explicitDest = await pdfDocument.getDestination(dest);
+          if (explicitDest) {
+            dest = explicitDest;
+          }
+        }
+
+        if (Array.isArray(dest)) {
+          const pageRef = dest[0];
+          const pageIndex = await pdfDocument.getPageIndex(pageRef);
+          const pageNum = pageIndex + 1;
+          console.log("Navigating to page:", pageNum);
+        }
+      },
+
+      getPageIndex: async (ref: any) => {
+        return await pdfDocument.getPageIndex(ref);
+      },
+    };
   }
 
   clear(): void {
