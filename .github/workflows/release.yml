@@ -44,18 +44,10 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
 
-          # Create a zip with all necessary files including WASM
-          mkdir release-files
-          cp main.js manifest.json styles.css release-files/
-          cp -r pkg release-files/
-
-          # Create the release with individual files and a complete zip
-          cd release-files
-          zip -r ../typst-for-obsidian-${tag}.zip .
-          cd ..
-
           gh release create "$tag" \
             --title="$tag" \
             --draft \
-            main.js manifest.json styles.css \
-            typst-for-obsidian-${tag}.zip
+            main.js \
+            manifest.json \
+            styles.css \
+            pkg/obsidian_typst_bg.wasm
