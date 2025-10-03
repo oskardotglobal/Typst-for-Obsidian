@@ -26,12 +26,11 @@ export class EditorStateManager {
 
   restoreEditorState(editor: TypstEditor | null): void {
     if (this.savedEditorState && editor) {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         if (editor && this.savedEditorState) {
           editor.restoreEditorState(this.savedEditorState);
-          editor.focus();
         }
-      }, 0);
+      });
     } else if (editor) {
       setTimeout(() => {
         editor?.focus();

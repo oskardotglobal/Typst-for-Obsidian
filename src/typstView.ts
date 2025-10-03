@@ -247,7 +247,7 @@ export class TypstView extends TextFileView {
         this.stateManager.restoreReadingScrollTop(contentEl);
       }
     } catch (error) {
-      console.error("🔴 TypstView: PDF rendering failed:", error);
+      console.error("PDF rendering failed:", error);
     }
   }
 

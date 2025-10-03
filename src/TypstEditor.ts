@@ -97,20 +97,38 @@ export class TypstEditor {
     this.createEditor();
   }
 
+  public destroy(): void {
+    if (this.editorView) {
+      this.editorView.destroy();
+      this.editorView = null;
+    }
+  }
+
   private createEditor(): void {
     this.container.empty();
 
     const editorContainer = this.container.createDiv("typst-editor-container");
-
     const isDarkTheme = document.body.classList.contains("theme-dark");
 
-    const extensions: Extension[] = [
+    const extensions = this.buildExtensions(isDarkTheme);
+
+    this.editorView = new EditorView({
+      state: EditorState.create({
+        doc: this.content,
+        extensions,
+      }),
+      parent: editorContainer,
+    });
+  }
+
+  private buildExtensions(isDarkTheme: boolean): Extension[] {
+    return [
+      // Basic editor features
       lineNumbers(),
       dropCursor(),
       rectangularSelection(),
       highlightActiveLine(),
       history(),
-
       EditorView.lineWrapping,
 
       // Language features
@@ -130,36 +148,12 @@ export class TypstEditor {
       EditorState.allowMultipleSelections.of(true),
 
       // Key bindings
-      keymap.of([
-        {
-          key: "Tab",
-          run: (view) => {
-            if (completionStatus(view.state) === "active") {
-              return acceptCompletion(view);
-            }
-            return false;
-          },
-        },
-        {
-          key: "Mod-b",
-          run: (view) => wrapOrInsert(view, "*"),
-          preventDefault: true,
-        },
-        {
-          key: "Mod-i",
-          run: (view) => wrapOrInsert(view, "_"),
-          preventDefault: true,
-        },
-        indentWithTab,
-        ...completionKeymap,
-        ...historyKeymap,
-        ...defaultKeymap,
-        ...searchKeymap,
-      ]),
+      this.buildKeymap(),
 
+      // Theme
       ...(isDarkTheme ? [oneDark] : []),
 
-      // Update content on changes
+      // Content change listener
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           this.content = update.state.doc.toString();
@@ -169,14 +163,39 @@ export class TypstEditor {
         }
       }),
     ];
+  }
 
-    this.editorView = new EditorView({
-      state: EditorState.create({
-        doc: this.content,
-        extensions,
-      }),
-      parent: editorContainer,
-    });
+  private buildKeymap(): Extension {
+    return keymap.of([
+      // Tab: Accept completion if active, otherwise indent
+      {
+        key: "Tab",
+        run: (view) => {
+          if (completionStatus(view.state) === "active") {
+            return acceptCompletion(view);
+          }
+          return false;
+        },
+      },
+      // Bold: Ctrl/Cmd+B
+      {
+        key: "Mod-b",
+        run: (view) => wrapOrInsert(view, "*"),
+        preventDefault: true,
+      },
+      // Italic: Ctrl/Cmd+I
+      {
+        key: "Mod-i",
+        run: (view) => wrapOrInsert(view, "_"),
+        preventDefault: true,
+      },
+      // Keymaps
+      indentWithTab,
+      ...completionKeymap,
+      ...historyKeymap,
+      ...defaultKeymap,
+      ...searchKeymap,
+    ]);
   }
 
   public getContent(): string {
@@ -199,17 +218,14 @@ export class TypstEditor {
     this.content = content;
   }
 
-  public focus(): void {
-    this.editorView?.focus();
-  }
-
   public getEditorState(): { cursorPos: number; scrollTop: number } | null {
     if (!this.editorView) return null;
 
-    return {
+    const state = {
       cursorPos: this.editorView.state.selection.main.head,
       scrollTop: this.editorView.scrollDOM.scrollTop,
     };
+    return state;
   }
 
   public restoreEditorState(state: {
@@ -218,12 +234,24 @@ export class TypstEditor {
   }): void {
     if (!this.editorView) return;
 
+    this.editorView.scrollDOM.scrollTop = state.scrollTop;
+
     this.editorView.dispatch({
       selection: { anchor: state.cursorPos },
       scrollIntoView: false,
     });
 
-    this.editorView.scrollDOM.scrollTop = state.scrollTop;
+    this.editorView.focus();
+
+    setTimeout(() => {
+      if (this.editorView) {
+        this.editorView.scrollDOM.scrollTop = state.scrollTop;
+      }
+    }, 50);
+  }
+
+  public focus(): void {
+    this.editorView?.focus();
   }
 
   public undo(): boolean {
@@ -238,12 +266,5 @@ export class TypstEditor {
       return redo(this.editorView);
     }
     return false;
-  }
-
-  public destroy(): void {
-    if (this.editorView) {
-      this.editorView.destroy();
-      this.editorView = null;
-    }
   }
 }

@@ -694,11 +694,28 @@ var TypstEditor = class {
     this.content = initialContent;
     this.createEditor();
   }
+  destroy() {
+    if (this.editorView) {
+      this.editorView.destroy();
+      this.editorView = null;
+    }
+  }
   createEditor() {
     this.container.empty();
     const editorContainer = this.container.createDiv("typst-editor-container");
     const isDarkTheme = document.body.classList.contains("theme-dark");
-    const extensions = [
+    const extensions = this.buildExtensions(isDarkTheme);
+    this.editorView = new import_view2.EditorView({
+      state: import_state.EditorState.create({
+        doc: this.content,
+        extensions
+      }),
+      parent: editorContainer
+    });
+  }
+  buildExtensions(isDarkTheme) {
+    return [
+      // Basic editor features
       (0, import_view2.lineNumbers)(),
       (0, import_view2.dropCursor)(),
       (0, import_view2.rectangularSelection)(),
@@ -719,34 +736,10 @@ var TypstEditor = class {
       // Multiple selections
       import_state.EditorState.allowMultipleSelections.of(true),
       // Key bindings
-      import_view2.keymap.of([
-        {
-          key: "Tab",
-          run: (view) => {
-            if ((0, import_autocomplete.completionStatus)(view.state) === "active") {
-              return (0, import_autocomplete.acceptCompletion)(view);
-            }
-            return false;
-          }
-        },
-        {
-          key: "Mod-b",
-          run: (view) => wrapOrInsert(view, "*"),
-          preventDefault: true
-        },
-        {
-          key: "Mod-i",
-          run: (view) => wrapOrInsert(view, "_"),
-          preventDefault: true
-        },
-        import_commands.indentWithTab,
-        ...import_autocomplete.completionKeymap,
-        ...import_commands.historyKeymap,
-        ...import_commands.defaultKeymap,
-        ...import_search.searchKeymap
-      ]),
+      this.buildKeymap(),
+      // Theme
       ...isDarkTheme ? [oneDark] : [],
-      // Update content on changes
+      // Content change listener
       import_view2.EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           this.content = update.state.doc.toString();
@@ -756,13 +749,38 @@ var TypstEditor = class {
         }
       })
     ];
-    this.editorView = new import_view2.EditorView({
-      state: import_state.EditorState.create({
-        doc: this.content,
-        extensions
-      }),
-      parent: editorContainer
-    });
+  }
+  buildKeymap() {
+    return import_view2.keymap.of([
+      // Tab: Accept completion if active, otherwise indent
+      {
+        key: "Tab",
+        run: (view) => {
+          if ((0, import_autocomplete.completionStatus)(view.state) === "active") {
+            return (0, import_autocomplete.acceptCompletion)(view);
+          }
+          return false;
+        }
+      },
+      // Bold: Ctrl/Cmd+B
+      {
+        key: "Mod-b",
+        run: (view) => wrapOrInsert(view, "*"),
+        preventDefault: true
+      },
+      // Italic: Ctrl/Cmd+I
+      {
+        key: "Mod-i",
+        run: (view) => wrapOrInsert(view, "_"),
+        preventDefault: true
+      },
+      // Keymaps
+      import_commands.indentWithTab,
+      ...import_autocomplete.completionKeymap,
+      ...import_commands.historyKeymap,
+      ...import_commands.defaultKeymap,
+      ...import_search.searchKeymap
+    ]);
   }
   getContent() {
     return this.editorView ? this.editorView.state.doc.toString() : this.content;
@@ -780,26 +798,33 @@ var TypstEditor = class {
     }
     this.content = content;
   }
-  focus() {
-    var _a3;
-    (_a3 = this.editorView) == null ? void 0 : _a3.focus();
-  }
   getEditorState() {
     if (!this.editorView)
       return null;
-    return {
+    const state = {
       cursorPos: this.editorView.state.selection.main.head,
       scrollTop: this.editorView.scrollDOM.scrollTop
     };
+    return state;
   }
   restoreEditorState(state) {
     if (!this.editorView)
       return;
+    this.editorView.scrollDOM.scrollTop = state.scrollTop;
     this.editorView.dispatch({
       selection: { anchor: state.cursorPos },
       scrollIntoView: false
     });
-    this.editorView.scrollDOM.scrollTop = state.scrollTop;
+    this.editorView.focus();
+    setTimeout(() => {
+      if (this.editorView) {
+        this.editorView.scrollDOM.scrollTop = state.scrollTop;
+      }
+    }, 50);
+  }
+  focus() {
+    var _a3;
+    (_a3 = this.editorView) == null ? void 0 : _a3.focus();
   }
   undo() {
     if (this.editorView) {
@@ -812,12 +837,6 @@ var TypstEditor = class {
       return (0, import_commands.redo)(this.editorView);
     }
     return false;
-  }
-  destroy() {
-    if (this.editorView) {
-      this.editorView.destroy();
-      this.editorView = null;
-    }
   }
 };
 
@@ -25767,9 +25786,6 @@ var PdfRenderer = class {
   constructor() {
     GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
   }
-  /**
-   * Renders a PDF document into a container element
-   */
   async renderPdf(pdfData, container) {
     try {
       const loadingTask = getDocument({ data: pdfData });
@@ -25782,9 +25798,6 @@ var PdfRenderer = class {
       throw error;
     }
   }
-  /**
-   * Renders a single page of a PDF document
-   */
   async renderPage(pdfDocument, pageNumber, container) {
     try {
       const page = await pdfDocument.getPage(pageNumber);
@@ -25800,20 +25813,12 @@ var PdfRenderer = class {
       pageContainer.style.opacity = "0";
       await this.renderCanvas(page, viewport, pageContainer, outputScale);
       await this.renderTextLayer(page, viewport, pageContainer, outputScale);
-      await this.renderAnnotations(
-        page,
-        viewport,
-        pageContainer,
-        pdfDocument
-      );
+      await this.renderAnnotations(page, viewport, pageContainer, pdfDocument);
       pageContainer.style.opacity = "1";
     } catch (error) {
       console.error(`Failed to render page ${pageNumber}:`, error);
     }
   }
-  /**
-   * Renders the canvas layer for a page
-   */
   async renderCanvas(page, viewport, pageContainer, outputScale) {
     const canvas = pageContainer.createEl("canvas");
     canvas.width = Math.floor(viewport.width);
@@ -25830,9 +25835,6 @@ var PdfRenderer = class {
     const renderTask = page.render(renderContext);
     await renderTask.promise;
   }
-  /**
-   * Renders the text layer for a page (for text selection)
-   */
   async renderTextLayer(page, viewport, pageContainer, outputScale) {
     const textContent = await page.getTextContent();
     const textLayerDiv = pageContainer.createDiv("textLayer");
@@ -25852,9 +25854,6 @@ var PdfRenderer = class {
     });
     await textLayer.render();
   }
-  /**
-   * Renders annotations for a page (links, etc.)
-   */
   async renderAnnotations(page, viewport, pageContainer, pdfDocument) {
     const annotations = await page.getAnnotations();
     if (annotations.length === 0)
@@ -25894,9 +25893,6 @@ var PdfRenderer = class {
       structTreeLayer: void 0
     });
   }
-  /**
-   * Creates a link service for handling PDF internal links
-   */
   createLinkService(pdfDocument) {
     return {
       externalLinkTarget: 2,
@@ -25937,17 +25933,11 @@ var ViewActionBar = class {
     this.exportButton = null;
     this.currentMode = "source";
   }
-  /**
-   * Initializes the action bar with mode toggle and export buttons
-   */
   initialize(initialMode) {
     this.currentMode = initialMode;
     this.createModeToggleButton();
     this.createExportButton();
   }
-  /**
-   * Creates the mode toggle button
-   */
   createModeToggleButton() {
     this.modeIconContainer = createDiv("clickable-icon");
     this.modeIconContainer.addClass("view-action");
@@ -25957,9 +25947,6 @@ var ViewActionBar = class {
     this.updateModeIcon();
     this.viewActions.prepend(this.modeIconContainer);
   }
-  /**
-   * Creates the PDF export button
-   */
   createExportButton() {
     var _a3;
     this.exportButton = createDiv("clickable-icon");
@@ -25978,16 +25965,10 @@ var ViewActionBar = class {
       this.viewActions.appendChild(this.exportButton);
     }
   }
-  /**
-   * Updates the mode to reflect current state
-   */
   setMode(mode) {
     this.currentMode = mode;
     this.updateModeIcon();
   }
-  /**
-   * Updates the mode icon based on current mode
-   */
   updateModeIcon() {
     if (!this.modeIconContainer)
       return;
@@ -26006,9 +25987,6 @@ var ViewActionBar = class {
       );
     }
   }
-  /**
-   * Cleanup when view is closed
-   */
   destroy() {
     var _a3, _b2;
     (_a3 = this.modeIconContainer) == null ? void 0 : _a3.remove();
@@ -26022,9 +26000,6 @@ var EditorStateManager = class {
     this.savedEditorState = null;
     this.savedReadingScrollTop = 0;
   }
-  /**
-   * Saves the current editor state (cursor position and scroll)
-   */
   saveEditorState(editor) {
     if (editor) {
       const state = editor.getEditorState();
@@ -26033,34 +26008,24 @@ var EditorStateManager = class {
       }
     }
   }
-  /**
-   * Saves the current reading mode scroll position
-   */
   saveReadingScrollTop(contentEl) {
     if (contentEl) {
       this.savedReadingScrollTop = contentEl.scrollTop;
     }
   }
-  /**
-   * Restores editor state (cursor position and scroll)
-   */
   restoreEditorState(editor) {
     if (this.savedEditorState && editor) {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         if (editor && this.savedEditorState) {
           editor.restoreEditorState(this.savedEditorState);
-          editor.focus();
         }
-      }, 0);
+      });
     } else if (editor) {
       setTimeout(() => {
         editor == null ? void 0 : editor.focus();
       }, 0);
     }
   }
-  /**
-   * Restores reading mode scroll position
-   */
   restoreReadingScrollTop(contentEl) {
     if (this.savedReadingScrollTop > 0 && contentEl) {
       setTimeout(() => {
@@ -26070,15 +26035,9 @@ var EditorStateManager = class {
       }, 0);
     }
   }
-  /**
-   * Gets the saved reading scroll position
-   */
   getSavedReadingScrollTop() {
     return this.savedReadingScrollTop;
   }
-  /**
-   * Clears all saved state
-   */
   clear() {
     this.savedEditorState = null;
     this.savedReadingScrollTop = 0;
@@ -26289,7 +26248,7 @@ var TypstView = class extends import_obsidian2.TextFileView {
         this.stateManager.restoreReadingScrollTop(contentEl);
       }
     } catch (error) {
-      console.error("\u{1F534} TypstView: PDF rendering failed:", error);
+      console.error("PDF rendering failed:", error);
     }
   }
   clear() {
