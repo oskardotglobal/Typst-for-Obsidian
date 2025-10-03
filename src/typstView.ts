@@ -241,12 +241,15 @@ export class TypstView extends TextFileView {
     try {
       await this.pdfRenderer.renderPdf(pdfData, readingDiv);
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
+
       if (savedScroll > 0) {
-        setTimeout(() => {
-          if (contentEl) {
-            contentEl.scrollTop = savedScroll;
-          }
-        }, 0);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (contentEl) {
+              contentEl.scrollTop = savedScroll;
+            }
+          });
+        });
       }
     } catch (error) {
       console.error("PDF rendering failed:", error);

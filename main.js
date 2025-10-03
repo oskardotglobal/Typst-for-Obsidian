@@ -26245,11 +26245,13 @@ var TypstView = class extends import_obsidian2.TextFileView {
       await this.pdfRenderer.renderPdf(pdfData, readingDiv);
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
       if (savedScroll > 0) {
-        setTimeout(() => {
-          if (contentEl) {
-            contentEl.scrollTop = savedScroll;
-          }
-        }, 0);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (contentEl) {
+              contentEl.scrollTop = savedScroll;
+            }
+          });
+        });
       }
     } catch (error) {
       console.error("PDF rendering failed:", error);
@@ -26620,7 +26622,6 @@ var TemplateVariableProvider = class {
       const ptValue = pxValue / 1.5;
       return `${ptValue}pt`;
     }
-    console.log("nope");
     return "525pt";
   }
   getAccentColor() {
