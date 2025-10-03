@@ -563,6 +563,24 @@ var TypstEditor = class {
     var _a3;
     (_a3 = this.editorView) == null ? void 0 : _a3.focus();
   }
+  getEditorState() {
+    if (!this.editorView)
+      return null;
+    return {
+      cursorPos: this.editorView.state.selection.main.head,
+      scrollTop: this.editorView.scrollDOM.scrollTop
+    };
+  }
+  restoreEditorState(state) {
+    if (!this.editorView)
+      return;
+    this.editorView.dispatch({
+      selection: { anchor: state.cursorPos },
+      scrollIntoView: false
+      // We'll handle scroll manually
+    });
+    this.editorView.scrollDOM.scrollTop = state.scrollTop;
+  }
   undo() {
     if (this.editorView) {
       return (0, import_commands.undo)(this.editorView);
@@ -25532,6 +25550,7 @@ var TypstView = class extends import_obsidian.TextFileView {
     this.modeIconContainer = null;
     this.typstEditor = null;
     this.fileContent = "";
+    this.savedEditorState = null;
     this.plugin = plugin;
     this.currentMode = plugin.settings.defaultMode;
     GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
@@ -25603,6 +25622,7 @@ var TypstView = class extends import_obsidian.TextFileView {
     }
   }
   async switchToReadingMode() {
+    this.saveEditorState();
     const pdfData = await this.compile();
     if (!pdfData)
       return;
@@ -25612,6 +25632,7 @@ var TypstView = class extends import_obsidian.TextFileView {
   switchToSourceMode() {
     this.setMode("source");
     this.showSourceMode();
+    this.restoreEditorState();
   }
   setMode(mode) {
     this.currentMode = mode;
@@ -25696,6 +25717,29 @@ var TypstView = class extends import_obsidian.TextFileView {
       }
     );
     this.typstEditor.initialize(this.fileContent);
+  }
+  saveEditorState() {
+    if (this.typstEditor) {
+      const state = this.typstEditor.getEditorState();
+      if (state) {
+        this.savedEditorState = state;
+      }
+    }
+  }
+  restoreEditorState() {
+    if (this.savedEditorState && this.typstEditor) {
+      setTimeout(() => {
+        if (this.typstEditor && this.savedEditorState) {
+          this.typstEditor.restoreEditorState(this.savedEditorState);
+          this.typstEditor.focus();
+        }
+      }, 0);
+    } else if (this.typstEditor) {
+      setTimeout(() => {
+        var _a3;
+        (_a3 = this.typstEditor) == null ? void 0 : _a3.focus();
+      }, 0);
+    }
   }
   async showReadingMode(pdfData) {
     const contentEl = this.getContentElement();

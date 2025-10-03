@@ -124,6 +124,31 @@ export class TypstEditor {
     this.editorView?.focus();
   }
 
+  public getEditorState(): { cursorPos: number; scrollTop: number } | null {
+    if (!this.editorView) return null;
+
+    return {
+      cursorPos: this.editorView.state.selection.main.head,
+      scrollTop: this.editorView.scrollDOM.scrollTop,
+    };
+  }
+
+  public restoreEditorState(state: {
+    cursorPos: number;
+    scrollTop: number;
+  }): void {
+    if (!this.editorView) return;
+
+    // Restore cursor position
+    this.editorView.dispatch({
+      selection: { anchor: state.cursorPos },
+      scrollIntoView: false, // We'll handle scroll manually
+    });
+
+    // Restore scroll position
+    this.editorView.scrollDOM.scrollTop = state.scrollTop;
+  }
+
   public undo(): boolean {
     if (this.editorView) {
       return undo(this.editorView);

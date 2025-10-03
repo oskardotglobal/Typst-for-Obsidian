@@ -13,6 +13,10 @@ export class TypstView extends TextFileView {
   private typstEditor: TypstEditor | null = null;
   private fileContent: string = "";
   private plugin: TypstForObsidian;
+  private savedEditorState: {
+    cursorPos: number;
+    scrollTop: number;
+  } | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: TypstForObsidian) {
     super(leaf);
@@ -103,6 +107,9 @@ export class TypstView extends TextFileView {
   }
 
   private async switchToReadingMode(): Promise<void> {
+    // Save editor state before switching away
+    this.saveEditorState();
+
     const pdfData = await this.compile();
     if (!pdfData) return;
 
@@ -113,6 +120,9 @@ export class TypstView extends TextFileView {
   private switchToSourceMode(): void {
     this.setMode("source");
     this.showSourceMode();
+
+    // Restore editor state after switching back
+    this.restoreEditorState();
   }
 
   private setMode(mode: "source" | "reading"): void {
@@ -212,6 +222,32 @@ export class TypstView extends TextFileView {
     );
 
     this.typstEditor.initialize(this.fileContent);
+  }
+
+  private saveEditorState(): void {
+    if (this.typstEditor) {
+      const state = this.typstEditor.getEditorState();
+      if (state) {
+        this.savedEditorState = state;
+      }
+    }
+  }
+
+  private restoreEditorState(): void {
+    if (this.savedEditorState && this.typstEditor) {
+      // Use setTimeout to ensure editor is fully rendered
+      setTimeout(() => {
+        if (this.typstEditor && this.savedEditorState) {
+          this.typstEditor.restoreEditorState(this.savedEditorState);
+          this.typstEditor.focus();
+        }
+      }, 0);
+    } else if (this.typstEditor) {
+      // If no saved state, just focus
+      setTimeout(() => {
+        this.typstEditor?.focus();
+      }, 0);
+    }
   }
 
   private async showReadingMode(pdfData: Uint8Array): Promise<void> {
