@@ -31,4 +31,24 @@ export function registerCommands(plugin: Plugin) {
       return false;
     },
   });
+
+  plugin.addCommand({
+    id: "export-to-pdf",
+    name: "Export to PDF",
+    checkCallback: (inTypstView: boolean) => {
+      const view = plugin.app.workspace.getActiveViewOfType(TypstView);
+
+      if (view instanceof TypstView) {
+        if (!inTypstView) {
+          view.exportToPdf();
+        }
+        return true;
+      }
+
+      if (!inTypstView) {
+        new Notice("Must be in a Typst (.typ) file");
+      }
+      return false;
+    },
+  });
 }

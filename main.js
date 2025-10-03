@@ -25675,12 +25675,64 @@ var TypstView = class extends import_obsidian.TextFileView {
   addModeIcon() {
     const viewActions = this.containerEl.querySelector(".view-actions");
     if (viewActions) {
-      this.modeIconContainer = viewActions.createDiv("clickable-icon");
+      this.modeIconContainer = createDiv("clickable-icon");
       this.modeIconContainer.addClass("view-action");
       this.modeIconContainer.addEventListener("click", () => {
         this.toggleMode();
       });
       this.updateModeIcon();
+      viewActions.prepend(this.modeIconContainer);
+      this.addPdfExportButton(viewActions);
+    }
+  }
+  addPdfExportButton(viewActions) {
+    var _a3;
+    const exportButton = createDiv("clickable-icon");
+    exportButton.addClass("view-action");
+    exportButton.setAttribute("aria-label", "Export to PDF");
+    (0, import_obsidian.setIcon)(exportButton, "file-text");
+    exportButton.addEventListener("click", async () => {
+      await this.exportToPdf();
+    });
+    if ((_a3 = this.modeIconContainer) == null ? void 0 : _a3.nextSibling) {
+      viewActions.insertBefore(
+        exportButton,
+        this.modeIconContainer.nextSibling
+      );
+    } else {
+      viewActions.appendChild(exportButton);
+    }
+  }
+  async exportToPdf() {
+    if (!this.file) {
+      console.error("No file available for export");
+      return;
+    }
+    try {
+      const content = this.getViewData();
+      const pdfData = await this.plugin.compileToPdf(content);
+      if (!pdfData) {
+        console.error("PDF compilation failed");
+        return;
+      }
+      const filePath = this.file.path;
+      const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
+      const baseName = this.file.basename;
+      const pdfFileName = `${baseName}.pdf`;
+      const pdfPath = folderPath ? `${folderPath}/${pdfFileName}` : pdfFileName;
+      const arrayBuffer = pdfData.buffer.slice(
+        pdfData.byteOffset,
+        pdfData.byteOffset + pdfData.byteLength
+      );
+      const existingFile = this.app.vault.getAbstractFileByPath(pdfPath);
+      if (existingFile) {
+        await this.app.vault.modifyBinary(existingFile, arrayBuffer);
+      } else {
+        await this.app.vault.createBinary(pdfPath, arrayBuffer);
+      }
+      new import_obsidian.Notice(`PDF exported to: ${pdfPath}`);
+    } catch (error) {
+      console.error("Failed to export PDF:", error);
     }
   }
   async toggleMode() {
@@ -26103,6 +26155,23 @@ function registerCommands(plugin) {
         if (!inTypstView) {
           view.toggleMode();
           const mode = view.getCurrentMode();
+        }
+        return true;
+      }
+      if (!inTypstView) {
+        new import_obsidian3.Notice("Must be in a Typst (.typ) file");
+      }
+      return false;
+    }
+  });
+  plugin.addCommand({
+    id: "export-to-pdf",
+    name: "Export to PDF",
+    checkCallback: (inTypstView) => {
+      const view = plugin.app.workspace.getActiveViewOfType(TypstView);
+      if (view instanceof TypstView) {
+        if (!inTypstView) {
+          view.exportToPdf();
         }
         return true;
       }

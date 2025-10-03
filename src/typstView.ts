@@ -1,4 +1,4 @@
-import { TextFileView, setIcon, WorkspaceLeaf } from "obsidian";
+import { TextFileView, setIcon, WorkspaceLeaf, Notice } from "obsidian";
 import { TypstEditor } from "./TypstEditor";
 import TypstForObsidian from "./main";
 import * as pdfjsLib from "pdfjs-dist";
@@ -77,12 +77,79 @@ export class TypstView extends TextFileView {
   private addModeIcon(): void {
     const viewActions = this.containerEl.querySelector(".view-actions");
     if (viewActions) {
-      this.modeIconContainer = viewActions.createDiv("clickable-icon");
+      this.modeIconContainer = createDiv("clickable-icon");
       this.modeIconContainer.addClass("view-action");
       this.modeIconContainer.addEventListener("click", () => {
         this.toggleMode();
       });
       this.updateModeIcon();
+      // Prepend to place it before other actions
+      viewActions.prepend(this.modeIconContainer);
+
+      // Add PDF export button after mode toggle
+      this.addPdfExportButton(viewActions);
+    }
+  }
+
+  private addPdfExportButton(viewActions: Element): void {
+    const exportButton = createDiv("clickable-icon");
+    exportButton.addClass("view-action");
+    exportButton.setAttribute("aria-label", "Export to PDF");
+    setIcon(exportButton, "file-text");
+    exportButton.addEventListener("click", async () => {
+      await this.exportToPdf();
+    });
+
+    // Insert after the mode button (which is first)
+    if (this.modeIconContainer?.nextSibling) {
+      viewActions.insertBefore(
+        exportButton,
+        this.modeIconContainer.nextSibling
+      );
+    } else {
+      viewActions.appendChild(exportButton);
+    }
+  }
+
+  public async exportToPdf(): Promise<void> {
+    if (!this.file) {
+      console.error("No file available for export");
+      return;
+    }
+
+    try {
+      // Get current content
+      const content = this.getViewData();
+
+      // Compile to PDF
+      const pdfData = await this.plugin.compileToPdf(content);
+      if (!pdfData) {
+        console.error("PDF compilation failed");
+        return;
+      }
+
+      // Get the file path and create PDF filename
+      const filePath = this.file.path;
+      const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
+      const baseName = this.file.basename;
+      const pdfFileName = `${baseName}.pdf`;
+      const pdfPath = folderPath ? `${folderPath}/${pdfFileName}` : pdfFileName;
+
+      // Save PDF to vault
+      const arrayBuffer = pdfData.buffer.slice(
+        pdfData.byteOffset,
+        pdfData.byteOffset + pdfData.byteLength
+      ) as ArrayBuffer;
+      const existingFile = this.app.vault.getAbstractFileByPath(pdfPath);
+      if (existingFile) {
+        await this.app.vault.modifyBinary(existingFile as any, arrayBuffer);
+      } else {
+        await this.app.vault.createBinary(pdfPath, arrayBuffer);
+      }
+
+      new Notice(`PDF exported to: ${pdfPath}`);
+    } catch (error) {
+      console.error("Failed to export PDF:", error);
     }
   }
 
