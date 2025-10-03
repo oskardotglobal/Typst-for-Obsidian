@@ -200,13 +200,48 @@ export default class TypstForObsidian extends Plugin {
 
     console.log(finalSource);
 
-    // Replace %THEMECOLOR% with actual theme text color
-    const textColor = this.getThemeTextColor();
-    finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
-
-    // Replace %FONTSIZE% with actual CSS font size
-    const fontSize = this.getCssFontSize();
-    finalSource = finalSource.replace(/%FONTSIZE%/g, fontSize);
+    // Replace all theme variables
+    finalSource = finalSource.replace(
+      /%THEMECOLOR%/g,
+      this.getThemeTextColor()
+    );
+    finalSource = finalSource.replace(/%FONTSIZE%/g, this.getCssFontSize());
+    finalSource = finalSource.replace(/%ACCENTCOLOR%/g, this.getAccentColor());
+    finalSource = finalSource.replace(/%FAINTCOLOR%/g, this.getFaintColor());
+    finalSource = finalSource.replace(/%MUTEDCOLOR%/g, this.getMutedColor());
+    finalSource = finalSource.replace(/%BGCOLOR%/g, this.getThemeBGColor());
+    finalSource = finalSource.replace(
+      /%BGPRIMARY%/g,
+      this.getBackgroundPrimary()
+    );
+    finalSource = finalSource.replace(
+      /%BGPRIMARYALT%/g,
+      this.getBackgroundPrimaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARY%/g,
+      this.getBackgroundSecondary()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARYALT%/g,
+      this.getBackgroundSecondaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%SUCCESSCOLOR%/g,
+      this.getSuccessColor()
+    );
+    finalSource = finalSource.replace(
+      /%WARNINGCOLOR%/g,
+      this.getWarningColor()
+    );
+    finalSource = finalSource.replace(/%ERRORCOLOR%/g, this.getErrorColor());
+    finalSource = finalSource.replace(
+      /%HEADINGCOLOR%/g,
+      this.getHeadingColor()
+    );
+    finalSource = finalSource.replace(/%FONTTEXT%/g, this.getFontText());
+    finalSource = finalSource.replace(/%FONTMONO%/g, this.getFontMonospace());
+    finalSource = finalSource.replace(/%BORDERWIDTH%/g, this.getBorderWidth());
 
     console.log(
       "🔶 Main: Applied layout functions, theme color, and font size"
@@ -299,20 +334,52 @@ export default class TypstForObsidian extends Plugin {
 
     finalSource = finalSource + "#linebreak()\n#linebreak()";
 
-    // Replace %THEMECOLOR% with actual theme text color
-    const textColor = this.getThemeTextColor();
-    finalSource = finalSource.replace(/%THEMECOLOR%/g, textColor);
-
-    // Replace %FONTSIZE% with actual CSS font size
-    const fontSize = this.getCssFontSize();
-    finalSource = finalSource.replace(/%FONTSIZE%/g, fontSize);
-
-    // Replace %BGCOLOR% with actual theme background color
-    const bgColor = this.getThemeBGColor();
-    finalSource = finalSource.replace(/%BGCOLOR%/g, bgColor);
-
-    const lineWidth = this.getFileLineWidth();
-    finalSource = finalSource.replace(/%LINEWIDTH%/g, this.pxToPt(lineWidth));
+    // Replace all theme variables
+    finalSource = finalSource.replace(
+      /%THEMECOLOR%/g,
+      this.getThemeTextColor()
+    );
+    finalSource = finalSource.replace(/%FONTSIZE%/g, this.getCssFontSize());
+    finalSource = finalSource.replace(/%BGCOLOR%/g, this.getThemeBGColor());
+    finalSource = finalSource.replace(
+      /%LINEWIDTH%/g,
+      this.pxToPt(this.getFileLineWidth())
+    );
+    finalSource = finalSource.replace(/%ACCENTCOLOR%/g, this.getAccentColor());
+    finalSource = finalSource.replace(/%FAINTCOLOR%/g, this.getFaintColor());
+    finalSource = finalSource.replace(/%MUTEDCOLOR%/g, this.getMutedColor());
+    finalSource = finalSource.replace(
+      /%BGPRIMARY%/g,
+      this.getBackgroundPrimary()
+    );
+    finalSource = finalSource.replace(
+      /%BGPRIMARYALT%/g,
+      this.getBackgroundPrimaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARY%/g,
+      this.getBackgroundSecondary()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARYALT%/g,
+      this.getBackgroundSecondaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%SUCCESSCOLOR%/g,
+      this.getSuccessColor()
+    );
+    finalSource = finalSource.replace(
+      /%WARNINGCOLOR%/g,
+      this.getWarningColor()
+    );
+    finalSource = finalSource.replace(/%ERRORCOLOR%/g, this.getErrorColor());
+    finalSource = finalSource.replace(
+      /%HEADINGCOLOR%/g,
+      this.getHeadingColor()
+    );
+    finalSource = finalSource.replace(/%FONTTEXT%/g, this.getFontText());
+    finalSource = finalSource.replace(/%FONTMONO%/g, this.getFontMonospace());
+    finalSource = finalSource.replace(/%BORDERWIDTH%/g, this.getBorderWidth());
 
     console.log(
       "🔶 Main: Applied layout functions, theme color, and font size for PDF"
@@ -600,6 +667,104 @@ export default class TypstForObsidian extends Plugin {
     }
     console.log("🔍 Main: Using fallback width: 700");
     return "700"; // fallback
+  }
+
+  private getCssVariable(
+    variableName: string,
+    fallback: string = "000000"
+  ): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const value = bodyStyle.getPropertyValue(variableName).trim();
+
+    if (value) {
+      // If it's a color value, convert to hex
+      if (
+        variableName.includes("color") ||
+        variableName.includes("background") ||
+        variableName.includes("text-")
+      ) {
+        return this.cssColorToHex(value);
+      }
+      return value;
+    }
+
+    return fallback;
+  }
+
+  // Color getters
+  private getAccentColor(): string {
+    return this.getCssVariable("--text-accent", "ffffff");
+  }
+
+  private getFaintColor(): string {
+    return this.getCssVariable("--text-faint", "888888");
+  }
+
+  private getMutedColor(): string {
+    return this.getCssVariable("--text-muted", "999999");
+  }
+
+  private getBackgroundPrimary(): string {
+    return this.getCssVariable("--background-primary", "ffffff");
+  }
+
+  private getBackgroundPrimaryAlt(): string {
+    return this.getCssVariable("--background-primary-alt", "f5f5f5");
+  }
+
+  private getBackgroundSecondary(): string {
+    return this.getCssVariable("--background-secondary", "f0f0f0");
+  }
+
+  private getBackgroundSecondaryAlt(): string {
+    return this.getCssVariable("--background-secondary-alt", "e8e8e8");
+  }
+
+  private getSuccessColor(): string {
+    return this.getCssVariable("--text-success", "00ff00");
+  }
+
+  private getWarningColor(): string {
+    return this.getCssVariable("--text-warning", "ffaa00");
+  }
+
+  private getErrorColor(): string {
+    return this.getCssVariable("--text-error", "ff0000");
+  }
+
+  // Font getters
+  private getFontText(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontText = bodyStyle.getPropertyValue("--font-text").trim();
+    return fontText || "sans-serif";
+  }
+
+  private getFontMonospace(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const fontMono = bodyStyle.getPropertyValue("--font-monospace").trim();
+    return fontMono || "monospace";
+  }
+
+  // Border width
+  private getBorderWidth(): string {
+    const bodyStyle = getComputedStyle(document.body);
+    const borderWidth = bodyStyle.getPropertyValue("--border-width").trim();
+    return borderWidth || "1px";
+  }
+
+  // Heading color - typically same as text color but can be customized
+  private getHeadingColor(): string {
+    // Try specific heading color first, fallback to text color
+    const bodyStyle = getComputedStyle(document.body);
+    const headingColor =
+      bodyStyle.getPropertyValue("--text-heading").trim() ||
+      bodyStyle.getPropertyValue("--text-normal").trim();
+
+    if (headingColor) {
+      return this.cssColorToHex(headingColor);
+    }
+
+    return this.getThemeTextColor();
   }
 
   async handleWorkerRequest({ buffer: wbuffer, path }: WorkerRequest) {

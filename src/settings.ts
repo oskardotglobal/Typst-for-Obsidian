@@ -113,7 +113,10 @@ export class TypstSettingTab extends PluginSettingTab {
       const layoutSetting = new Setting(containerEl)
         .setName("Custom layout functions")
         .setDesc(
-          "Customize the default layout functions. Use %THEMECOLOR% as a placeholder for the current theme's text color."
+          "Customize the default layout functions. Available variables: " +
+            "%THEMECOLOR%, %BGCOLOR%, %FONTSIZE%, %LINEWIDTH%, %ACCENTCOLOR%, %FAINTCOLOR%, %MUTEDCOLOR%, " +
+            "%BGPRIMARY%, %BGPRIMARYALT%, %BGSECONDARY%, %BGSECONDARYALT%, %SUCCESSCOLOR%, %WARNINGCOLOR%, " +
+            "%ERRORCOLOR%, %HEADINGCOLOR%, %FONTTEXT%, %FONTMONO%, %BORDERWIDTH%"
         );
 
       let textArea: HTMLTextAreaElement;
