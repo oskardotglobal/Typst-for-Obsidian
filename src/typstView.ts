@@ -121,7 +121,7 @@ export class TypstView extends TextFileView {
   private switchToSourceMode(): void {
     // Save reading mode state before switching away
     this.saveEditorState();
-    
+
     this.setMode("source");
     this.showSourceMode();
 
@@ -282,7 +282,7 @@ export class TypstView extends TextFileView {
       ) {
         await this.renderPage(pdfDocument, pageNumber, readingDiv);
       }
-      
+
       // Restore scroll position after rendering
       if (this.savedReadingScrollTop > 0) {
         setTimeout(() => {
