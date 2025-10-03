@@ -26393,31 +26393,44 @@ var DEFAULT_SETTINGS = {
   pdfLayoutFunctions: "",
   // prettier-ignore
   customLayoutFunctions: `#set page(
-  width: %LINEWIDTH%,
+  // Normal reading mode width
+  width: %LINEWIDTH%, 
+  // Makes everything on one page
   height: auto,
+  // Essentially 0 margin.
+  // Some padding is needed to 
+  // make the PDF not cut off
   margin: (x: 0.25em, y: 0.25em),
+  // Set he BG color of page to
+  // the BG color of Obsidian
   fill: rgb("%BGCOLOR%")
 )
 
 #set text(
+  // Current Obsidian font size
   size: %FONTSIZE%,
+  // Theme text color
   fill: rgb("%THEMECOLOR%")
 )
 
-#show math.equation: set text(fill: rgb("%THEMECOLOR%"))
-
+// Paragraph styling
 #set par(
   justify: true,
   leading: 0.65em
 )
 
+// Set colors of elements to theme colors
+#show heading: set text(fill: rgb("%HEADINGCOLOR%"))
+#show math.equation: set text(fill: rgb("%THEMECOLOR%"))
 #set block(fill: none)
 #set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set box(fill: none)
+#set box(fill: none, stroke: rgb("%THEMECOLOR%"))
 #set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
 #set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
 #set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set line(stroke: rgb("%THEMECOLOR%"))`
+#set line(stroke: rgb("%THEMECOLOR%"))
+#show table: set table(stroke: rgb("%THEMECOLOR%"))
+#show math.equation: set box(stroke: none)`
 };
 var TypstSettingTab = class extends import_obsidian5.PluginSettingTab {
   constructor(app, plugin) {
