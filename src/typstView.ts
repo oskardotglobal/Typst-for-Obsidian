@@ -265,6 +265,7 @@ export class TypstView extends TextFileView {
       console.log(
         `📦 Page container created with dimensions: ${viewport.width}x${viewport.height}`
       );
+      pageContainer.style.opacity = "0";
 
       // --- Canvas layer (bottom) ---
       const canvas = pageContainer.createEl("canvas");

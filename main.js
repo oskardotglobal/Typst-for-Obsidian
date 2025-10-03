@@ -25732,6 +25732,7 @@ var TypstView = class extends import_obsidian.TextFileView {
       console.log(
         `\u{1F4E6} Page container created with dimensions: ${viewport.width}x${viewport.height}`
       );
+      pageContainer.style.opacity = "0";
       const canvas = pageContainer.createEl("canvas");
       canvas.width = viewport.width;
       canvas.height = viewport.height;
