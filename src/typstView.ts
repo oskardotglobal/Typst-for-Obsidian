@@ -121,8 +121,12 @@ export class TypstView extends TextFileView {
       // Get current content
       const content = this.getViewData();
 
-      // Compile to PDF
-      const pdfData = await this.plugin.compileToPdf(content);
+      // Compile to PDF with export mode
+      const pdfData = await this.plugin.compileToPdf(
+        content,
+        "/main.typ",
+        "export"
+      );
       if (!pdfData) {
         console.error("PDF compilation failed");
         return;

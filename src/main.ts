@@ -318,21 +318,33 @@ export default class TypstForObsidian extends Plugin {
   // Enhanced compilation method for PDF that mirrors compileToSvg
   async compileToPdf(
     source: string,
-    path: string = "/main.typ"
+    path: string = "/main.typ",
+    compileType: "internal" | "export" = "internal"
   ): Promise<Uint8Array> {
     console.log("🔶 Main: compileToPdf called");
 
-    // Apply styling and layout functions like the SVG implementation
+    // Apply styling and layout functions
     let finalSource = source;
 
+    // Add PDF export layout functions if enabled and this is an export
+    if (
+      compileType === "export" &&
+      this.settings.usePdfLayoutFunctions &&
+      this.settings.pdfLayoutFunctions.trim()
+    ) {
+      finalSource = this.settings.pdfLayoutFunctions + "\n" + source;
+    }
     // Add layout functions if enabled
-    if (this.settings.useDefaultLayoutFunctions) {
+    else if (this.settings.useDefaultLayoutFunctions) {
       finalSource = this.settings.customLayoutFunctions + "\n" + source;
     } else {
-      finalSource = "#set page: (margin: (x: 0.25em, y: 0.25em));" + source;
+      finalSource = "#set page(margin: (x: 0.25em, y: 0.25em))\n" + source;
     }
 
-    finalSource = finalSource + "#linebreak()\n#linebreak()";
+    // Add line breaks only for internal (non-export) mode
+    if (compileType === "internal") {
+      finalSource = finalSource + "#linebreak()\n#linebreak()";
+    }
 
     // Replace all theme variables
     finalSource = finalSource.replace(

@@ -25811,7 +25811,11 @@ var TypstView = class extends import_obsidian.TextFileView {
     }
     try {
       const content = this.getViewData();
-      const pdfData = await this.plugin.compileToPdf(content);
+      const pdfData = await this.plugin.compileToPdf(
+        content,
+        "/main.typ",
+        "export"
+      );
       if (!pdfData) {
         console.error("PDF compilation failed");
         return;
@@ -26294,9 +26298,10 @@ var DEFAULT_SETTINGS = {
   defaultMode: "source",
   editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
+  usePdfLayoutFunctions: false,
   autoDownloadPackages: true,
   fontFamilies: [],
-  compileOnSave: false,
+  pdfLayoutFunctions: "",
   // prettier-ignore
   customLayoutFunctions: `#set page(
   width: %LINEWIDTH%pt,
@@ -26341,14 +26346,6 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian4.Setting(containerEl).setName("Compile on save").setDesc(
-      "Automatically recompile the document when saving (Ctrl/Cmd+S) while in reading mode"
-    ).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.compileOnSave).onChange(async (value) => {
-        this.plugin.settings.compileOnSave = value;
-        await this.plugin.saveSettings();
-      })
-    );
     new import_obsidian4.Setting(containerEl).setName("Use default layout functions").setDesc(
       "When enabled, wraps editor content with default page, text, and styling functions."
     ).addToggle(
@@ -26360,7 +26357,7 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
     );
     if (this.plugin.settings.useDefaultLayoutFunctions) {
       const layoutSetting = new import_obsidian4.Setting(containerEl).setName("Custom layout functions").setDesc(
-        "Customize the default layout functions. Available variables: %THEMECOLOR%, %BGCOLOR%, %FONTSIZE%, %LINEWIDTH%, %ACCENTCOLOR%, %FAINTCOLOR%, %MUTEDCOLOR%, %BGPRIMARY%, %BGPRIMARYALT%, %BGSECONDARY%, %BGSECONDARYALT%, %SUCCESSCOLOR%, %WARNINGCOLOR%, %ERRORCOLOR%, %HEADINGCOLOR%, %FONTTEXT%, %FONTMONO%, %BORDERWIDTH%"
+        "Customize the default layout functions. Available variables: \n%THEMECOLOR%, %BGCOLOR%, %FONTSIZE%, %LINEWIDTH%, %ACCENTCOLOR%, %FAINTCOLOR%, %MUTEDCOLOR%, \n%BGPRIMARY%, %BGPRIMARYALT%, %BGSECONDARY%, %BGSECONDARYALT%, %SUCCESSCOLOR%, %WARNINGCOLOR%, \n%ERRORCOLOR%, %HEADINGCOLOR%, %FONTTEXT%, %FONTMONO%, %BORDERWIDTH%"
       );
       let textArea;
       layoutSetting.addTextArea((text) => {
@@ -26377,6 +26374,37 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
           this.plugin.settings.customLayoutFunctions = DEFAULT_SETTINGS.customLayoutFunctions;
           await this.plugin.saveSettings();
           textArea.value = this.plugin.settings.customLayoutFunctions;
+        })
+      );
+    }
+    new import_obsidian4.Setting(containerEl).setName("Use PDF export layout functions").setDesc(
+      "When enabled, prepends custom layout functions to PDF exports only (not editor preview)."
+    ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.usePdfLayoutFunctions).onChange(async (value) => {
+        this.plugin.settings.usePdfLayoutFunctions = value;
+        await this.plugin.saveSettings();
+        this.display();
+      })
+    );
+    if (this.plugin.settings.usePdfLayoutFunctions) {
+      const pdfLayoutSetting = new import_obsidian4.Setting(containerEl).setName("PDF export layout functions").setDesc(
+        "Custom layout functions for PDF exports. Available variables: \n%THEMECOLOR%, %BGCOLOR%, %FONTSIZE%, %LINEWIDTH%, %ACCENTCOLOR%, %FAINTCOLOR%, %MUTEDCOLOR%, \n%BGPRIMARY%, %BGPRIMARYALT%, %BGSECONDARY%, %BGSECONDARYALT%, %SUCCESSCOLOR%, %WARNINGCOLOR%, \n%ERRORCOLOR%, %HEADINGCOLOR%, %FONTTEXT%, %FONTMONO%, %BORDERWIDTH%"
+      );
+      let pdfTextArea;
+      pdfLayoutSetting.addTextArea((text) => {
+        pdfTextArea = text.inputEl;
+        text.setPlaceholder("Enter Typst layout functions for PDF export...").setValue(this.plugin.settings.pdfLayoutFunctions).onChange(async (value) => {
+          this.plugin.settings.pdfLayoutFunctions = value;
+          await this.plugin.saveSettings();
+        });
+        text.inputEl.addClass("typst-layout-textarea");
+        text.inputEl.rows = 10;
+      });
+      pdfLayoutSetting.addButton(
+        (button) => button.setButtonText("Clear").setIcon("trash").setTooltip("Clear PDF layout functions").onClick(async () => {
+          this.plugin.settings.pdfLayoutFunctions = "";
+          await this.plugin.saveSettings();
+          pdfTextArea.value = "";
         })
       );
     }
@@ -31410,15 +31438,19 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     }
   }
   // Enhanced compilation method for PDF that mirrors compileToSvg
-  async compileToPdf(source, path2 = "/main.typ") {
+  async compileToPdf(source, path2 = "/main.typ", compileType = "internal") {
     console.log("\u{1F536} Main: compileToPdf called");
     let finalSource = source;
-    if (this.settings.useDefaultLayoutFunctions) {
+    if (compileType === "export" && this.settings.usePdfLayoutFunctions && this.settings.pdfLayoutFunctions.trim()) {
+      finalSource = this.settings.pdfLayoutFunctions + "\n" + source;
+    } else if (this.settings.useDefaultLayoutFunctions) {
       finalSource = this.settings.customLayoutFunctions + "\n" + source;
     } else {
-      finalSource = "#set page: (margin: (x: 0.25em, y: 0.25em));" + source;
+      finalSource = "#set page(margin: (x: 0.25em, y: 0.25em))\n" + source;
     }
-    finalSource = finalSource + "#linebreak()\n#linebreak()";
+    if (compileType === "internal") {
+      finalSource = finalSource + "#linebreak()\n#linebreak()";
+    }
     finalSource = finalSource.replace(
       /%THEMECOLOR%/g,
       this.getThemeTextColor()

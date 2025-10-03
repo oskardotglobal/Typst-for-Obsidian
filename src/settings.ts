@@ -7,18 +7,20 @@ export interface TypstSettings {
   editorReadableWidth: boolean;
   useDefaultLayoutFunctions: boolean;
   customLayoutFunctions: string;
+  usePdfLayoutFunctions: boolean;
+  pdfLayoutFunctions: string;
   autoDownloadPackages: boolean;
   fontFamilies: string[];
-  compileOnSave: boolean;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
   defaultMode: "source",
   editorReadableWidth: false,
   useDefaultLayoutFunctions: true,
+  usePdfLayoutFunctions: false,
   autoDownloadPackages: true,
   fontFamilies: [],
-  compileOnSave: false,
+  pdfLayoutFunctions: "",
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
@@ -77,20 +79,6 @@ export class TypstSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
-      .setName("Compile on save")
-      .setDesc(
-        "Automatically recompile the document when saving (Ctrl/Cmd+S) while in reading mode"
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.compileOnSave)
-          .onChange(async (value: boolean) => {
-            this.plugin.settings.compileOnSave = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
     // new Setting(containerEl)
     //   .setName("Editor readable width")
     //   .setDesc(
@@ -128,12 +116,7 @@ export class TypstSettingTab extends PluginSettingTab {
     if (this.plugin.settings.useDefaultLayoutFunctions) {
       const layoutSetting = new Setting(containerEl)
         .setName("Custom layout functions")
-        .setDesc(
-          "Customize the default layout functions. Available variables: " +
-            "%THEMECOLOR%, %BGCOLOR%, %FONTSIZE%, %LINEWIDTH%, %ACCENTCOLOR%, %FAINTCOLOR%, %MUTEDCOLOR%, " +
-            "%BGPRIMARY%, %BGPRIMARYALT%, %BGSECONDARY%, %BGSECONDARYALT%, %SUCCESSCOLOR%, %WARNINGCOLOR%, " +
-            "%ERRORCOLOR%, %HEADINGCOLOR%, %FONTTEXT%, %FONTMONO%, %BORDERWIDTH%"
-        );
+        .setDesc("Customize the default layout functions.");
 
       let textArea: HTMLTextAreaElement;
 
@@ -161,6 +144,55 @@ export class TypstSettingTab extends PluginSettingTab {
               DEFAULT_SETTINGS.customLayoutFunctions;
             await this.plugin.saveSettings();
             textArea.value = this.plugin.settings.customLayoutFunctions;
+          })
+      );
+    }
+
+    new Setting(containerEl)
+      .setName("Use PDF export layout functions")
+      .setDesc(
+        "When enabled, prepends custom layout functions to PDF exports only (not editor preview)."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.usePdfLayoutFunctions)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.usePdfLayoutFunctions = value;
+            await this.plugin.saveSettings();
+            this.display();
+          })
+      );
+
+    if (this.plugin.settings.usePdfLayoutFunctions) {
+      const pdfLayoutSetting = new Setting(containerEl)
+        .setName("PDF export layout functions")
+        .setDesc("Custom layout functions for PDF exports.");
+
+      let pdfTextArea: HTMLTextAreaElement;
+
+      pdfLayoutSetting.addTextArea((text) => {
+        pdfTextArea = text.inputEl;
+        text
+          .setPlaceholder("Enter Typst layout functions for PDF export...")
+          .setValue(this.plugin.settings.pdfLayoutFunctions)
+          .onChange(async (value: string) => {
+            this.plugin.settings.pdfLayoutFunctions = value;
+            await this.plugin.saveSettings();
+          });
+
+        text.inputEl.addClass("typst-layout-textarea");
+        text.inputEl.rows = 10;
+      });
+
+      pdfLayoutSetting.addButton((button) =>
+        button
+          .setButtonText("Clear")
+          .setIcon("trash")
+          .setTooltip("Clear PDF layout functions")
+          .onClick(async () => {
+            this.plugin.settings.pdfLayoutFunctions = "";
+            await this.plugin.saveSettings();
+            pdfTextArea.value = "";
           })
       );
     }
