@@ -11,7 +11,7 @@ use send_wrapper::SendWrapper;
 use typst::{
     diag::{EcoString, FileError, FileResult, PackageError, PackageResult},
     foundations::{Bytes, Datetime},
-    model::Document,
+    layout::PagedDocument,
     syntax::{package::PackageSpec, FileId, Source, VirtualPath},
     text::{Font, FontBook},
     utils::LazyHash,
@@ -58,7 +58,7 @@ impl SystemWorld {
         }
     }
 
-    pub fn compile(&mut self, text: String, path: String) -> Result<Document, JsValue> {
+    pub fn compile(&mut self, text: String, path: String) -> Result<PagedDocument, JsValue> {
         self.reset();
 
         self.main = FileId::new(None, VirtualPath::new(path));
@@ -71,7 +71,7 @@ impl SystemWorld {
     }
 
     pub fn add_font(&mut self, data: Vec<u8>) {
-        let buffer = Bytes::from(data);
+        let buffer = Bytes::new(data);
         let mut font_infos = Vec::new();
         for font in Font::iter(buffer) {
             font_infos.push(font.info().clone());
@@ -164,7 +164,7 @@ impl SystemWorld {
         let mut fonts = Vec::new();
 
         for data in typst_assets::fonts() {
-            let buffer = Bytes::from_static(data);
+            let buffer = Bytes::new(data);
             for font in Font::iter(buffer) {
                 book.push(font.info().clone());
                 fonts.push(font);

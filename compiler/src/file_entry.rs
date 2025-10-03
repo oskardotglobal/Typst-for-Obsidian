@@ -24,7 +24,7 @@ impl FileEntry {
 
     pub fn bytes(&self) -> Bytes {
         self.bytes
-            .get_or_init(|| Bytes::from(self.source.text().as_bytes()))
+            .get_or_init(|| Bytes::new(self.source.text().as_bytes().to_vec()))
             .clone()
     }
 }
