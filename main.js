@@ -486,6 +486,169 @@ function typst() {
 
 // src/TypstEditor.ts
 var import_search = require("@codemirror/search");
+var typstKeywords = [
+  "abs",
+  "acos",
+  "align",
+  "and",
+  "angle",
+  "array",
+  "as",
+  "asin",
+  "assert",
+  "atan",
+  "atan2",
+  "attach",
+  "auto",
+  "bibliography",
+  "binom",
+  "block",
+  "bool",
+  "box",
+  "break",
+  "bytes",
+  "cbrt",
+  "ceil",
+  "cite",
+  "circle",
+  "colbreak",
+  "columns",
+  "content",
+  "context",
+  "continue",
+  "cos",
+  "cosh",
+  "datetime",
+  "dictionary",
+  "dif",
+  "Dif",
+  "document",
+  "duration",
+  "ellipse",
+  "else",
+  "emph",
+  "emoji",
+  "enum",
+  "equation",
+  "eval",
+  "exp",
+  "false",
+  "figure",
+  "float",
+  "floor",
+  "for",
+  "footnote",
+  "frac",
+  "fraction",
+  "function",
+  "gcd",
+  "grid",
+  "h",
+  "hcf",
+  "heading",
+  "highlight",
+  "hypot",
+  "if",
+  "image",
+  "import",
+  "in",
+  "include",
+  "int",
+  "label",
+  "lcm",
+  "length",
+  "let",
+  "line",
+  "link",
+  "list",
+  "log",
+  "lorem",
+  "lower",
+  "mat",
+  "math",
+  "max",
+  "measure",
+  "min",
+  "mod",
+  "module",
+  "move",
+  "none",
+  "not",
+  "numbering",
+  "or",
+  "outline",
+  "overline",
+  "pad",
+  "page",
+  "pagebreak",
+  "panic",
+  "par",
+  "parbreak",
+  "path",
+  "place",
+  "plugin",
+  "polygon",
+  "pow",
+  "quote",
+  "ratio",
+  "raw",
+  "rect",
+  "ref",
+  "regex",
+  "repeat",
+  "repr",
+  "return",
+  "root",
+  "rotate",
+  "round",
+  "scale",
+  "selector",
+  "set",
+  "show",
+  "sin",
+  "sinh",
+  "smallcaps",
+  "smartquote",
+  "sqrt",
+  "square",
+  "stack",
+  "str",
+  "strike",
+  "strong",
+  "sub",
+  "super",
+  "sym",
+  "symbol",
+  "sys",
+  "table",
+  "tan",
+  "tanh",
+  "terms",
+  "text",
+  "true",
+  "trunc",
+  "type",
+  "underline",
+  "upper",
+  "v",
+  "vec",
+  "while",
+  "with",
+  "where"
+];
+function typstCompletions(context) {
+  const word = context.matchBefore(/\w*/);
+  if (!word || word.from === word.to && !context.explicit) {
+    return null;
+  }
+  return {
+    from: word.from,
+    options: typstKeywords.map((keyword) => ({
+      label: keyword,
+      type: "keyword"
+    }))
+  };
+}
 var TypstEditor = class {
   constructor(container, app, onContentChange) {
     this.editorView = null;
@@ -514,10 +677,17 @@ var TypstEditor = class {
       (0, import_language3.bracketMatching)(),
       (0, import_autocomplete.closeBrackets)(),
       (0, import_search.highlightSelectionMatches)(),
+      // Autocomplete
+      (0, import_autocomplete.autocompletion)({
+        override: [typstCompletions],
+        activateOnTyping: true,
+        maxRenderedOptions: 20
+      }),
       // Multiple selections
       import_state.EditorState.allowMultipleSelections.of(true),
       // Key bindings
       import_view2.keymap.of([
+        ...import_autocomplete.completionKeymap,
         import_commands.indentWithTab,
         ...import_commands.historyKeymap,
         ...import_commands.defaultKeymap,
@@ -542,85 +712,6 @@ var TypstEditor = class {
       }),
       parent: editorContainer
     });
-    setTimeout(() => {
-      this.logComputedStyles();
-    }, 100);
-  }
-  logComputedStyles() {
-    if (!this.editorView)
-      return;
-    const editorElement = this.editorView.dom;
-    const gutterElement = editorElement.querySelector(
-      ".cm-gutters"
-    );
-    const lineNumberElement = editorElement.querySelector(
-      ".cm-lineNumbers .cm-gutterElement"
-    );
-    const contentElement = editorElement.querySelector(
-      ".cm-content"
-    );
-    const lineElement = editorElement.querySelector(".cm-line");
-    console.group("\u{1F50D} CodeMirror Alignment Debug");
-    if (gutterElement) {
-      const gutterStyles = window.getComputedStyle(gutterElement);
-      console.log("\u{1F4CF} .cm-gutters:", {
-        fontSize: gutterStyles.fontSize,
-        fontFamily: gutterStyles.fontFamily,
-        lineHeight: gutterStyles.lineHeight,
-        paddingTop: gutterStyles.paddingTop,
-        paddingBottom: gutterStyles.paddingBottom,
-        height: gutterStyles.height
-      });
-    }
-    if (lineNumberElement) {
-      const lineNumStyles = window.getComputedStyle(lineNumberElement);
-      const rect = lineNumberElement.getBoundingClientRect();
-      console.log("\u{1F522} .cm-gutterElement (line number):", {
-        fontSize: lineNumStyles.fontSize,
-        fontFamily: lineNumStyles.fontFamily,
-        lineHeight: lineNumStyles.lineHeight,
-        height: lineNumStyles.height,
-        top: lineNumStyles.top,
-        paddingTop: lineNumStyles.paddingTop,
-        paddingBottom: lineNumStyles.paddingBottom,
-        marginTop: lineNumStyles.marginTop,
-        marginBottom: lineNumStyles.marginBottom,
-        verticalAlign: lineNumStyles.verticalAlign,
-        display: lineNumStyles.display,
-        boundingTop: rect.top
-      });
-    }
-    if (contentElement) {
-      const contentStyles = window.getComputedStyle(contentElement);
-      console.log("\u{1F4DD} .cm-content:", {
-        fontSize: contentStyles.fontSize,
-        fontFamily: contentStyles.fontFamily,
-        lineHeight: contentStyles.lineHeight,
-        paddingTop: contentStyles.paddingTop,
-        paddingBottom: contentStyles.paddingBottom
-      });
-    }
-    if (lineElement) {
-      const lineStyles = window.getComputedStyle(lineElement);
-      const rect = lineElement.getBoundingClientRect();
-      console.log("\u{1F4C4} .cm-line:", {
-        fontSize: lineStyles.fontSize,
-        fontFamily: lineStyles.fontFamily,
-        lineHeight: lineStyles.lineHeight,
-        height: lineStyles.height,
-        paddingTop: lineStyles.paddingTop,
-        paddingBottom: lineStyles.paddingBottom,
-        boundingTop: rect.top
-      });
-    }
-    const rootStyles = window.getComputedStyle(document.documentElement);
-    console.log("\u{1F3A8} CSS Variables:", {
-      "--font-monospace": rootStyles.getPropertyValue("--font-monospace").trim(),
-      "--font-text-size": rootStyles.getPropertyValue("--font-text-size").trim(),
-      "--line-height-normal": rootStyles.getPropertyValue("--line-height-normal").trim(),
-      "--file-margins": rootStyles.getPropertyValue("--file-margins").trim()
-    });
-    console.groupEnd();
   }
   getContent() {
     return this.editorView ? this.editorView.state.doc.toString() : this.content;
@@ -26195,6 +26286,7 @@ var DEFAULT_SETTINGS = {
   useDefaultLayoutFunctions: true,
   autoDownloadPackages: true,
   fontFamilies: [],
+  compileOnSave: false,
   // prettier-ignore
   customLayoutFunctions: `#set page(
   width: %LINEWIDTH%pt,
@@ -26236,6 +26328,14 @@ var TypstSettingTab = class extends import_obsidian4.PluginSettingTab {
     ).addDropdown(
       (dropdown) => dropdown.addOption("source", "Source mode").addOption("reading", "Reading mode").setValue(this.plugin.settings.defaultMode).onChange(async (value) => {
         this.plugin.settings.defaultMode = value;
+        await this.plugin.saveSettings();
+      })
+    );
+    new import_obsidian4.Setting(containerEl).setName("Compile on save").setDesc(
+      "Automatically recompile the document when saving (Ctrl/Cmd+S) while in reading mode"
+    ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.compileOnSave).onChange(async (value) => {
+        this.plugin.settings.compileOnSave = value;
         await this.plugin.saveSettings();
       })
     );
@@ -31207,20 +31307,44 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
     }
     finalSource = finalSource + "#linebreak()\n#linebreak()";
     console.log(finalSource);
-    finalSource = finalSource.replace(/%THEMECOLOR%/g, this.getThemeTextColor());
+    finalSource = finalSource.replace(
+      /%THEMECOLOR%/g,
+      this.getThemeTextColor()
+    );
     finalSource = finalSource.replace(/%FONTSIZE%/g, this.getCssFontSize());
     finalSource = finalSource.replace(/%ACCENTCOLOR%/g, this.getAccentColor());
     finalSource = finalSource.replace(/%FAINTCOLOR%/g, this.getFaintColor());
     finalSource = finalSource.replace(/%MUTEDCOLOR%/g, this.getMutedColor());
     finalSource = finalSource.replace(/%BGCOLOR%/g, this.getThemeBGColor());
-    finalSource = finalSource.replace(/%BGPRIMARY%/g, this.getBackgroundPrimary());
-    finalSource = finalSource.replace(/%BGPRIMARYALT%/g, this.getBackgroundPrimaryAlt());
-    finalSource = finalSource.replace(/%BGSECONDARY%/g, this.getBackgroundSecondary());
-    finalSource = finalSource.replace(/%BGSECONDARYALT%/g, this.getBackgroundSecondaryAlt());
-    finalSource = finalSource.replace(/%SUCCESSCOLOR%/g, this.getSuccessColor());
-    finalSource = finalSource.replace(/%WARNINGCOLOR%/g, this.getWarningColor());
+    finalSource = finalSource.replace(
+      /%BGPRIMARY%/g,
+      this.getBackgroundPrimary()
+    );
+    finalSource = finalSource.replace(
+      /%BGPRIMARYALT%/g,
+      this.getBackgroundPrimaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARY%/g,
+      this.getBackgroundSecondary()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARYALT%/g,
+      this.getBackgroundSecondaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%SUCCESSCOLOR%/g,
+      this.getSuccessColor()
+    );
+    finalSource = finalSource.replace(
+      /%WARNINGCOLOR%/g,
+      this.getWarningColor()
+    );
     finalSource = finalSource.replace(/%ERRORCOLOR%/g, this.getErrorColor());
-    finalSource = finalSource.replace(/%HEADINGCOLOR%/g, this.getHeadingColor());
+    finalSource = finalSource.replace(
+      /%HEADINGCOLOR%/g,
+      this.getHeadingColor()
+    );
     finalSource = finalSource.replace(/%FONTTEXT%/g, this.getFontText());
     finalSource = finalSource.replace(/%FONTMONO%/g, this.getFontMonospace());
     finalSource = finalSource.replace(/%BORDERWIDTH%/g, this.getBorderWidth());
@@ -31285,21 +31409,48 @@ var TypstForObsidian = class extends import_obsidian8.Plugin {
       finalSource = "#set page: (margin: (x: 0.25em, y: 0.25em));" + source;
     }
     finalSource = finalSource + "#linebreak()\n#linebreak()";
-    finalSource = finalSource.replace(/%THEMECOLOR%/g, this.getThemeTextColor());
+    finalSource = finalSource.replace(
+      /%THEMECOLOR%/g,
+      this.getThemeTextColor()
+    );
     finalSource = finalSource.replace(/%FONTSIZE%/g, this.getCssFontSize());
     finalSource = finalSource.replace(/%BGCOLOR%/g, this.getThemeBGColor());
-    finalSource = finalSource.replace(/%LINEWIDTH%/g, this.pxToPt(this.getFileLineWidth()));
+    finalSource = finalSource.replace(
+      /%LINEWIDTH%/g,
+      this.pxToPt(this.getFileLineWidth())
+    );
     finalSource = finalSource.replace(/%ACCENTCOLOR%/g, this.getAccentColor());
     finalSource = finalSource.replace(/%FAINTCOLOR%/g, this.getFaintColor());
     finalSource = finalSource.replace(/%MUTEDCOLOR%/g, this.getMutedColor());
-    finalSource = finalSource.replace(/%BGPRIMARY%/g, this.getBackgroundPrimary());
-    finalSource = finalSource.replace(/%BGPRIMARYALT%/g, this.getBackgroundPrimaryAlt());
-    finalSource = finalSource.replace(/%BGSECONDARY%/g, this.getBackgroundSecondary());
-    finalSource = finalSource.replace(/%BGSECONDARYALT%/g, this.getBackgroundSecondaryAlt());
-    finalSource = finalSource.replace(/%SUCCESSCOLOR%/g, this.getSuccessColor());
-    finalSource = finalSource.replace(/%WARNINGCOLOR%/g, this.getWarningColor());
+    finalSource = finalSource.replace(
+      /%BGPRIMARY%/g,
+      this.getBackgroundPrimary()
+    );
+    finalSource = finalSource.replace(
+      /%BGPRIMARYALT%/g,
+      this.getBackgroundPrimaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARY%/g,
+      this.getBackgroundSecondary()
+    );
+    finalSource = finalSource.replace(
+      /%BGSECONDARYALT%/g,
+      this.getBackgroundSecondaryAlt()
+    );
+    finalSource = finalSource.replace(
+      /%SUCCESSCOLOR%/g,
+      this.getSuccessColor()
+    );
+    finalSource = finalSource.replace(
+      /%WARNINGCOLOR%/g,
+      this.getWarningColor()
+    );
     finalSource = finalSource.replace(/%ERRORCOLOR%/g, this.getErrorColor());
-    finalSource = finalSource.replace(/%HEADINGCOLOR%/g, this.getHeadingColor());
+    finalSource = finalSource.replace(
+      /%HEADINGCOLOR%/g,
+      this.getHeadingColor()
+    );
     finalSource = finalSource.replace(/%FONTTEXT%/g, this.getFontText());
     finalSource = finalSource.replace(/%FONTMONO%/g, this.getFontMonospace());
     finalSource = finalSource.replace(/%BORDERWIDTH%/g, this.getBorderWidth());

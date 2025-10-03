@@ -17,10 +17,183 @@ import {
   redo,
 } from "@codemirror/commands";
 import { bracketMatching } from "@codemirror/language";
-import { closeBrackets } from "@codemirror/autocomplete";
+import {
+  closeBrackets,
+  autocompletion,
+  completionKeymap,
+  CompletionContext,
+} from "@codemirror/autocomplete";
 import { typst } from "./grammar/typst";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
+
+// Typst keywords from keywords.txt
+const typstKeywords = [
+  "abs",
+  "acos",
+  "align",
+  "and",
+  "angle",
+  "array",
+  "as",
+  "asin",
+  "assert",
+  "atan",
+  "atan2",
+  "attach",
+  "auto",
+  "bibliography",
+  "binom",
+  "block",
+  "bool",
+  "box",
+  "break",
+  "bytes",
+  "cbrt",
+  "ceil",
+  "cite",
+  "circle",
+  "colbreak",
+  "columns",
+  "content",
+  "context",
+  "continue",
+  "cos",
+  "cosh",
+  "datetime",
+  "dictionary",
+  "dif",
+  "Dif",
+  "document",
+  "duration",
+  "ellipse",
+  "else",
+  "emph",
+  "emoji",
+  "enum",
+  "equation",
+  "eval",
+  "exp",
+  "false",
+  "figure",
+  "float",
+  "floor",
+  "for",
+  "footnote",
+  "frac",
+  "fraction",
+  "function",
+  "gcd",
+  "grid",
+  "h",
+  "hcf",
+  "heading",
+  "highlight",
+  "hypot",
+  "if",
+  "image",
+  "import",
+  "in",
+  "include",
+  "int",
+  "label",
+  "lcm",
+  "length",
+  "let",
+  "line",
+  "link",
+  "list",
+  "log",
+  "lorem",
+  "lower",
+  "mat",
+  "math",
+  "max",
+  "measure",
+  "min",
+  "mod",
+  "module",
+  "move",
+  "none",
+  "not",
+  "numbering",
+  "or",
+  "outline",
+  "overline",
+  "pad",
+  "page",
+  "pagebreak",
+  "panic",
+  "par",
+  "parbreak",
+  "path",
+  "place",
+  "plugin",
+  "polygon",
+  "pow",
+  "quote",
+  "ratio",
+  "raw",
+  "rect",
+  "ref",
+  "regex",
+  "repeat",
+  "repr",
+  "return",
+  "root",
+  "rotate",
+  "round",
+  "scale",
+  "selector",
+  "set",
+  "show",
+  "sin",
+  "sinh",
+  "smallcaps",
+  "smartquote",
+  "sqrt",
+  "square",
+  "stack",
+  "str",
+  "strike",
+  "strong",
+  "sub",
+  "super",
+  "sym",
+  "symbol",
+  "sys",
+  "table",
+  "tan",
+  "tanh",
+  "terms",
+  "text",
+  "true",
+  "trunc",
+  "type",
+  "underline",
+  "upper",
+  "v",
+  "vec",
+  "while",
+  "with",
+  "where",
+];
+
+// Typst autocomplete function
+function typstCompletions(context: CompletionContext) {
+  const word = context.matchBefore(/\w*/);
+  if (!word || (word.from === word.to && !context.explicit)) {
+    return null;
+  }
+
+  return {
+    from: word.from,
+    options: typstKeywords.map((keyword) => ({
+      label: keyword,
+      type: "keyword",
+    })),
+  };
+}
 
 export class TypstEditor {
   private editorView: EditorView | null = null;
@@ -66,11 +239,19 @@ export class TypstEditor {
       closeBrackets(),
       highlightSelectionMatches(),
 
+      // Autocomplete
+      autocompletion({
+        override: [typstCompletions],
+        activateOnTyping: true,
+        maxRenderedOptions: 20,
+      }),
+
       // Multiple selections
       EditorState.allowMultipleSelections.of(true),
 
       // Key bindings
       keymap.of([
+        ...completionKeymap,
         indentWithTab,
         ...historyKeymap,
         ...defaultKeymap,
@@ -98,102 +279,6 @@ export class TypstEditor {
       }),
       parent: editorContainer,
     });
-
-    // Debug: Log computed styles for alignment
-    setTimeout(() => {
-      this.logComputedStyles();
-    }, 100);
-  }
-
-  private logComputedStyles(): void {
-    if (!this.editorView) return;
-
-    const editorElement = this.editorView.dom;
-    const gutterElement = editorElement.querySelector(
-      ".cm-gutters"
-    ) as HTMLElement;
-    const lineNumberElement = editorElement.querySelector(
-      ".cm-lineNumbers .cm-gutterElement"
-    ) as HTMLElement;
-    const contentElement = editorElement.querySelector(
-      ".cm-content"
-    ) as HTMLElement;
-    const lineElement = editorElement.querySelector(".cm-line") as HTMLElement;
-
-    console.group("🔍 CodeMirror Alignment Debug");
-
-    if (gutterElement) {
-      const gutterStyles = window.getComputedStyle(gutterElement);
-      console.log("📏 .cm-gutters:", {
-        fontSize: gutterStyles.fontSize,
-        fontFamily: gutterStyles.fontFamily,
-        lineHeight: gutterStyles.lineHeight,
-        paddingTop: gutterStyles.paddingTop,
-        paddingBottom: gutterStyles.paddingBottom,
-        height: gutterStyles.height,
-      });
-    }
-
-    if (lineNumberElement) {
-      const lineNumStyles = window.getComputedStyle(lineNumberElement);
-      const rect = lineNumberElement.getBoundingClientRect();
-      console.log("🔢 .cm-gutterElement (line number):", {
-        fontSize: lineNumStyles.fontSize,
-        fontFamily: lineNumStyles.fontFamily,
-        lineHeight: lineNumStyles.lineHeight,
-        height: lineNumStyles.height,
-        top: lineNumStyles.top,
-        paddingTop: lineNumStyles.paddingTop,
-        paddingBottom: lineNumStyles.paddingBottom,
-        marginTop: lineNumStyles.marginTop,
-        marginBottom: lineNumStyles.marginBottom,
-        verticalAlign: lineNumStyles.verticalAlign,
-        display: lineNumStyles.display,
-        boundingTop: rect.top,
-      });
-    }
-
-    if (contentElement) {
-      const contentStyles = window.getComputedStyle(contentElement);
-      console.log("📝 .cm-content:", {
-        fontSize: contentStyles.fontSize,
-        fontFamily: contentStyles.fontFamily,
-        lineHeight: contentStyles.lineHeight,
-        paddingTop: contentStyles.paddingTop,
-        paddingBottom: contentStyles.paddingBottom,
-      });
-    }
-
-    if (lineElement) {
-      const lineStyles = window.getComputedStyle(lineElement);
-      const rect = lineElement.getBoundingClientRect();
-      console.log("📄 .cm-line:", {
-        fontSize: lineStyles.fontSize,
-        fontFamily: lineStyles.fontFamily,
-        lineHeight: lineStyles.lineHeight,
-        height: lineStyles.height,
-        paddingTop: lineStyles.paddingTop,
-        paddingBottom: lineStyles.paddingBottom,
-        boundingTop: rect.top,
-      });
-    }
-
-    // Get CSS variable values
-    const rootStyles = window.getComputedStyle(document.documentElement);
-    console.log("🎨 CSS Variables:", {
-      "--font-monospace": rootStyles
-        .getPropertyValue("--font-monospace")
-        .trim(),
-      "--font-text-size": rootStyles
-        .getPropertyValue("--font-text-size")
-        .trim(),
-      "--line-height-normal": rootStyles
-        .getPropertyValue("--line-height-normal")
-        .trim(),
-      "--file-margins": rootStyles.getPropertyValue("--file-margins").trim(),
-    });
-
-    console.groupEnd();
   }
 
   public getContent(): string {

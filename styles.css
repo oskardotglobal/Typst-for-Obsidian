@@ -128,6 +128,75 @@
   border-left-width: 2px;
 }
 
+/* Autocomplete Styling */
+.typst-editor-container .cm-tooltip-autocomplete {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-s);
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-small);
+  padding: var(--size-4-1);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.typst-editor-container .cm-tooltip-autocomplete > ul {
+  font-family: var(--font-interface);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.typst-editor-container .cm-tooltip-autocomplete > ul > li {
+  padding: var(--size-4-1) var(--size-4-2);
+  cursor: pointer;
+  color: var(--text-normal);
+  border-radius: var(--radius-s);
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.typst-editor-container .cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.typst-editor-container .cm-completionLabel {
+  font-family: var(--font-monospace);
+  color: var(--text-normal);
+}
+
+.typst-editor-container .cm-completionDetail {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.typst-editor-container .cm-completionIcon {
+  display: none;
+}
+
+/* Autocomplete scrollbar */
+.typst-editor-container .cm-tooltip-autocomplete::-webkit-scrollbar {
+  width: var(--scrollbar-thin-width);
+}
+
+.typst-editor-container .cm-tooltip-autocomplete::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.typst-editor-container .cm-tooltip-autocomplete::-webkit-scrollbar-thumb {
+  background-color: var(--background-modifier-border);
+  border-radius: var(--radius-s);
+}
+
+.typst-editor-container
+  .cm-tooltip-autocomplete::-webkit-scrollbar-thumb:hover {
+  background-color: var(--background-modifier-border-hover);
+}
+
 /* Editor readable width */
 .typst-readable-width .typst-editor-container .cm-content {
   max-width: var(--file-line-width);

@@ -9,6 +9,7 @@ export interface TypstSettings {
   customLayoutFunctions: string;
   autoDownloadPackages: boolean;
   fontFamilies: string[];
+  compileOnSave: boolean;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
@@ -17,6 +18,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   useDefaultLayoutFunctions: true,
   autoDownloadPackages: true,
   fontFamilies: [],
+  compileOnSave: false,
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
@@ -71,6 +73,20 @@ export class TypstSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.defaultMode)
           .onChange(async (value: "source" | "reading") => {
             this.plugin.settings.defaultMode = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Compile on save")
+      .setDesc(
+        "Automatically recompile the document when saving (Ctrl/Cmd+S) while in reading mode"
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.compileOnSave)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.compileOnSave = value;
             await this.plugin.saveSettings();
           })
       );
