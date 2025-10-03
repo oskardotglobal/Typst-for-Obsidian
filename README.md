@@ -88,19 +88,19 @@ npm run build
 
 ## What's Next
 
-- [] Improve performance of PDF rendering
-- [] Incremental rendering while typing (requires reworking the compiler with to be stateful)
-- [] Add more keyboard shortcuts, more robust editor features
-- [] Better syntax highlighting (full grammar)
-- [] Formatter for Typst code
-- [] Polish PDF viewer, fix text layers
-- [] Polish editor UI
-- [] Add support for jumping from PDF to source by clicking on text
-- [] Add backlink support in PDF preview
-- [] Support for more template variables
-- [] Improve error handling and reporting
-- [] Support Typst packages that use WebAssembly modules
-- [] Add more settings for customization
+- [ ] **Improve performance of PDF rendering**
+- [ ] **Incremental rendering while typing** (requires reworking the compiler with to be stateful)
+- [ ] **Polish PDF viewer, fix text layers**
+- [ ] **Polish editor UI**
+- [ ] Add more keyboard shortcuts, more robust editor features
+- [ ] Better syntax highlighting (full grammar)
+- [ ] Formatter for Typst code
+- [ ] Add support for jumping from PDF to source by clicking on text
+- [ ] Add backlink support in PDF preview
+- [ ] Support for more template variables
+- [ ] Improve error handling and reporting
+- [ ] Support Typst packages that use WebAssembly modules
+- [ ] Add more settings for customization
 
 ## Known Issues
 
