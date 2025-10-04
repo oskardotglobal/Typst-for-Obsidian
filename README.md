@@ -92,6 +92,7 @@ npm run build
 - [ ] **Incremental rendering while typing** (requires reworking the compiler with to be stateful)
 - [ ] **Polish PDF viewer, fix text layers**
 - [ ] **Polish editor UI**
+- [ ] Switch to PDFium for rendering (since PDF.js doesn't do font hinting and has crazy pixel rounding artifacts)
 - [ ] Add more keyboard shortcuts, more robust editor features
 - [ ] Better syntax highlighting (full grammar)
 - [ ] Formatter for Typst code
@@ -99,6 +100,7 @@ npm run build
 - [ ] Add backlink support in PDF preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
+- [ ] Switch to [Monaco Editor](https://microsoft.github.io/monaco-editor/) (maybe)
 - [ ] Support Typst packages that use WebAssembly modules
 - [ ] Add more settings for customization
 
