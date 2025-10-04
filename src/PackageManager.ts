@@ -2,7 +2,7 @@ import { Platform, normalizePath } from "obsidian";
 import type TypstPlugin from "./main";
 import { decompressSync } from "fflate";
 // @ts-ignore
-import { untar } from "js-untar";
+import untar from "js-untar";
 
 export class PackageManager {
   private fs: any;

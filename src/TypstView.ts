@@ -99,6 +99,7 @@ export class TypstView extends TextFileView {
 
       new Notice(`PDF exported to: ${pdfPath}`);
     } catch (error) {
+      new Notice("Failed to export PDF. See console for details.");
       console.error("Failed to export PDF:", error);
     }
   }
@@ -153,6 +154,7 @@ export class TypstView extends TextFileView {
       const result = await this.plugin.compileToPdf(content);
       return result;
     } catch (error) {
+      new Notice("Failed to export PDF. See console for details.");
       console.error("PDF compilation failed:", error);
       throw error;
     }
