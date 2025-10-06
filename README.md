@@ -77,6 +77,33 @@ _Currently, keyboard shortcuts only work when Obsidian hotkeys for the same hotk
 2. Extract `main.js`, `manifest.json`, `styles.css`, and `obsidian_typst_bg.wasm` to your Obsidian plugins folder (`.obsidian/plugins/typst-for-obsidian`)
 3. Enable the plugin in Obsidian settings
 
+## How it Works
+
+- The plugin integrates the Typst compiler directly into Obsidian using WebAssembly, allowing it to run in the browser.
+- It manages two modes: source mode (for editing) and reading mode (for PDF preview).
+- The editor view uses CodeMirror 6 Typst editor with syntax highlighting, autocomplete, and keybindings.
+- The viewer renders PDFs using PDF.js, with support for text selection and links.
+
+### Compilation Process
+
+When compiling a document, the plugin first processes the source code through several stages:
+
+1. If enabled, custom layout functions are prepended to the source. These can be different for internal previews vs PDF exports, allowing different formatting for each use case.
+2. Before compilation, all template variables (like `%THEMECOLOR%`, `%FONTSIZE%`) are replaced with values extracted from the current Obsidian theme.
+3. The processed source is then sent to a Web Worker running the Typst compiler.
+
+### WebAssembly Compiler
+
+- The core compiler is written in Rust and compiled to WebAssembly.
+- The compiler uses the official Typst library to parse and compile documents to a PDF.
+- On desktop, system fonts are loaded into the WASM module via the Local Font Access API and are registered with Typst's font system.
+- The plugin fetches Typst packages from the official repository and caches them locally, and gets packages from the Typst data directory on desktop.
+
+### PDF Rendering
+
+- Each page is rendered to a canvas with scaling for high-DPI displays.
+- Text layers are overlaid for selection and annotation layers are rendered for interactive elements like links.
+
 ## Development
 
 ### Build
