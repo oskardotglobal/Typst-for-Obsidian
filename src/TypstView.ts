@@ -154,7 +154,7 @@ export class TypstView extends TextFileView {
       const result = await this.plugin.compileToPdf(content);
       return result;
     } catch (error) {
-      new Notice("Failed to export PDF. See console for details.");
+      new Notice("Failed to compile PDF. See console for details.");
       console.error("PDF compilation failed:", error);
       throw error;
     }

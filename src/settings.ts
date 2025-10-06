@@ -48,6 +48,8 @@ export const DEFAULT_SETTINGS: TypstSettings = {
 )
 
 // Set colors of elements to theme colors
+// You may want to turn these off, they make some packages
+// like zebraw look weird. Then just set them as needed
 #show heading: set text(fill: rgb("%HEADINGCOLOR%"))
 #show math.equation: set text(fill: rgb("%THEMECOLOR%"))
 #set block(fill: none)
@@ -189,7 +191,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Font families")
       .setDesc(
-        "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts."
+        "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts. Changes require reloading fonts."
       )
       .addTextArea((text) =>
         text
@@ -201,6 +203,7 @@ export class TypstSettingTab extends PluginSettingTab {
               .map((font) => font.trim().toLowerCase())
               .filter((font) => font.length > 0);
             await this.plugin.saveSettings();
+            await this.plugin.loadFonts();
           })
       );
   }

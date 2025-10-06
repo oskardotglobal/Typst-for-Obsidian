@@ -51,4 +51,8 @@ impl Compiler {
     pub fn add_font(&mut self, data: Vec<u8>) {
         self.world.add_font(data);
     }
+
+    pub fn reset_fonts(&mut self) {
+        self.world.reset_fonts();
+    }
 }

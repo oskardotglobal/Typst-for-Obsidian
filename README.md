@@ -2,6 +2,8 @@
 
 A [Typst](https://typst.app) editor integrated directly into [Obsidian](https://obsidian.md), enabling you to create and preview Typst documents seamlessly within your notes. Create `.typ` files, edit with syntax highlighting, and render PDFs that adapt to your Obsidian theme.
 
+![Screenshot]("./assets/full-screen.png")
+
 ## Features
 
 - Open `.typ` files in Obsidian

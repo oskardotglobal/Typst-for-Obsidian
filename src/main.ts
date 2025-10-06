@@ -22,6 +22,7 @@ export default class TypstForObsidian extends Plugin {
   wasmPath: string;
   pluginPath: string;
   packagePath: string;
+  private isWorkerReady: boolean = false;
 
   async onload() {
     this.textEncoder = new TextEncoder();
@@ -67,6 +68,7 @@ export default class TypstForObsidian extends Plugin {
 
       this.compilerWorker.addEventListener("message", (event) => {
         if (event.data?.type === "ready") {
+          this.isWorkerReady = true;
           this.loadFonts();
         }
       });
@@ -89,22 +91,72 @@ export default class TypstForObsidian extends Plugin {
     );
   }
 
-  private async loadFonts() {
+  async loadFonts() {
+    if (!Platform.isDesktopApp) {
+      console.log("Font loading is only supported on desktop");
+      return;
+    }
+
+    if (!this.isWorkerReady) {
+      return;
+    }
+
+    this.compilerWorker.postMessage({ type: "reset_fonts" });
+
+    if (this.settings.fontFamilies.length === 0) {
+      return;
+    }
+
     try {
-      let fonts = await Promise.all(
-        //@ts-expect-error
-        ((await window.queryLocalFonts()) as Array)
-          .filter((font: { family: string; name: string }) =>
-            this.settings.fontFamilies.includes(font.family.toLowerCase())
-          )
-          .map(
-            async (font: { blob: () => Promise<Blob> }) =>
-              await (await font.blob()).arrayBuffer()
-          )
+      //@ts-expect-error
+      const availableFonts = await window.queryLocalFonts();
+      const matchedFonts = availableFonts.filter(
+        (font: {
+          family: string;
+          fullName: string;
+          postscriptName: string;
+        }) => {
+          const familyLower = font.family.toLowerCase();
+          const fullNameLower = font.fullName?.toLowerCase() || "";
+          const postscriptLower = font.postscriptName?.toLowerCase() || "";
+
+          return this.settings.fontFamilies.some((configuredFont) => {
+            const configured = configuredFont.toLowerCase();
+            return (
+              familyLower.includes(configured) ||
+              configured.includes(familyLower) ||
+              fullNameLower.includes(configured) ||
+              postscriptLower.includes(configured)
+            );
+          });
+        }
       );
+
+      const familyGroups = new Map<string, number>();
+      matchedFonts.forEach((font: any) => {
+        const count = familyGroups.get(font.family) || 0;
+        familyGroups.set(font.family, count + 1);
+      });
+
+      if (matchedFonts.length === 0) {
+        console.warn(
+          `None of the configured fonts were found on system. Run \`typst fonts\` in the terminal to get the correct names`
+        );
+        return;
+      }
+
+      const fonts = await Promise.all(
+        matchedFonts.map(
+          async (font: { family: string; blob: () => Promise<Blob> }) => {
+            return await (await font.blob()).arrayBuffer();
+          }
+        )
+      );
+
       this.compilerWorker.postMessage({ type: "fonts", data: fonts }, fonts);
     } catch (error) {
-      console.warn("Could not load system fonts:", error);
+      console.error("Could not load system fonts:", error);
+      new Notice("Failed to load custom fonts. Check console for details.");
     }
   }
 
@@ -177,7 +229,6 @@ export default class TypstForObsidian extends Plugin {
       finalSource = finalSource + "#linebreak()\n#linebreak()";
     }
 
-    // Replace all template variables
     finalSource = this.templateProvider.replaceVariables(finalSource);
 
     const message = {
@@ -227,9 +278,7 @@ export default class TypstForObsidian extends Plugin {
       } else if (result && result.error) {
         throw new Error(result.error);
       } else if (result && result.buffer && result.path) {
-        // This is a WorkerRequest
         await this.handleWorkerRequest(result);
-        // Continue the loop to wait for the next response
         continue;
       } else {
         console.error("Unexpected PDF response format:", result);

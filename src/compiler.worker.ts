@@ -79,6 +79,12 @@ onmessage = (ev: MessageEvent<Message>) => {
         compiler.add_font(new Uint8Array(font))
       );
       break;
+    case "reset_fonts":
+      if (!compiler) {
+        break;
+      }
+      compiler.reset_fonts();
+      break;
     case "compile":
       if (!compiler) {
         postMessage({ error: "Compiler not initialized" });

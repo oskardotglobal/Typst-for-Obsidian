@@ -72,6 +72,12 @@ impl SystemWorld {
         }
     }
 
+    pub fn reset_fonts(&mut self) {
+        let (book, fonts) = SystemWorld::start_embedded_fonts();
+        self.book = LazyHash::new(book);
+        self.fonts = fonts;
+    }
+
     fn reset(&mut self) {
         self.files.get_mut().clear();
         self.packages.get_mut().clear();
