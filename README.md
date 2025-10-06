@@ -111,7 +111,7 @@ npm run build
 ## Known Issues
 
 - Packages that import WebAssembly modules (like CeTZ) do not work, because WASM modules cannot be imported into other WASM modules in the browser
-- Some fonts will not load
+- ~~Some fonts will not load~~ (fixed in 0.0.3)
 - Returning to scroll position when switching between source and preview modes is jittery
 
 ## Credits
