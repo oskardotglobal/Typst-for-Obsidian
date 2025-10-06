@@ -2,7 +2,7 @@
 
 A [Typst](https://typst.app) editor integrated directly into [Obsidian](https://obsidian.md), enabling you to create and preview Typst documents seamlessly within your notes. Create `.typ` files, edit with syntax highlighting, and render PDFs that adapt to your Obsidian theme.
 
-![Screenshot]("./assets/full-screen.png")
+![Screenshot](assets/math-notes.png)
 
 ## Features
 
@@ -14,6 +14,8 @@ A [Typst](https://typst.app) editor integrated directly into [Obsidian](https://
 - Template variables for dynamic theming (`%THEMECOLOR%`, `%FONTSIZE%`, etc.)
 - Package support - use local packages from data directory or auto-download from preview namespace
 - System font support (desktop only)
+
+![Screenshot](assets/full-screen.png)
 
 ## Usage
 
