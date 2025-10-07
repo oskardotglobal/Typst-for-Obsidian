@@ -1203,6 +1203,7 @@ name = "obsidian-typst"
 version = "0.1.0"
 dependencies = [
  "ariadne",
+ "base64",
  "chrono",
  "comemo",
  "console_error_panic_hook",

@@ -100,7 +100,59 @@ impl SystemWorld {
             }
             FileError::Other(e.as_string().map(EcoString::from))
         };
-        Ok(self.request_data(path.to_str().unwrap().to_owned()).map_err(f)?.as_string().unwrap())
+
+        let result = self.request_data(path.to_str().unwrap().to_owned()).map_err(f)?;
+        Ok(result.as_string().unwrap())
+    }
+
+    fn read_file_binary(&self, path: &Path) -> FileResult<Vec<u8>> {
+        let f = |e: JsValue| {
+            if let Some(value) = e.as_f64() {
+                return match value as i64 {
+                    2 => FileError::NotFound(path.to_path_buf()),
+                    3 => FileError::AccessDenied,
+                    4 => FileError::IsDirectory,
+                    _ => FileError::Other(Some(EcoString::from("see console for details"))),
+                };
+            }
+            FileError::Other(e.as_string().map(EcoString::from))
+        };
+
+        let binary_path = format!("{}:binary", path.to_str().unwrap());
+        let result = self.request_data(binary_path).map_err(f)?;
+        let base64_str = result.as_string().unwrap();
+
+        use base64::Engine;
+        let decoded = base64::engine::general_purpose::STANDARD
+            .decode(base64_str.as_bytes())
+            .map_err(|_| FileError::Other(Some(EcoString::from("failed to decode base64"))))?;
+
+        Ok(decoded)
+    }
+
+    fn is_binary_file(path: &Path) -> bool {
+        if let Some(ext) = path.extension() {
+            let ext_lower = ext.to_string_lossy().to_lowercase();
+            matches!(
+                ext_lower.as_str(),
+                "jpg" |
+                    "jpeg" |
+                    "png" |
+                    "gif" |
+                    "bmp" |
+                    "webp" |
+                    "svg" |
+                    "pdf" |
+                    "zip" |
+                    "wasm" |
+                    "ttf" |
+                    "otf" |
+                    "woff" |
+                    "woff2"
+            )
+        } else {
+            false
+        }
     }
 
     fn prepare_package(&self, spec: &PackageSpec) -> PackageResult<PathBuf> {
@@ -139,9 +191,17 @@ impl SystemWorld {
                 None => self.root.clone(),
             };
 
-            let text = self.read_file(&id.vpath().resolve(&path).ok_or(FileError::AccessDenied)?)?;
+            let resolved_path = id.vpath().resolve(&path).ok_or(FileError::AccessDenied)?;
 
-            map.insert(id, FileEntry::new(id, text));
+            let entry = if SystemWorld::is_binary_file(&resolved_path) {
+                let data = self.read_file_binary(&resolved_path)?;
+                FileEntry::new_binary(id, data)
+            } else {
+                let text = self.read_file(&resolved_path)?;
+                FileEntry::new(id, text)
+            };
+
+            map.insert(id, entry);
         }
         Ok(f(map.get_mut(&id).unwrap()))
     }

@@ -94,6 +94,34 @@ export class PackageManager {
     }
   }
 
+  async getFileBase64(path: string): Promise<string> {
+    try {
+      let arrayBuffer: ArrayBuffer;
+
+      if (Platform.isDesktopApp && require("path").isAbsolute(path)) {
+        const buffer = await this.fs.promises.readFile(path);
+        arrayBuffer = buffer.buffer.slice(
+          buffer.byteOffset,
+          buffer.byteOffset + buffer.byteLength
+        );
+      } else {
+        arrayBuffer = await this.plugin.app.vault.adapter.readBinary(
+          normalizePath(path)
+        );
+      }
+
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    } catch (error) {
+      console.error("Failed to read binary file:", path, error);
+      throw 2;
+    }
+  }
+
   private getDataDir(): string {
     if (Platform.isLinux) {
       if ("XDG_DATA_HOME" in process.env) {

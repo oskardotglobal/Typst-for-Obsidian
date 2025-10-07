@@ -289,9 +289,19 @@ export default class TypstForObsidian extends Plugin {
 
   async handleWorkerRequest({ buffer: wbuffer, path }: WorkerRequest) {
     try {
-      const text = await (path.startsWith("@")
-        ? this.packageManager.preparePackage(path.slice(1))
-        : this.packageManager.getFileString(path));
+      const isBinary = path.endsWith(":binary");
+      const actualPath = isBinary ? path.slice(0, -7) : path;
+
+      let text: string | undefined;
+
+      if (actualPath.startsWith("@")) {
+        text = await this.packageManager.preparePackage(actualPath.slice(1));
+      } else if (isBinary) {
+        text = await this.packageManager.getFileBase64(actualPath);
+      } else {
+        text = await this.packageManager.getFileString(actualPath);
+      }
+
       if (text) {
         let buffer = Int32Array.from(this.textEncoder.encode(text));
         if (wbuffer.byteLength < buffer.byteLength + 4) {
