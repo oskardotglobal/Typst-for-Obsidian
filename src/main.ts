@@ -226,7 +226,7 @@ export default class TypstForObsidian extends Plugin {
     }
 
     if (compileType === "internal") {
-      finalSource = finalSource + "#linebreak()\n#linebreak()";
+      finalSource = finalSource + "\n#linebreak()\n#linebreak()";
     }
 
     finalSource = this.templateProvider.replaceVariables(finalSource);

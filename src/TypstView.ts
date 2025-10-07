@@ -70,9 +70,10 @@ export class TypstView extends TextFileView {
 
     try {
       const content = this.getViewData();
+      const filePath = this.file.path;
       const pdfData = await this.plugin.compileToPdf(
         content,
-        "/main.typ",
+        filePath,
         "export"
       );
       if (!pdfData) {
@@ -80,7 +81,6 @@ export class TypstView extends TextFileView {
         return;
       }
 
-      const filePath = this.file.path;
       const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
       const baseName = this.file.basename;
       const pdfFileName = `${baseName}.pdf`;
@@ -151,7 +151,8 @@ export class TypstView extends TextFileView {
   private async compile(): Promise<Uint8Array | null> {
     const content = this.getViewData();
     try {
-      const result = await this.plugin.compileToPdf(content);
+      const filePath = this.file?.path || "/main.typ";
+      const result = await this.plugin.compileToPdf(content, filePath);
       return result;
     } catch (error) {
       new Notice("Failed to compile PDF. See console for details.");
