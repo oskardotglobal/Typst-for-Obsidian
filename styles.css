@@ -242,10 +242,7 @@
   background: transparent;
   border: none;
   box-shadow: none;
-
   transform-origin: top left;
-
-  /* max-width: 100%; */
   image-rendering: crisp-edges;
   shape-rendering: geometricPrecision;
   text-rendering: optimizeLegibility;
@@ -263,7 +260,6 @@
   --total-scale-factor: calc(var(--scale-factor) * var(--user-unit));
 }
 
-/* Text Layer Styles - Required for text selection */
 .typst-pdf-page .textLayer {
   position: absolute;
   text-align: initial;
@@ -291,9 +287,8 @@
   user-select: text !important;
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
-  /* Fill gaps between spans to prevent selection jumping */
-  padding: 4px 2px;
-  margin: -4px -2px;
+  padding: 8px 0;
+  margin: -8px 0;
 }
 
 .typst-pdf-page .textLayer br {
@@ -341,7 +336,6 @@
   background-color: rgba(0, 100, 255, 0.3);
 }
 
-/* Annotation Layer Styles - Required for clickable links and forms */
 .typst-pdf-page .annotationLayer {
   position: absolute;
   inset: 0;
