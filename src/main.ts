@@ -5,6 +5,7 @@ import { TypstIcon } from "./util";
 import { TypstSettings, DEFAULT_SETTINGS, TypstSettingTab } from "./settings";
 import { TemplateVariableProvider } from "./TemplateVariableProvider";
 import { PackageManager } from "./PackageManager";
+import { SnippetManager } from "./SnippetManager";
 // @ts-ignore
 import CompilerWorker from "./compiler.worker.ts";
 import { WorkerRequest } from "./types";
@@ -17,6 +18,7 @@ export default class TypstForObsidian extends Plugin {
   compilerWorker: Worker;
   templateProvider: TemplateVariableProvider;
   packageManager: PackageManager;
+  snippetManager: SnippetManager;
   textEncoder: TextEncoder;
   fs: any;
   wasmPath: string;
@@ -27,6 +29,7 @@ export default class TypstForObsidian extends Plugin {
   async onload() {
     this.textEncoder = new TextEncoder();
     this.templateProvider = new TemplateVariableProvider();
+    this.snippetManager = new SnippetManager();
     await this.loadSettings();
 
     this.pluginPath = this.app.vault.configDir + `/plugins/${pluginId}/`;
@@ -173,10 +176,22 @@ export default class TypstForObsidian extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+
+    if (!this.snippetManager.parseSnippets(this.settings.customSnippets)) {
+      const error = this.snippetManager.getLastError();
+      new Notice(`Snippet configuration error: ${error}`);
+      console.error("Snippet parsing failed:", error);
+    }
   }
 
   async saveSettings() {
     await this.saveData(this.settings);
+
+    if (!this.snippetManager.parseSnippets(this.settings.customSnippets)) {
+      const error = this.snippetManager.getLastError();
+      new Notice(`Snippet configuration error: ${error}`);
+      console.error("Snippet parsing failed:", error);
+    }
   }
 
   private async fetchWasm() {

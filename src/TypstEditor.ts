@@ -11,6 +11,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import {
   defaultKeymap,
   indentWithTab,
+  insertNewlineAndIndent,
   history,
   historyKeymap,
   undo,
@@ -24,11 +25,13 @@ import {
   CompletionContext,
   acceptCompletion,
   completionStatus,
+  snippet,
 } from "@codemirror/autocomplete";
 import { typst } from "./grammar/typst";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
 import { typstKeywords } from "./util";
+import type TypstForObsidian from "./main";
 
 function wrapOrInsert(view: EditorView, markers: string): boolean {
   const { state } = view;
@@ -60,18 +63,44 @@ function wrapOrInsert(view: EditorView, markers: string): boolean {
   return true;
 }
 
-function typstCompletions(context: CompletionContext) {
-  const word = context.matchBefore(/\w*/);
-  if (!word || (word.from === word.to && !context.explicit)) {
-    return null;
-  }
+function createTypstCompletions(plugin: TypstForObsidian) {
+  return (context: CompletionContext) => {
+    const word = context.matchBefore(/\w*/);
+    if (!word || (word.from === word.to && !context.explicit)) {
+      return null;
+    }
 
-  return {
-    from: word.from,
-    options: typstKeywords.map((keyword) => ({
-      label: keyword,
-      type: "keyword",
-    })),
+    const options = [];
+
+    // Add keyword completions
+    for (const keyword of typstKeywords) {
+      if (keyword.toLowerCase().startsWith(word.text.toLowerCase())) {
+        options.push({
+          label: keyword,
+          type: "keyword",
+        });
+      }
+    }
+
+    // Add snippet completions
+    const snippets = plugin.snippetManager.getSnippets();
+    for (const [name, snippetDef] of snippets) {
+      if (snippetDef.prefix.toLowerCase().startsWith(word.text.toLowerCase())) {
+        const template = snippetDef.body.join("\n");
+
+        options.push({
+          label: snippetDef.prefix,
+          type: "snippet",
+          info: `Snippet: ${name}`,
+          apply: snippet(template),
+        });
+      }
+    }
+
+    return {
+      from: word.from,
+      options,
+    };
   };
 }
 
@@ -79,15 +108,19 @@ export class TypstEditor {
   private editorView: EditorView | null = null;
   private container: HTMLElement;
   private app: App;
+  private plugin: TypstForObsidian;
   private content: string = "";
   private onContentChange?: (content: string) => void;
 
   constructor(
     container: HTMLElement,
     app: App,
+    plugin: TypstForObsidian,
     onContentChange?: (content: string) => void
   ) {
     this.container = container;
+    this.app = app;
+    this.plugin = plugin;
     this.app = app;
     this.onContentChange = onContentChange;
   }
@@ -129,6 +162,7 @@ export class TypstEditor {
       rectangularSelection(),
       highlightActiveLine(),
       history(),
+      EditorState.tabSize.of(2),
       EditorView.lineWrapping,
 
       // Language features
@@ -139,7 +173,7 @@ export class TypstEditor {
 
       // Autocomplete
       autocompletion({
-        override: [typstCompletions],
+        override: [createTypstCompletions(this.plugin)],
         activateOnTyping: true,
         maxRenderedOptions: 20,
       }),
@@ -188,6 +222,11 @@ export class TypstEditor {
         key: "Mod-i",
         run: (view) => wrapOrInsert(view, "_"),
         preventDefault: true,
+      },
+      // Indent on new line
+      {
+        key: "Enter",
+        run: insertNewlineAndIndent,
       },
       // Keymaps
       indentWithTab,

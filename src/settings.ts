@@ -10,6 +10,7 @@ export interface TypstSettings {
   autoDownloadPackages: boolean;
   fontFamilies: string[];
   enableTextLayer: boolean;
+  customSnippets: string;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
@@ -20,6 +21,23 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   fontFamilies: [],
   pdfLayoutFunctions: "",
   enableTextLayer: true,
+  customSnippets: JSON.stringify(
+    {
+      table: {
+        prefix: "tbl",
+        body: [
+          "#align(center,",
+          "\ttable(",
+          "\t\tcolumns: ${},",
+          "\t\t[${}],",
+          "\t)",
+          ")",
+        ],
+      },
+    },
+    null,
+    2
+  ),
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
@@ -225,5 +243,23 @@ export class TypstSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           })
       );
+
+    new Setting(containerEl)
+      .setName("Custom snippets")
+      .setDesc(
+        "Define custom snippets in JSON format. Each snippet has a prefix (trigger) and body (lines to insert). Use ${} for tab stops (press Tab to jump between them)."
+      )
+      .addTextArea((text) => {
+        text
+          .setPlaceholder("Enter JSON snippet definitions")
+          .setValue(this.plugin.settings.customSnippets)
+          .onChange(async (value: string) => {
+            this.plugin.settings.customSnippets = value;
+            await this.plugin.saveSettings();
+          });
+
+        text.inputEl.addClass("typst-layout-textarea");
+        text.inputEl.rows = 10;
+      });
   }
 }

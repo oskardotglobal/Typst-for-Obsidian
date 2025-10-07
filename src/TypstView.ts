@@ -210,6 +210,7 @@ export class TypstView extends TextFileView {
     this.typstEditor = new TypstEditor(
       contentEl,
       this.app,
+      this.plugin,
       (content: string) => {
         this.fileContent = content;
         this.requestSave();
