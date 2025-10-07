@@ -98,6 +98,12 @@ export class PackageManager {
     try {
       if (Platform.isDesktopApp && require("path").isAbsolute(path)) {
         const buffer = await this.fs.promises.readFile(path);
+        if (
+          buffer.byteOffset === 0 &&
+          buffer.byteLength === buffer.buffer.byteLength
+        ) {
+          return buffer.buffer;
+        }
         return buffer.buffer.slice(
           buffer.byteOffset,
           buffer.byteOffset + buffer.byteLength

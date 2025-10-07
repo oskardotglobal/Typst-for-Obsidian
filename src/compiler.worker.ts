@@ -39,23 +39,12 @@ function requestData(path: string): string | Uint8Array {
     postMessage({ buffer, path });
     const res = Atomics.wait(buffer, 0, 0);
     if (buffer[0] == 0) {
+      const byteLength = buffer[1];
       if (path.endsWith(":binary")) {
-        const byteLength = buffer[1];
-        const sharedBytes = new Uint8Array(buffer.buffer, 8, byteLength);
-        const bytes = new Uint8Array(byteLength);
-        bytes.set(sharedBytes);
-
-        const firstBytes = Array.from(bytes.slice(0, 16))
-          .map((b) => "0x" + b.toString(16).toUpperCase())
-          .join(" ");
-        console.log(
-          `Worker received ${path}: ${byteLength} bytes, first 16: ${firstBytes}`
-        );
-
-        return bytes;
+        return new Uint8Array(buffer.buffer, 8, byteLength);
       } else {
-        const bytes = Uint8Array.from(buffer.slice(1));
-        return decoder.decode(bytes);
+        const textBytes = new Uint8Array(buffer.buffer, 8, byteLength);
+        return decoder.decode(textBytes);
       }
     }
     throw buffer[0];

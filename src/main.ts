@@ -297,39 +297,52 @@ export default class TypstForObsidian extends Plugin {
           actualPath.slice(1)
         );
         if (text) {
-          let buffer = Int32Array.from(this.textEncoder.encode(text));
-          if (wbuffer.byteLength < buffer.byteLength + 4) {
+          const encoded = this.textEncoder.encode(text);
+          const numInt32s = Math.ceil((encoded.byteLength + 4) / 4);
+
+          if (wbuffer.byteLength < numInt32s * 4) {
             // @ts-ignore
-            wbuffer.buffer.grow(buffer.byteLength + 4);
+            wbuffer.buffer.grow(numInt32s * 4);
           }
-          wbuffer.set(buffer, 1);
+
+          wbuffer[1] = encoded.byteLength;
+          const dataView = new Uint8Array(wbuffer.buffer, 8);
+          dataView.set(encoded);
+
           wbuffer[0] = 0;
         }
       } else if (isBinary) {
         const binaryData = await this.packageManager.getFileBinary(actualPath);
         if (binaryData) {
-          const uint8View = new Uint8Array(binaryData);
-          const numInt32s = Math.ceil((uint8View.length + 4) / 4);
-          if (wbuffer.byteLength < (numInt32s + 1) * 4) {
+          const byteLength = binaryData.byteLength;
+          const numInt32s = Math.ceil((byteLength + 8) / 4);
+
+          if (wbuffer.byteLength < numInt32s * 4) {
             // @ts-ignore
-            wbuffer.buffer.grow((numInt32s + 1) * 4);
+            wbuffer.buffer.grow(numInt32s * 4);
           }
 
-          wbuffer[1] = uint8View.length;
-          const dataView = new Uint8Array(wbuffer.buffer, 8);
-          dataView.set(uint8View);
+          wbuffer[1] = byteLength;
+          const dataView = new Uint8Array(wbuffer.buffer, 8, byteLength);
+          dataView.set(new Uint8Array(binaryData));
 
           wbuffer[0] = 0;
         }
       } else {
         const text = await this.packageManager.getFileString(actualPath);
         if (text) {
-          let buffer = Int32Array.from(this.textEncoder.encode(text));
-          if (wbuffer.byteLength < buffer.byteLength + 4) {
+          const encoded = this.textEncoder.encode(text);
+          const numInt32s = Math.ceil((encoded.byteLength + 4) / 4);
+
+          if (wbuffer.byteLength < numInt32s * 4) {
             // @ts-ignore
-            wbuffer.buffer.grow(buffer.byteLength + 4);
+            wbuffer.buffer.grow(numInt32s * 4);
           }
-          wbuffer.set(buffer, 1);
+
+          wbuffer[1] = encoded.byteLength;
+          const dataView = new Uint8Array(wbuffer.buffer, 8);
+          dataView.set(encoded);
+
           wbuffer[0] = 0;
         }
       }
