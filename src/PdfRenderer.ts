@@ -120,8 +120,6 @@ export class PdfRenderer {
       // Get page dimensions
       const width = this.pdfium.FPDF_GetPageWidthF(pagePtr);
       const height = this.pdfium.FPDF_GetPageHeightF(pagePtr);
-
-      // Calculate scaled dimensions with device pixel ratio
       const scale = 1.5;
       const dpr = window.devicePixelRatio || 1;
       const effectiveScale = scale * dpr;
@@ -173,7 +171,7 @@ export class PdfRenderer {
           scaledWidth,
           scaledHeight,
           0, // No rotation
-          16 // FPDF_REVERSE_BYTE_ORDER flag
+          0x10 | 0x01 | 0x800 // FPDF_REVERSE_BYTE_ORDER | FPDF_ANNOT | FPDF_LCD_TEXT
         );
 
         // Get the bitmap buffer
