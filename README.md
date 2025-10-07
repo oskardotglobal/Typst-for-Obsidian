@@ -82,7 +82,7 @@ _Currently, keyboard shortcuts only work when Obsidian hotkeys for the same hotk
 - The plugin integrates the Typst compiler directly into Obsidian using WebAssembly, allowing it to run in the browser.
 - It manages two modes: source mode (for editing) and reading mode (for PDF preview).
 - The editor view uses CodeMirror 6 Typst editor with syntax highlighting, autocomplete, and keybindings.
-- The viewer renders PDFs using PDF.js, with support for text selection and links.
+- The viewer renders PDFs using PDFium, with support for text selection and links.
 
 ### Compilation Process
 
@@ -101,7 +101,7 @@ When compiling a document, the plugin first processes the source code through se
 
 ### PDF Rendering
 
-- Each page is rendered to a canvas with scaling for high-DPI displays.
+- Each page is rendered to a canvas with scaling for high-DPI displays, using PDFium.
 - Text layers are overlaid for selection and annotation layers are rendered for interactive elements like links.
 
 ## Development
@@ -123,7 +123,6 @@ npm run build
 - [ ] **Incremental rendering while typing** (requires reworking the compiler with to be stateful)
 - [ ] **Polish PDF viewer, fix text layers**
 - [ ] **Polish editor UI**
-- [ ] Switch to PDFium for rendering (since PDF.js doesn't do font hinting and has crazy pixel rounding artifacts)
 - [ ] Add more keyboard shortcuts, more robust editor features
 - [ ] Better syntax highlighting (full grammar)
 - [ ] Formatter for Typst code
