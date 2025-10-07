@@ -36,8 +36,10 @@ function requestData(path: string): string | Uint8Array {
     // @ts-ignore
     let buffer = new Int32Array(new SharedArrayBuffer(4, { maxByteLength: 1e8 }));
     buffer[0] = 0;
+
     postMessage({ buffer, path });
     const res = Atomics.wait(buffer, 0, 0);
+
     if (buffer[0] == 0) {
       const byteLength = buffer[1];
       if (path.endsWith(":binary")) {

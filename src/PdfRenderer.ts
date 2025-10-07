@@ -8,19 +8,47 @@ export class PdfRenderer {
   }
 
   async renderPdf(pdfData: Uint8Array, container: HTMLElement): Promise<void> {
+    const renderStart = performance.now();
+    console.log(
+      `[PERF PDF] Starting PDF render (${(pdfData.byteLength / 1024).toFixed(
+        1
+      )}KB)`
+    );
+
     try {
+      const loadStart = performance.now();
       const loadingTask = pdfjsLib.getDocument({ data: pdfData });
       const pdfDocument = await loadingTask.promise;
+      const loadEnd = performance.now();
+      console.log(
+        `[PERF PDF] PDF document loaded: ${(loadEnd - loadStart).toFixed(
+          2
+        )}ms (${pdfDocument.numPages} pages)`
+      );
 
       for (
         let pageNumber = 1;
         pageNumber <= pdfDocument.numPages;
         pageNumber++
       ) {
+        const pageStart = performance.now();
         await this.renderPage(pdfDocument, pageNumber, container);
+        const pageEnd = performance.now();
+        console.log(
+          `[PERF PDF] Page ${pageNumber} rendered: ${(
+            pageEnd - pageStart
+          ).toFixed(2)}ms`
+        );
       }
+
+      const renderEnd = performance.now();
+      console.log(
+        `[PERF PDF] Total PDF render time: ${(renderEnd - renderStart).toFixed(
+          2
+        )}ms`
+      );
     } catch (error) {
-      console.error("🔴 PdfRenderer: PDF rendering failed:", error);
+      console.error("PdfRenderer: PDF rendering failed:", error);
       throw error;
     }
   }
@@ -72,12 +100,18 @@ export class PdfRenderer {
     canvas.style.width = `${Math.floor(viewport.width / outputScale)}px`;
     canvas.style.height = `${Math.floor(viewport.height / outputScale)}px`;
 
-    const context = canvas.getContext("2d")!;
+    const context = canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+    })!;
 
     const renderContext = {
       canvasContext: context,
       viewport: viewport,
       canvas: canvas,
+      enableWebGL: true,
+      renderInteractiveForms: false,
+      intent: "display",
     };
 
     const renderTask = page.render(renderContext);

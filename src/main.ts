@@ -1,4 +1,4 @@
-import { Plugin, addIcon, Notice, Platform, normalizePath } from "obsidian";
+import { Plugin, addIcon, Notice, Platform } from "obsidian";
 import { TypstView } from "./TypstView";
 import { registerCommands } from "./commands";
 import { TypstIcon } from "./util";
