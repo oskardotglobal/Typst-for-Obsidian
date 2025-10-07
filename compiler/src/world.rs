@@ -120,14 +120,10 @@ impl SystemWorld {
 
         let binary_path = format!("{}:binary", path.to_str().unwrap());
         let result = self.request_data(binary_path).map_err(f)?;
-        let base64_str = result.as_string().unwrap();
+        let uint8_array = js_sys::Uint8Array::from(result);
+        let bytes = uint8_array.to_vec();
 
-        use base64::Engine;
-        let decoded = base64::engine::general_purpose::STANDARD
-            .decode(base64_str.as_bytes())
-            .map_err(|_| FileError::Other(Some(EcoString::from("failed to decode base64"))))?;
-
-        Ok(decoded)
+        Ok(bytes)
     }
 
     fn is_binary_file(path: &Path) -> bool {

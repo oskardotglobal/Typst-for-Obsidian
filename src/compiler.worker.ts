@@ -10,7 +10,7 @@ let packagePath: string;
 let packages: string[] = [];
 const xhr = new XMLHttpRequest();
 
-function requestData(path: string): string {
+function requestData(path: string): string | Uint8Array {
   try {
     if (!canUseSharedArrayBuffer) {
       if (path.startsWith("@")) {
@@ -39,7 +39,24 @@ function requestData(path: string): string {
     postMessage({ buffer, path });
     const res = Atomics.wait(buffer, 0, 0);
     if (buffer[0] == 0) {
-      return decoder.decode(Uint8Array.from(buffer.slice(1)));
+      if (path.endsWith(":binary")) {
+        const byteLength = buffer[1];
+        const sharedBytes = new Uint8Array(buffer.buffer, 8, byteLength);
+        const bytes = new Uint8Array(byteLength);
+        bytes.set(sharedBytes);
+
+        const firstBytes = Array.from(bytes.slice(0, 16))
+          .map((b) => "0x" + b.toString(16).toUpperCase())
+          .join(" ");
+        console.log(
+          `Worker received ${path}: ${byteLength} bytes, first 16: ${firstBytes}`
+        );
+
+        return bytes;
+      } else {
+        const bytes = Uint8Array.from(buffer.slice(1));
+        return decoder.decode(bytes);
+      }
     }
     throw buffer[0];
   } catch (e) {

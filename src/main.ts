@@ -292,24 +292,46 @@ export default class TypstForObsidian extends Plugin {
       const isBinary = path.endsWith(":binary");
       const actualPath = isBinary ? path.slice(0, -7) : path;
 
-      let text: string | undefined;
-
       if (actualPath.startsWith("@")) {
-        text = await this.packageManager.preparePackage(actualPath.slice(1));
-      } else if (isBinary) {
-        text = await this.packageManager.getFileBase64(actualPath);
-      } else {
-        text = await this.packageManager.getFileString(actualPath);
-      }
-
-      if (text) {
-        let buffer = Int32Array.from(this.textEncoder.encode(text));
-        if (wbuffer.byteLength < buffer.byteLength + 4) {
-          // @ts-ignore
-          wbuffer.buffer.grow(buffer.byteLength + 4);
+        const text = await this.packageManager.preparePackage(
+          actualPath.slice(1)
+        );
+        if (text) {
+          let buffer = Int32Array.from(this.textEncoder.encode(text));
+          if (wbuffer.byteLength < buffer.byteLength + 4) {
+            // @ts-ignore
+            wbuffer.buffer.grow(buffer.byteLength + 4);
+          }
+          wbuffer.set(buffer, 1);
+          wbuffer[0] = 0;
         }
-        wbuffer.set(buffer, 1);
-        wbuffer[0] = 0;
+      } else if (isBinary) {
+        const binaryData = await this.packageManager.getFileBinary(actualPath);
+        if (binaryData) {
+          const uint8View = new Uint8Array(binaryData);
+          const numInt32s = Math.ceil((uint8View.length + 4) / 4);
+          if (wbuffer.byteLength < (numInt32s + 1) * 4) {
+            // @ts-ignore
+            wbuffer.buffer.grow((numInt32s + 1) * 4);
+          }
+
+          wbuffer[1] = uint8View.length;
+          const dataView = new Uint8Array(wbuffer.buffer, 8);
+          dataView.set(uint8View);
+
+          wbuffer[0] = 0;
+        }
+      } else {
+        const text = await this.packageManager.getFileString(actualPath);
+        if (text) {
+          let buffer = Int32Array.from(this.textEncoder.encode(text));
+          if (wbuffer.byteLength < buffer.byteLength + 4) {
+            // @ts-ignore
+            wbuffer.buffer.grow(buffer.byteLength + 4);
+          }
+          wbuffer.set(buffer, 1);
+          wbuffer[0] = 0;
+        }
       }
     } catch (error) {
       if (typeof error === "number") {
