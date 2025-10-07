@@ -91,7 +91,6 @@ function createTypstCompletions(plugin: TypstForObsidian) {
         options.push({
           label: snippetDef.prefix,
           type: "snippet",
-          info: `Snippet: ${name}`,
           apply: snippet(template),
         });
       }
