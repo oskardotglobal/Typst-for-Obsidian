@@ -51,12 +51,36 @@ Configure default page layouts in settings:
 - **Default Layout Functions** - Applied to all internal previews
 - **PDF Export Layout Functions** - Applied only when exporting PDFs
 
+### Custom Snippets
+
+You can add custom Typst snippets as JSON for autocomplete in settings. Each snippet has a prefix (trigger) and body (lines to insert). Use `${}` for tab stops, and press `Tab` to jump between them.
+
+Example (inserting a table aligned to the center):
+
+```json
+{
+  "table": {
+    "prefix": "tbl",
+    "body": [
+      "#align(center,",
+      "\ttable(",
+      "\t\tcolumns: ${},",
+      "\t\t[${}],",
+      "\t)",
+      ")"
+    ]
+  }
+}
+```
+
 ## Settings
 
 - **Default Mode** - Open files in source or reading mode
 - **Auto-download Packages** - Automatically fetch packages from Typst registry
 - **Font Families** - System fonts to load (desktop only)
 - **Layout Functions** - Custom Typst preambles for formatting
+- **Enable Text Layer** - Enable text selection in PDF preview. Disabling this setting may improve performance
+- **Custom Snippets** - Add custom Typst snippets for autocomplete
 
 ## Commands
 
