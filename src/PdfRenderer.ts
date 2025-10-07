@@ -56,7 +56,11 @@ export class PdfRenderer {
     }
   }
 
-  async renderPdf(pdfData: Uint8Array, container: HTMLElement): Promise<void> {
+  async renderPdf(
+    pdfData: Uint8Array,
+    container: HTMLElement,
+    enableTextLayer: boolean = true
+  ): Promise<void> {
     try {
       await this.ensurePdfiumInitialized();
 
@@ -90,7 +94,7 @@ export class PdfRenderer {
 
         // Render all pages
         for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-          await this.renderPage(docPtr, pageIndex, container);
+          await this.renderPage(docPtr, pageIndex, container, enableTextLayer);
         }
       } finally {
         // Clean up document
@@ -106,7 +110,8 @@ export class PdfRenderer {
   private async renderPage(
     docPtr: number,
     pageIndex: number,
-    container: HTMLElement
+    container: HTMLElement,
+    enableTextLayer: boolean
   ): Promise<void> {
     if (!this.pdfium) throw new Error("PDFium not initialized");
 
@@ -199,25 +204,27 @@ export class PdfRenderer {
         }
         ctx.putImageData(imageData, 0, 0);
 
-        // Render text layer
-        await this.renderTextLayer(
-          pagePtr,
-          pageContainer,
-          width,
-          height,
-          scale,
-          dpr
-        );
+        // Render text layer if enabled
+        if (enableTextLayer) {
+          await this.renderTextLayer(
+            pagePtr,
+            pageContainer,
+            width,
+            height,
+            scale,
+            dpr
+          );
 
-        // Render link layer
-        await this.renderLinkLayer(
-          pagePtr,
-          pageContainer,
-          width,
-          height,
-          scale,
-          dpr
-        );
+          // Render link layer
+          await this.renderLinkLayer(
+            pagePtr,
+            pageContainer,
+            width,
+            height,
+            scale,
+            dpr
+          );
+        }
 
         pageContainer.style.opacity = "1";
       } finally {

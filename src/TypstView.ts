@@ -242,7 +242,11 @@ export class TypstView extends TextFileView {
     const readingDiv = contentEl.createDiv("typst-reading-mode");
 
     try {
-      await this.pdfRenderer.renderPdf(pdfData, readingDiv);
+      await this.pdfRenderer.renderPdf(
+        pdfData,
+        readingDiv,
+        this.plugin.settings.enableTextLayer
+      );
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
 
       if (savedScroll > 0) {

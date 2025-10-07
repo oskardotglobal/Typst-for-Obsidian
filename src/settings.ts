@@ -9,6 +9,7 @@ export interface TypstSettings {
   pdfLayoutFunctions: string;
   autoDownloadPackages: boolean;
   fontFamilies: string[];
+  enableTextLayer: boolean;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
@@ -18,6 +19,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   autoDownloadPackages: true,
   fontFamilies: [],
   pdfLayoutFunctions: "",
+  enableTextLayer: true,
   // prettier-ignore
   customLayoutFunctions: 
 `#set page(
@@ -193,7 +195,7 @@ export class TypstSettingTab extends PluginSettingTab {
       .setDesc(
         "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts. Changes require reloading fonts."
       )
-      .addTextArea((text) =>
+      .addTextArea((text) => {
         text
           .setPlaceholder("Arial\nHelvetica\nTimes New Roman")
           .setValue(this.plugin.settings.fontFamilies.join("\n"))
@@ -204,6 +206,23 @@ export class TypstSettingTab extends PluginSettingTab {
               .filter((font) => font.length > 0);
             await this.plugin.saveSettings();
             await this.plugin.loadFonts();
+          });
+
+        text.inputEl.addClass("typst-layout-textarea");
+        text.inputEl.rows = 10;
+      });
+
+    new Setting(containerEl)
+      .setName("Enable text layer")
+      .setDesc(
+        "Enable text selection and link clicking in PDF preview. Disable for better performance if not needed."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.enableTextLayer)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.enableTextLayer = value;
+            await this.plugin.saveSettings();
           })
       );
   }
