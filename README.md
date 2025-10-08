@@ -2,7 +2,9 @@
 
 Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly into [Obsidian](https://obsidian.md), enabling you to create and preview Typst documents seamlessly within your notes. Create `.typ` files, edit with syntax highlighting, and render PDFs that adapt to your Obsidian theme.
 
-![Screenshot](assets/math-notes.png)
+<p align="center">
+  <img src="assets/math-notes.png" width="500">
+</p>
 
 ## Features
 
@@ -72,6 +74,42 @@ Example (inserting a table aligned to the center):
   }
 }
 ```
+
+## Official Template
+
+You can use the [official template](https://github.com/k0src/Typsidian) designed for Typst in Obsidian. It includes support for light/dark modes, titles, headers, and useful functions for displaying notes.
+
+<p align="center">
+  <img src="assets/template.png" width="500">
+</p>
+
+To get started, follow the installation instructions on the GitHub repo, and import the template at the top of your Typst file:
+
+```typst
+#import "@local/typsidian:0.0.1": *;
+
+#show: typsidian.with(theme: "dark", title: "My Document", course: "CS4999", standalone: false)
+```
+
+This template is an Obsidian-like theme for Typst, with support for light/dark modes, titles, headers, and some useful functions for displaying notes.
+
+> [NOTE]
+> When using this template, I recommend setting the custom layout function in the settings to:
+
+```typst
+#set page(
+  width: %LINEWIDTH%,
+  height: auto,
+  margin: (x: 0.25em, y: 0.25em),
+  fill: rgb("%BGCOLOR%")
+)
+```
+
+Make sure to set `standalone: false`. This will prevent the template from adding its own page layout. Additionally, make sure you have the required fonts installed and added to the font families in settings:
+
+- [Inter 24pt](https://fonts.google.com/specimen/Inter)
+- [GeistMono NFP](https://github.com/ryanoasis/nerd-fonts/releases/)
+- [Fira Math](https://github.com/firamath/firamath/releases/)
 
 ## Settings
 
