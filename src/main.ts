@@ -313,7 +313,7 @@ export default class TypstForObsidian extends Plugin {
         );
         if (text) {
           const encoded = this.textEncoder.encode(text);
-          const numInt32s = Math.ceil((encoded.byteLength + 4) / 4);
+          const numInt32s = Math.ceil((encoded.byteLength + 8) / 4);
 
           if (wbuffer.byteLength < numInt32s * 4) {
             // @ts-ignore
@@ -321,7 +321,11 @@ export default class TypstForObsidian extends Plugin {
           }
 
           wbuffer[1] = encoded.byteLength;
-          const dataView = new Uint8Array(wbuffer.buffer, 8);
+          const dataView = new Uint8Array(
+            wbuffer.buffer,
+            8,
+            encoded.byteLength
+          ); // Added length parameter
           dataView.set(encoded);
 
           wbuffer[0] = 0;
@@ -347,7 +351,7 @@ export default class TypstForObsidian extends Plugin {
         const text = await this.packageManager.getFileString(actualPath);
         if (text) {
           const encoded = this.textEncoder.encode(text);
-          const numInt32s = Math.ceil((encoded.byteLength + 4) / 4);
+          const numInt32s = Math.ceil((encoded.byteLength + 8) / 4);
 
           if (wbuffer.byteLength < numInt32s * 4) {
             // @ts-ignore
@@ -355,7 +359,11 @@ export default class TypstForObsidian extends Plugin {
           }
 
           wbuffer[1] = encoded.byteLength;
-          const dataView = new Uint8Array(wbuffer.buffer, 8);
+          const dataView = new Uint8Array(
+            wbuffer.buffer,
+            8,
+            encoded.byteLength
+          );
           dataView.set(encoded);
 
           wbuffer[0] = 0;

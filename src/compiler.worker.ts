@@ -43,10 +43,12 @@ function requestData(path: string): string | Uint8Array {
     if (buffer[0] == 0) {
       const byteLength = buffer[1];
       if (path.endsWith(":binary")) {
-        return new Uint8Array(buffer.buffer, 8, byteLength);
+        const sharedView = new Uint8Array(buffer.buffer, 8, byteLength);
+        return new Uint8Array(sharedView);
       } else {
-        const textBytes = new Uint8Array(buffer.buffer, 8, byteLength);
-        return decoder.decode(textBytes);
+        const sharedView = new Uint8Array(buffer.buffer, 8, byteLength);
+        const regularArray = new Uint8Array(sharedView);
+        return decoder.decode(regularArray);
       }
     }
     throw buffer[0];
