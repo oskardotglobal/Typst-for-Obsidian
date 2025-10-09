@@ -83,17 +83,22 @@ You can use the [official template](https://github.com/k0src/Typsidian) designed
   <img src="assets/template.png" width="700">
 </p>
 
-To get started, follow the installation instructions on the GitHub repo, and import the template at the top of your Typst file:
+To get started, import the template at the top of your Typst file:
 
 ```typst
-#import "@local/typsidian:0.0.1": *;
+#import "@preview/typsidian:0.0.1": *;
 
-#show: typsidian.with(theme: "dark", title: "My Document", course: "CS4999", standalone: false)
+#show: typsidian.with(
+  theme: "dark",
+  title: "My Document",
+  course: "CS4999",
+  standalone: false // Removes template page functions
+)
 ```
 
 This template is an Obsidian-like theme for Typst, with support for light/dark modes, titles, headers, and some useful functions for displaying notes.
 
-> [NOTE]
+> [!NOTE]
 > When using this template, I recommend setting the custom layout function in the settings to:
 
 ```typst

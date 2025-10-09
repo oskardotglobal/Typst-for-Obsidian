@@ -68,19 +68,19 @@ export const DEFAULT_SETTINGS: TypstSettings = {
 )
 
 // Set colors of elements to theme colors
-// You may want to turn these off, they make some packages
-// like zebraw look weird. Then just set them as needed
-#show heading: set text(fill: rgb("%HEADINGCOLOR%"))
-#show math.equation: set text(fill: rgb("%THEMECOLOR%"))
-#set block(fill: none)
-#set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set box(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
-#set line(stroke: rgb("%THEMECOLOR%"))
-#show table: set table(stroke: rgb("%THEMECOLOR%"))
-#show math.equation: set box(stroke: none)`,
+// Off by default, turn these on to set 
+// most Typst elements to the theme color
+// #show heading: set text(fill: rgb("%HEADINGCOLOR%"))
+// #show math.equation: set text(fill: rgb("%THEMECOLOR%"))
+// #set block(fill: none)
+// #set rect(fill: none, stroke: rgb("%THEMECOLOR%"))
+// #set box(fill: none, stroke: rgb("%THEMECOLOR%"))
+// #set circle(fill: none, stroke: rgb("%THEMECOLOR%"))
+// #set ellipse(fill: none, stroke: rgb("%THEMECOLOR%"))
+// #set polygon(fill: none, stroke: rgb("%THEMECOLOR%"))
+// #set line(stroke: rgb("%THEMECOLOR%"))
+// #show table: set table(stroke: rgb("%THEMECOLOR%"))
+// #show math.equation: set box(stroke: none)`,
 };
 
 export class TypstSettingTab extends PluginSettingTab {
