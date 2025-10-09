@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   // Some padding is needed to 
   // make the PDF not cut off
   margin: (x: 0.25em, y: 0.25em),
-  // Set he BG color of page to
+  // Set the BG color of page to
   // the BG color of Obsidian
   fill: rgb("%BGCOLOR%")
 )
