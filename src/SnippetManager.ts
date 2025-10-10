@@ -18,7 +18,11 @@ export class SnippetManager {
     try {
       const parsed = JSON.parse(json);
 
-      if (typeof parsed !== "object" || parsed === null) {
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
         this.lastError = "Snippets must be a JSON object";
         return false;
       }

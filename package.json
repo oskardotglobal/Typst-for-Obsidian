@@ -10,7 +10,9 @@
     "wasm-dev": "wasm-pack build compiler --target web --dev --out-dir ../pkg",
     "wasm-build-dev": "npm run wasm-dev && npm run dev",
     "wasm-build": "npm run wasm && npm run build",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "version": "node version-bump.mjs && git add manifest.json versions.json",
+    "test": "vitest",
+    "test:one": "vitest run"
   },
   "keywords": [],
   "author": "k0src",
@@ -22,7 +24,9 @@
     "@typescript-eslint/parser": "^5",
     "builtin-modules": "^3",
     "esbuild": "^0.18",
+    "jsdom": "^27.0.0",
     "typescript": "^5.1",
+    "vitest": "^3.2.4",
     "wasm-pack": "^0.12.1"
   },
   "dependencies": {
