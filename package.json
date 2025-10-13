@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "build:deploy": "node build.js",
+    "build:grammar": "lezer-generator src/grammar/typst.grammar -o src/grammar/typst-parser.js",
     "wasm": "wasm-pack build compiler --target web --out-dir ../pkg",
     "wasm-dev": "wasm-pack build compiler --target web --dev --out-dir ../pkg",
     "wasm-build-dev": "npm run wasm-dev && npm run dev",
@@ -18,6 +20,7 @@
   "author": "k0src",
   "license": "MIT",
   "devDependencies": {
+    "@lezer/generator": "^1.8.0",
     "@types/node": "^20",
     "@types/pako": "^2.0.4",
     "@typescript-eslint/eslint-plugin": "^5",

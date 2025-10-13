@@ -10,3 +10,4 @@ pkg/
 compiler/target/
 **/*.rs.bk
 *.pdb
+build.js

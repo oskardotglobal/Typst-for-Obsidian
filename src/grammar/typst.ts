@@ -6,7 +6,6 @@ import {
   foldInside,
   delimitedIndent,
 } from "@codemirror/language";
-
 import { parser } from "./typst-parser";
 import { typstHighlight } from "./typst-highlight";
 
@@ -17,8 +16,10 @@ export const typstLanguage = LRLanguage.define({
         Block: delimitedIndent({ closing: "}", align: false }),
         ContentBlock: delimitedIndent({ closing: "]", align: false }),
         ArgList: delimitedIndent({ closing: ")", align: false }),
-        "IfStatement ForStatement WhileStatement": (context) =>
-          context.column(context.node.from) + context.unit,
+        CodeBlock: delimitedIndent({ closing: "}", align: false }),
+        IfStatement: delimitedIndent({ closing: "}", align: false }),
+        ForStatement: delimitedIndent({ closing: "}", align: false }),
+        WhileStatement: delimitedIndent({ closing: "}", align: false }),
       }),
       foldNodeProp.add({
         Block: foldInside,

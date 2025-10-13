@@ -214,16 +214,21 @@ export class TypstSettingTab extends PluginSettingTab {
         "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts. Changes require reloading fonts."
       )
       .addTextArea((text) => {
+        let debounceTimer: NodeJS.Timeout;
+
         text
           .setPlaceholder("Arial\nHelvetica\nTimes New Roman")
           .setValue(this.plugin.settings.fontFamilies.join("\n"))
           .onChange(async (value: string) => {
-            this.plugin.settings.fontFamilies = value
-              .split("\n")
-              .map((font) => font.trim().toLowerCase())
-              .filter((font) => font.length > 0);
-            await this.plugin.saveSettings();
-            await this.plugin.loadFonts();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+              this.plugin.settings.fontFamilies = value
+                .split("\n")
+                .map((font) => font.trim().toLowerCase())
+                .filter((font) => font.length > 0);
+              await this.plugin.saveSettings();
+              await this.plugin.loadFonts();
+            }, 1000);
           });
 
         text.inputEl.addClass("typst-layout-textarea");
