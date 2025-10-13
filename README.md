@@ -184,27 +184,29 @@ cd ..
 npm run build
 ```
 
-## What's Next
+## Future Plans
+
+Due to grammar limitations and other reasons, the next step is replacing the CodeMirror6 editor view with [Monaco Editor](https://microsoft.github.io/monaco-editor/) (the editor used by VSCode). In short, CodeMirror6 uses a parser grammar system called [Lezer](https://lezer.codemirror.net/), which is what the first version of the [Typst grammar](src/grammar/typst.grammar) was implemented with. The problem is, Typst is a pretty tricky language to parse. It has a 3 modes (code, plain text, and math), and sometimes, keywords or variables can mean different things in different contexts. Due to this, it's very hard to write a [declarative grammar](https://lezer.codemirror.net/docs/guide/#writing-a-grammar) that can be used to parse Typst markup. Instead, the [Monarch](https://microsoft.github.io/monaco-editor/monarch.html) tokenizer can be used to parse Typst (the [Tinymist LSP](https://myriad-dreamin.github.io/tinymist/) can possibly be used too).
+
+Getting syntax highligting working properly is the first step. Next is implementing incremental PDF rendering, and a proper editor-preview split view. This basically requires a whole rewrite of the compiler, making it stateful and memoizing the PDF.
+
+### Other Goals
 
 - [ ] **Improve performance of PDF rendering**
-- [ ] **Incremental rendering while typing** (requires reworking the compiler with to be stateful)
-- [ ] **Polish PDF viewer, fix text layers**
+- [ ] **Polish PDF viewer, fix text layers, add annotation layers**
 - [ ] **Polish editor UI**
 - [ ] Add more keyboard shortcuts, more robust editor features
-- [ ] Better syntax highlighting (full grammar)
 - [ ] Formatter for Typst code
 - [ ] Add support for jumping from PDF to source by clicking on text
 - [ ] Add backlink support in PDF preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
-- [ ] Switch to [Monaco Editor](https://microsoft.github.io/monaco-editor/) (maybe)
 - [ ] Support Typst packages that use WebAssembly modules
 - [ ] Add more settings for customization
 
 ## Known Issues
 
 - Packages that import WebAssembly modules (like CeTZ) do not work, because WASM modules cannot be imported into other WASM modules in the browser
-- ~~Some fonts will not load~~ (fixed in 0.0.3)
 - Returning to scroll position when switching between source and preview modes is jittery
 
 ## Credits
