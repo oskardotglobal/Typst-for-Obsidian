@@ -1,152 +1,133 @@
-import {
-    App,
-    Command,
-    Notice,
-    Plugin,
-    PluginSettingTab,
-    Setting,
-    SuggestModal,
-    WorkspaceLeaf,
-} from "obsidian";
-import { commands, externalCommands, helix } from "codemirror-helix";
-import { Extension, Prec } from "@codemirror/state";
+import { Prec } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-
-function getExtensions(cursorInInsertMode: "bar" | "block") {
-    return [
-        Prec.high(
-            EditorView.theme({
-                ".cm-hx-block-cursor .cm-hx-cursor": {
-                    background: "var(--text-accent)",
-                },
-                ".cm-panel .cm-hx-command-help": {
-                    backgroundColor: "var(--modal-background)",
-                },
-                ".cm-panel .cm-hx-command-popup": {
-                    backgroundColor: "var(--modal-background)",
-                    color: "var(--text-normal)",
-                    padding: "0 0.5rem",
-                    borderColor: "var(--modal-border-color)",
-                    borderWidth: "var(--modal-border-width)",
-                },
-            }),
-        ),
-        Prec.high(
-            helix({
-                config: {
-                    "editor.cursor-shape.insert": this.settings.cursorInInsertMode,
-                },
-            }),
-        ),
-        externalCommands.of({
-            file_picker: () => {
-                // @ts-ignore
-                (this.app?.commands?.commands?.["switcher:open"] as Command)?.callback?.();
-            },
-            ":buffer-close": () => {
-                this.app.workspace.activeLeaf?.detach();
-            },
-            ":buffer-next": () => {
-                this.switchTab(1);
-            },
-            ":buffer-previous": () => {
-                this.switchTab(-1);
-            },
-            buffer_picker: () => {
-                const modal = new BufferModal(this.app);
-                modal.open();
-            },
-        }),
-        commands.of([
-            {
-                name: "vsplit",
-                aliases: ["vs"],
-                help: "Open the file in vertical split",
-                handler: (_view) => {
-                    const activeLeaf = this.app.workspace.activeLeaf;
-                    if (activeLeaf) {
-                        this.app.workspace.duplicateLeaf(activeLeaf, "split", "vertical");
-                    }
-                },
-            },
-            {
-                name: "vsplit-new",
-                aliases: ["vnew"],
-                help: "Open a new Note on vertical Split",
-                handler: (_view) => {
-                    const activeLeaf = this.app.workspace.activeLeaf;
-                    if (activeLeaf) {
-                        this.app.workspace.duplicateLeaf(activeLeaf, "split", "vertical");
-                    }
-                },
-            },
-            {
-                name: "hsplit",
-                aliases: ["hs"],
-                help: "Open the file in horizontal split",
-                handler: (_view) => {
-                    const activeLeaf = this.app.workspace.activeLeaf;
-                    if (activeLeaf) {
-                        this.app.workspace.duplicateLeaf(activeLeaf, "split", "horizontal");
-                    }
-                },
-            },
-            {
-                name: "hsplit-new",
-                aliases: ["hnew"],
-                help: "Open a new Note on Horizontal Split",
-                handler: (_view) => {
-                    const activeLeaf = this.app.workspace.activeLeaf;
-                    if (activeLeaf) {
-                        this.app.workspace.duplicateLeaf(activeLeaf, "split", "horizontal");
-                    }
-                },
-            },
-        ]),
-    ];
-}
+import { commands, externalCommands, helix } from "codemirror-helix";
+import { type App, type Command, SuggestModal, type WorkspaceLeaf } from "obsidian";
+import type TypstForObsidian from "./main";
 
 export class HelixEditor {
-    extensions: Extension[];
+    private app: App;
+    private plugin: TypstForObsidian;
 
-    async onload() {
-        await this.loadSettings();
-
-        this.extensions = [];
-        this.setEnabled(this.settings.enableHelixKeybindings, false);
-        this.registerEditorExtension(this.extensions);
+    public constructor(app: App, plugin: TypstForObsidian) {
+        this.app = app;
+        this.plugin = plugin;
     }
 
-    async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    }
-
-    async saveSettings() {
-        await this.saveData(this.settings);
-    }
-
-    async setEnabled(value: boolean, reload: boolean = true, print: boolean = false) {
-        this.settings.enableHelixKeybindings = value;
-        this.extensions.length = 0;
-        if (value) {
-            this.extensions.push();
+    public onload() {
+        if (this.plugin.settings.helixEnableGlobally) {
+            this.plugin.registerEditorExtension(this.getExtensions());
+            this.app.workspace.updateOptions();
         }
-        if (reload) this.app.workspace.updateOptions();
     }
 
-    switchTab(direction: 1 | -1) {
+    public getExtensions() {
+        if (!this.plugin.settings.enableHelix) {
+            return [];
+        }
+
+        return [
+            Prec.high(
+                EditorView.theme({
+                    ".cm-hx-block-cursor .cm-hx-cursor": {
+                        background: "var(--text-accent)",
+                    },
+                    ".cm-panel .cm-hx-command-help": {
+                        backgroundColor: "var(--modal-background)",
+                    },
+                    ".cm-panel .cm-hx-command-popup": {
+                        backgroundColor: "var(--modal-background)",
+                        color: "var(--text-normal)",
+                        padding: "0 0.5rem",
+                        borderColor: "var(--modal-border-color)",
+                        borderWidth: "var(--modal-border-width)",
+                    },
+                }),
+            ),
+            Prec.high(
+                helix({
+                    config: {
+                        "editor.cursor-shape.insert": this.plugin.settings.helixCursorInInsertMode,
+                    },
+                }),
+            ),
+            externalCommands.of({
+                file_picker: () => {
+                    // @ts-ignore
+                    (this.app?.commands?.commands?.["switcher:open"] as Command)?.callback?.();
+                },
+                // @ts-ignore guh...
+                ":buffer-close": () => {
+                    this.app.workspace.activeLeaf?.detach();
+                },
+                ":buffer-next": () => {
+                    this.switchTab(1);
+                },
+                ":buffer-previous": () => {
+                    this.switchTab(-1);
+                },
+                buffer_picker: () => {
+                    const modal = new BufferModal(this.app);
+                    modal.open();
+                },
+            }),
+            commands.of([
+                {
+                    name: "vsplit",
+                    aliases: ["vs"],
+                    help: "Open the file in vertical split",
+                    handler: (_view) => {
+                        const activeLeaf = this.app.workspace.activeLeaf;
+                        if (activeLeaf) {
+                            this.app.workspace.duplicateLeaf(activeLeaf, "split", "vertical");
+                        }
+                    },
+                },
+                {
+                    name: "vsplit-new",
+                    aliases: ["vnew"],
+                    help: "Open a new Note on vertical Split",
+                    handler: (_view) => {
+                        const activeLeaf = this.app.workspace.activeLeaf;
+                        if (activeLeaf) {
+                            this.app.workspace.duplicateLeaf(activeLeaf, "split", "vertical");
+                        }
+                    },
+                },
+                {
+                    name: "hsplit",
+                    aliases: ["hs"],
+                    help: "Open the file in horizontal split",
+                    handler: (_view) => {
+                        const activeLeaf = this.app.workspace.activeLeaf;
+                        if (activeLeaf) {
+                            this.app.workspace.duplicateLeaf(activeLeaf, "split", "horizontal");
+                        }
+                    },
+                },
+                {
+                    name: "hsplit-new",
+                    aliases: ["hnew"],
+                    help: "Open a new Note on Horizontal Split",
+                    handler: (_view) => {
+                        const activeLeaf = this.app.workspace.activeLeaf;
+                        if (activeLeaf) {
+                            this.app.workspace.duplicateLeaf(activeLeaf, "split", "horizontal");
+                        }
+                    },
+                },
+            ]),
+        ];
+    }
+
+    private switchTab(direction: 1 | -1) {
         const leaves = this.app.workspace.getLeavesOfType("markdown");
         const activeLeaf = this.app.workspace.activeLeaf;
         if (!activeLeaf || leaves.length <= 1) return;
 
         const currentIndex = leaves.indexOf(activeLeaf);
-        let newIndex = (currentIndex + direction + leaves.length) % leaves.length;
+        const newIndex = (currentIndex + direction + leaves.length) % leaves.length;
 
         this.app.workspace.setActiveLeaf(leaves[newIndex], { focus: true });
-    }
-
-    async reload() {
-        await this.setEnabled(this.settings.enableHelixKeybindings);
     }
 }
 

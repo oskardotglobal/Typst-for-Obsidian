@@ -1,14 +1,15 @@
-import { Plugin, addIcon, Notice, Platform } from "obsidian";
-import { TypstView } from "./TypstView";
-import { registerCommands } from "./commands";
-import { TypstIcon } from "./util";
-import { TypstSettings, DEFAULT_SETTINGS, TypstSettingTab } from "./settings";
-import { TemplateVariableProvider } from "./TemplateVariableProvider";
+import { Notice, Platform, Plugin, addIcon } from "obsidian";
+import { HelixEditor } from "./HelixEditor";
 import { PackageManager } from "./PackageManager";
 import { SnippetManager } from "./SnippetManager";
+import { TemplateVariableProvider } from "./TemplateVariableProvider";
+import { TypstView } from "./TypstView";
+import { registerCommands } from "./commands";
 // @ts-ignore
 import CompilerWorker from "./compiler.worker.ts";
-import { WorkerRequest } from "./types";
+import { DEFAULT_SETTINGS, TypstSettingTab, type TypstSettings } from "./settings";
+import type { WorkerRequest } from "./types";
+import { TypstIcon } from "./util";
 import { pluginId } from "./util";
 
 declare const PLUGIN_VERSION: string;
@@ -19,12 +20,13 @@ export default class TypstForObsidian extends Plugin {
     templateProvider: TemplateVariableProvider;
     packageManager: PackageManager;
     snippetManager: SnippetManager;
+    helix: HelixEditor;
     textEncoder: TextEncoder;
     fs: any;
     wasmPath: string;
     pluginPath: string;
     packagePath: string;
-    private isWorkerReady: boolean = false;
+    private isWorkerReady = false;
 
     async onload() {
         this.textEncoder = new TextEncoder();
@@ -32,9 +34,9 @@ export default class TypstForObsidian extends Plugin {
         this.snippetManager = new SnippetManager();
         await this.loadSettings();
 
-        this.pluginPath = this.app.vault.configDir + `/plugins/${pluginId}/`;
-        this.packagePath = this.pluginPath + "packages/";
-        this.wasmPath = this.pluginPath + "obsidian_typst_bg.wasm";
+        this.pluginPath = `${this.app.vault.configDir}/plugins/${pluginId}/`;
+        this.packagePath = `${this.pluginPath}packages/`;
+        this.wasmPath = `${this.pluginPath}obsidian_typst_bg.wasm`;
 
         this.packageManager = new PackageManager(this);
         this.compilerWorker = new CompilerWorker() as Worker;
@@ -43,8 +45,8 @@ export default class TypstForObsidian extends Plugin {
             try {
                 await this.fetchWasm();
             } catch (error) {
-                new Notice("Failed to fetch component: " + error, 0);
-                console.error("Failed to fetch component: " + error);
+                new Notice(`Failed to fetch component: ${error}`, 0);
+                console.error(`Failed to fetch component: ${error}`);
             }
         }
 
@@ -92,6 +94,9 @@ export default class TypstForObsidian extends Plugin {
                 this.onThemeChange();
             }),
         );
+
+        this.helix = new HelixEditor(this.app, this);
+        this.helix.onload();
     }
 
     async loadFonts() {
@@ -225,9 +230,7 @@ export default class TypstForObsidian extends Plugin {
             const failedList = failedFonts.join(", ");
             new Notice(`Failed to load fonts: ${failedList}`);
             console.warn(
-                `Failed to load the following fonts: ${failedList}. ` +
-                    `Make sure the font names in settings match system font names. ` +
-                    `Run \`typst fonts\` in terminal to see available fonts.`,
+                `Failed to load the following fonts: ${failedList}. Make sure the font names in settings match system font names. Run \`typst fonts\` in terminal to see available fonts.`,
             );
         } else if (loadedFonts.length === 0) {
             console.warn("No fonts were loaded");
@@ -240,21 +243,23 @@ export default class TypstForObsidian extends Plugin {
         if (Platform.isLinux) {
             const dirs = ["/usr/share/fonts", "/usr/local/share/fonts"];
             if ("XDG_DATA_HOME" in process.env) {
-                dirs.push(path.join(process.env["XDG_DATA_HOME"]!, "fonts"));
+                dirs.push(path.join(process.env.XDG_DATA_HOME!, "fonts"));
             } else {
-                dirs.push(path.join(process.env["HOME"]!, ".local/share/fonts"));
+                dirs.push(path.join(process.env.HOME!, ".local/share/fonts"));
             }
             return dirs;
-        } else if (Platform.isWin) {
+        }
+        if (Platform.isWin) {
             return [
                 "C:\\Windows\\Fonts",
                 path.join(process.env.LOCALAPPDATA!, "Microsoft\\Windows\\Fonts"),
             ];
-        } else if (Platform.isMacOS) {
+        }
+        if (Platform.isMacOS) {
             return [
                 "/Library/Fonts",
                 "/System/Library/Fonts",
-                path.join(process.env["HOME"]!, "Library/Fonts"),
+                path.join(process.env.HOME!, "Library/Fonts"),
             ];
         }
 
@@ -294,7 +299,7 @@ export default class TypstForObsidian extends Plugin {
 
     private async fetchWasm() {
         try {
-            const wasmSourcePath = this.pluginPath + "pkg/obsidian_typst_bg.wasm";
+            const wasmSourcePath = `${this.pluginPath}pkg/obsidian_typst_bg.wasm`;
             const wasmData = await this.app.vault.adapter.readBinary(wasmSourcePath);
             await this.app.vault.adapter.mkdir(this.pluginPath);
             await this.app.vault.adapter.writeBinary(this.wasmPath, wasmData);
@@ -321,7 +326,7 @@ export default class TypstForObsidian extends Plugin {
 
     async compileToPdf(
         source: string,
-        path: string = "/main.typ",
+        path = "/main.typ",
         compileType: "internal" | "export" = "internal",
     ): Promise<Uint8Array> {
         let finalSource = source;
@@ -331,15 +336,15 @@ export default class TypstForObsidian extends Plugin {
             this.settings.usePdfLayoutFunctions &&
             this.settings.pdfLayoutFunctions.trim()
         ) {
-            finalSource = this.settings.pdfLayoutFunctions + "\n" + source;
+            finalSource = `${this.settings.pdfLayoutFunctions}\n${source}`;
         } else if (this.settings.useDefaultLayoutFunctions) {
-            finalSource = this.settings.customLayoutFunctions + "\n" + source;
+            finalSource = `${this.settings.customLayoutFunctions}\n${source}`;
         } else {
-            finalSource = "#set page(margin: (x: 0.25em, y: 0.25em))\n" + source;
+            finalSource = `#set page(margin: (x: 0.25em, y: 0.25em))\n${source}`;
         }
 
         if (compileType === "internal") {
-            finalSource = finalSource + "\n#linebreak()\n#linebreak()";
+            finalSource = `${finalSource}\n#linebreak()\n#linebreak()`;
         }
 
         finalSource = this.templateProvider.replaceVariables(finalSource);
@@ -383,14 +388,15 @@ export default class TypstForObsidian extends Plugin {
 
             if (
                 result instanceof Uint8Array ||
-                (result && result.constructor && result.constructor.name === "Uint8Array")
+                (result?.constructor && result.constructor.name === "Uint8Array")
             ) {
                 return result;
-            } else if (result && result.error) {
+            }
+            if (result?.error) {
                 throw new Error(result.error);
-            } else if (result && result.buffer && result.path) {
+            }
+            if (result?.buffer && result.path) {
                 await this.handleWorkerRequest(result);
-                continue;
             } else {
                 console.error("Unexpected PDF response format:", result);
                 throw new Error("Invalid PDF response format");

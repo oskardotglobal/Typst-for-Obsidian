@@ -1,37 +1,37 @@
 import {
-    EditorView,
-    keymap,
-    lineNumbers,
-    dropCursor,
-    rectangularSelection,
-    highlightActiveLine,
-} from "@codemirror/view";
-import { EditorState, Extension } from "@codemirror/state";
-import { xcodeDark } from "@uiw/codemirror-theme-xcode";
-import {
-    defaultKeymap,
-    indentWithTab,
-    insertNewlineAndIndent,
-    history,
-    historyKeymap,
-    undo,
-    redo,
-} from "@codemirror/commands";
-import { bracketMatching } from "@codemirror/language";
-import {
-    closeBrackets,
-    autocompletion,
-    completionKeymap,
-    CompletionContext,
+    type CompletionContext,
     acceptCompletion,
+    autocompletion,
+    closeBrackets,
+    completionKeymap,
     completionStatus,
     snippet,
 } from "@codemirror/autocomplete";
-import { typst } from "./grammar/typst";
+import {
+    defaultKeymap,
+    history,
+    historyKeymap,
+    indentWithTab,
+    insertNewlineAndIndent,
+    redo,
+    undo,
+} from "@codemirror/commands";
+import { bracketMatching } from "@codemirror/language";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
-import { App } from "obsidian";
-import { typstKeywords } from "./util";
+import { EditorState, type Extension } from "@codemirror/state";
+import {
+    EditorView,
+    dropCursor,
+    highlightActiveLine,
+    keymap,
+    lineNumbers,
+    rectangularSelection,
+} from "@codemirror/view";
+import { xcodeDark } from "@uiw/codemirror-theme-xcode";
+import type { App } from "obsidian";
+import { typst } from "./grammar/typst";
 import type TypstForObsidian from "./main";
+import { typstKeywords } from "./util";
 
 function wrapOrInsert(view: EditorView, markers: string): boolean {
     const { state } = view;
@@ -43,14 +43,13 @@ function wrapOrInsert(view: EditorView, markers: string): boolean {
                 to: range.to,
                 insert: markers + markers,
             };
-        } else {
-            const selectedText = state.doc.sliceString(range.from, range.to);
-            return {
-                from: range.from,
-                to: range.to,
-                insert: markers + selectedText + markers,
-            };
         }
+        const selectedText = state.doc.sliceString(range.from, range.to);
+        return {
+            from: range.from,
+            to: range.to,
+            insert: markers + selectedText + markers,
+        };
     });
 
     view.dispatch({
@@ -108,7 +107,7 @@ export class TypstEditor {
     private container: HTMLElement;
     private app: App;
     private plugin: TypstForObsidian;
-    private content: string = "";
+    private content = "";
     private onContentChange?: (content: string) => void;
 
     constructor(
@@ -124,7 +123,7 @@ export class TypstEditor {
         this.onContentChange = onContentChange;
     }
 
-    public initialize(initialContent: string = ""): void {
+    public initialize(initialContent = ""): void {
         this.content = initialContent;
         this.createEditor();
     }
@@ -181,7 +180,9 @@ export class TypstEditor {
             EditorState.allowMultipleSelections.of(true),
 
             // Key bindings
-            this.buildKeymap(),
+            ...(this.plugin.settings.enableHelix
+                ? this.plugin.helix.getExtensions()
+                : [this.buildKeymap()]),
 
             // Theme
             ...(isDarkTheme ? [xcodeDark] : []),

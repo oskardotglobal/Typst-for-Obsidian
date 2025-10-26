@@ -1,12 +1,10 @@
-import { init, WrappedPdfiumModule } from "@embedpdf/pdfium";
+import { type WrappedPdfiumModule, init } from "@embedpdf/pdfium";
 
 export class PdfRenderer {
     private pdfium: WrappedPdfiumModule | null = null;
     private initPromise: Promise<void> | null = null;
     private measureCanvas: HTMLCanvasElement | null = null;
     private measureCtx: CanvasRenderingContext2D | null = null;
-
-    constructor() {}
 
     private ensureMeasureCanvas(): CanvasRenderingContext2D {
         if (!this.measureCtx) {
@@ -55,11 +53,7 @@ export class PdfRenderer {
         }
     }
 
-    async renderPdf(
-        pdfData: Uint8Array,
-        container: HTMLElement,
-        enableTextLayer: boolean = true,
-    ): Promise<void> {
+    async renderPdf(pdfData: Uint8Array, container: HTMLElement, enableTextLayer = true): Promise<void> {
         try {
             await this.ensurePdfiumInitialized();
 

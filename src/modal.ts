@@ -1,7 +1,7 @@
-import { App, Modal, Notice, Plugin, Setting, TFile, normalizePath } from "obsidian";
+import { type App, Modal, Notice, type Plugin, Setting, TFile, normalizePath } from "obsidian";
 
 export class CreateTypstFileModal extends Modal {
-    private fileName: string = "";
+    private fileName = "";
     private plugin: Plugin;
 
     constructor(app: App, plugin: Plugin) {

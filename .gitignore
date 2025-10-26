@@ -1,5 +1,4 @@
 node_modules
-tests/
 
 main.js
 main.css
@@ -11,3 +10,7 @@ compiler/target/
 **/*.rs.bk
 *.pdb
 build.js
+
+.envrc
+.idea
+.direnv

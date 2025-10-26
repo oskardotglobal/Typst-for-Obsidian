@@ -2,617 +2,617 @@
 /*                               New File Modal                               */
 /* ========================================================================== */
 .modal-button-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--size-4-2);
-  margin-top: var(--size-4-4);
-  padding-top: var(--size-4-2);
-  border-top: var(--border-width) solid var(--background-modifier-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--size-4-2);
+    margin-top: var(--size-4-4);
+    padding-top: var(--size-4-2);
+    border-top: var(--border-width) solid var(--background-modifier-border);
 }
 
 .modal-button-container button {
-  padding: var(--size-4-1) var(--size-4-3);
-  border-radius: var(--radius-s);
-  border: var(--border-width) solid var(--background-modifier-border);
-  background: var(--background-secondary);
-  color: var(--text-normal);
-  cursor: pointer;
-  font-size: var(--font-ui-small);
+    padding: var(--size-4-1) var(--size-4-3);
+    border-radius: var(--radius-s);
+    border: var(--border-width) solid var(--background-modifier-border);
+    background: var(--background-secondary);
+    color: var(--text-normal);
+    cursor: pointer;
+    font-size: var(--font-ui-small);
 }
 
 .modal-button-container button:hover {
-  background: var(--background-modifier-hover);
+    background: var(--background-modifier-hover);
 }
 
 .modal-button-container button.mod-cta {
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
-  border-color: var(--interactive-accent);
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+    border-color: var(--interactive-accent);
 }
 
 .modal-button-container button.mod-cta:hover {
-  background: var(--interactive-accent-hover);
+    background: var(--interactive-accent-hover);
 }
 
 /* ========================================================================== */
 /*                                  Settings                                  */
 /* ========================================================================== */
 .typst-layout-textarea {
-  width: 50% !important;
-  max-width: 400px !important;
-  min-width: 300px !important;
-  font-family: var(--font-monospace) !important;
-  font-size: var(--font-ui-small) !important;
-  min-height: 100px !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+    width: 50% !important;
+    max-width: 400px !important;
+    min-width: 300px !important;
+    font-family: var(--font-monospace) !important;
+    font-size: var(--font-ui-small) !important;
+    min-height: 100px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 /* ========================================================================== */
 /*                                Typst Editor                                */
 /* ========================================================================== */
 .typst-editor-container {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .view-content {
-  padding-left: 0 !important;
+    padding-left: 0 !important;
 }
 
 .typst-editor-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
-  pointer-events: none;
-  z-index: 10;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+    pointer-events: none;
+    z-index: 10;
 }
 
 /* =============================== Main Editor ============================== */
 .typst-editor-container .cm-editor {
-  height: 100%;
-  width: 100%;
-  background: transparent;
-  font-family: var(--font-monospace);
-  font-size: var(--font-text-size);
-  border: none;
-  outline: none;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    font-family: var(--font-monospace);
+    font-size: var(--font-text-size);
+    border: none;
+    outline: none;
 }
 
 .typst-editor-container .cm-editor.cm-focused {
-  outline: none;
+    outline: none;
 }
 
 /* ================================ Scroller ================================ */
 .typst-editor-container .cm-scroller {
-  overflow-x: hidden;
-  overflow-y: auto;
-  font-family: var(--font-monospace);
-  line-height: var(--line-height-normal);
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: var(--font-monospace);
+    line-height: var(--line-height-normal);
 }
 
 /* ============================== Content Area ============================== */
 .typst-editor-container .cm-content {
-  padding: var(--size-4-4);
-  font-family: var(--font-monospace);
-  font-size: var(--font-text-size);
-  line-height: var(--line-height-normal) !important;
-  caret-color: var(--text-accent);
-  min-height: 100%;
+    padding: var(--size-4-4);
+    font-family: var(--font-monospace);
+    font-size: var(--font-text-size);
+    line-height: var(--line-height-normal) !important;
+    caret-color: var(--text-accent);
+    min-height: 100%;
 }
 
 /* ================================== Lines ================================= */
 .typst-editor-container .cm-line {
-  font-family: var(--font-monospace);
-  font-size: var(--font-text-size);
-  line-height: var(--line-height-normal);
-  padding: 0;
+    font-family: var(--font-monospace);
+    font-size: var(--font-text-size);
+    line-height: var(--line-height-normal);
+    padding: 0;
 }
 
 /* =============================== Active Line ============================== */
 .typst-editor-container .cm-activeLine {
-  background-color: transparent;
-  position: relative;
+    background-color: transparent;
+    position: relative;
 }
 
 /* ================================= Gutters ================================ */
 .typst-editor-container .cm-gutters {
-  background: var(--background-primary);
-  border-right: var(--border-width) solid var(--background-modifier-border);
-  color: var(--text-faint);
-  font-family: var(--font-monospace);
-  font-size: var(--font-ui-small);
-  line-height: var(--line-height-normal);
-  min-width: 3.5ch;
-  padding: 0;
-  padding-left: 0;
-  padding-right: var(--size-2-1);
+    background: var(--background-primary);
+    border-right: var(--border-width) solid var(--background-modifier-border);
+    color: var(--text-faint);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-small);
+    line-height: var(--line-height-normal);
+    min-width: 3.5ch;
+    padding: 0;
+    padding-left: 0;
+    padding-right: var(--size-2-1);
 }
 
 .typst-editor-container .cm-activeLineGutter {
-  background-color: var(--background-primary-alt) !important;
-  color: var(--text-normal) !important;
+    background-color: var(--background-primary-alt) !important;
+    color: var(--text-normal) !important;
 }
 
 /* ============================== Line Numbers ============================== */
 .typst-editor-container .cm-lineNumbers .cm-gutterElement {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 3ch;
-  padding: 0 var(--size-4-2) 0 var(--size-4-2);
-  font-family: var(--font-monospace);
-  font-size: var(--font-ui-small);
-  line-height: var(--line-height-normal);
-  color: var(--text-faint);
-  text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 3ch;
+    padding: 0 var(--size-4-2) 0 var(--size-4-2);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-small);
+    line-height: var(--line-height-normal);
+    color: var(--text-faint);
+    text-align: right;
 }
 
 /* ============================ Cursor Animation ============================ */
 .typst-editor-container .cm-cursor {
-  border-left-color: var(--text-accent);
-  border-left-width: 2px;
-  animation: cursor-blink 1.2s step-end infinite;
+    border-left-color: var(--text-accent);
+    border-left-width: 2px;
+    animation: cursor-blink 1.2s step-end infinite;
 }
 
 @keyframes cursor-blink {
-  0%,
-  50% {
-    opacity: 1;
-  }
-  51%,
-  100% {
-    opacity: 0;
-  }
+    0%,
+    50% {
+        opacity: 1;
+    }
+    51%,
+    100% {
+        opacity: 0;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .typst-editor-container .cm-cursor {
-    animation: none !important;
-  }
+    .typst-editor-container .cm-cursor {
+        animation: none !important;
+    }
 }
 
 /* ================================ Selection =============================== */
 .cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
 .cm-selectionBackground,
 .cm-content ::selection {
-  background-color: var(--typ-highlightBg);
+    background-color: var(--typ-highlightBg);
 }
 
 .cm-selectionMatch {
-  background-color: var(--typ-selectionMatch) !important;
+    background-color: var(--typ-selectionMatch) !important;
 }
 
 /* ============================= Folding Arrows ============================= */
 .typst-editor-container .cm-foldGutter {
-  width: var(--size-4-4);
-  opacity: 1;
+    width: var(--size-4-4);
+    opacity: 1;
 }
 
 .typst-editor-container .cm-foldGutter .cm-gutterElement {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-faint);
-  line-height: var(--line-height-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-faint);
+    line-height: var(--line-height-normal);
 }
 
 .typst-editor-container .cm-foldGutter .cm-gutterElement:hover {
-  color: var(--text-muted);
+    color: var(--text-muted);
 }
 
 .typst-editor-container .cm-foldPlaceholder {
-  background-color: var(--background-modifier-border);
-  border: var(--border-width) solid var(--background-modifier-border-hover);
-  color: var(--text-muted);
-  border-radius: var(--radius-s);
-  padding: 0;
-  cursor: pointer;
+    background-color: var(--background-modifier-border);
+    border: var(--border-width) solid var(--background-modifier-border-hover);
+    color: var(--text-muted);
+    border-radius: var(--radius-s);
+    padding: 0;
+    cursor: pointer;
 }
 
 .typst-editor-container .cm-foldPlaceholder:hover {
-  background-color: var(--background-modifier-border-hover);
+    background-color: var(--background-modifier-border-hover);
 }
 
 /* ========================================================================== */
 /*                                Autocomplete                                */
 /* ========================================================================== */
 .typst-editor-container .cm-tooltip-autocomplete {
-  background-color: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m);
-  box-shadow: var(--shadow-s);
-  font-family: var(--font-interface);
-  font-size: var(--font-ui-small);
-  padding: var(--size-4-1);
-  max-height: 300px;
-  overflow-y: auto;
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-s);
+    font-family: var(--font-interface);
+    font-size: var(--font-ui-small);
+    padding: var(--size-4-1);
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .typst-editor-container .cm-tooltip-autocomplete > ul {
-  font-family: var(--font-interface);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+    font-family: var(--font-interface);
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .typst-editor-container .cm-tooltip-autocomplete > ul > li {
-  padding: var(--size-4-1) var(--size-4-2);
-  cursor: pointer;
-  color: var(--text-normal);
-  border-radius: var(--radius-s);
-  display: flex;
-  align-items: center;
-  gap: var(--size-4-2);
+    padding: var(--size-4-1) var(--size-4-2);
+    cursor: pointer;
+    color: var(--text-normal);
+    border-radius: var(--radius-s);
+    display: flex;
+    align-items: center;
+    gap: var(--size-4-2);
 }
 
 .typst-editor-container .cm-tooltip-autocomplete > ul > li[aria-selected] {
-  background-color: var(--background-modifier-hover);
-  color: var(--text-normal);
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
 }
 
 .typst-editor-container .cm-completionLabel {
-  font-family: var(--font-monospace);
-  color: var(--text-normal);
+    font-family: var(--font-monospace);
+    color: var(--text-normal);
 }
 
 .typst-editor-container .cm-completionDetail {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  font-style: normal;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    font-style: normal;
 }
 
 .typst-editor-container .cm-completionIcon {
-  width: 1.2em;
-  min-width: 1.2em;
-  max-width: 1.2em;
-  height: 1.2em;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  color: var(--text-muted);
-  flex-shrink: 0;
+    width: 1.2em;
+    min-width: 1.2em;
+    max-width: 1.2em;
+    height: 1.2em;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: var(--text-muted);
+    flex-shrink: 0;
 }
 
 .typst-editor-container .cm-completionIcon::after {
-  content: "";
-  display: block;
-  width: 1em;
-  height: 1em;
-  background-color: currentColor;
-  mask-size: 1em 1em;
-  mask-repeat: no-repeat;
-  mask-position: left center;
+    content: "";
+    display: block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    mask-size: 1em 1em;
+    mask-repeat: no-repeat;
+    mask-position: left center;
 }
 
 /* ============================== Keyword Icon ============================== */
 .typst-editor-container .cm-completionIcon-keyword::after {
-  mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWtleS1pY29uIGx1Y2lkZS1rZXkiPjxwYXRoIGQ9Im0xNS41IDcuNSAyLjMgMi4zYTEgMSAwIDAgMCAxLjQgMGwyLjEtMi4xYTEgMSAwIDAgMCAwLTEuNEwxOSA0Ii8+PHBhdGggZD0ibTIxIDItOS42IDkuNiIvPjxjaXJjbGUgY3g9IjcuNSIgY3k9IjE1LjUiIHI9IjUuNSIvPjwvc3ZnPg==");
+    mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWtleS1pY29uIGx1Y2lkZS1rZXkiPjxwYXRoIGQ9Im0xNS41IDcuNSAyLjMgMi4zYTEgMSAwIDAgMCAxLjQgMGwyLjEtMi4xYTEgMSAwIDAgMCAwLTEuNEwxOSA0Ii8+PHBhdGggZD0ibTIxIDItOS42IDkuNiIvPjxjaXJjbGUgY3g9IjcuNSIgY3k9IjE1LjUiIHI9IjUuNSIvPjwvc3ZnPg==");
 }
 
 /* ============================== Snippet Icon ============================== */
 .typst-editor-container .cm-completionIcon-snippet::after {
-  mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXRleHQtYWxpZ24tc3RhcnQtaWNvbiBsdWNpZGUtdGV4dC1hbGlnbi1zdGFydCI+PHBhdGggZD0iTTIxIDVIMyIvPjxwYXRoIGQ9Ik0xNSAxMkgzIi8+PHBhdGggZD0iTTE3IDE5SDMiLz48L3N2Zz4=");
+    mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXRleHQtYWxpZ24tc3RhcnQtaWNvbiBsdWNpZGUtdGV4dC1hbGlnbi1zdGFydCI+PHBhdGggZD0iTTIxIDVIMyIvPjxwYXRoIGQ9Ik0xNSAxMkgzIi8+PHBhdGggZD0iTTE3IDE5SDMiLz48L3N2Zz4=");
 }
 
 /* ========================================================================== */
 /*                             Syntax Highlighting                            */
 /* ========================================================================== */
 .theme-dark {
-  --typ-text: #d5d1eb;
-  --typ-variableName: #a8a8ff;
-  --typ-propertyName: #a8a8ff;
-  --typ-function: #9f7aff;
-  --typ-number: #ffb454;
-  --typ-string: #4fc1ff;
-  --typ-heading: #ffd866;
-  --typ-heading1: #ffd866;
-  --typ-heading2: #ffd866;
-  --typ-heading3: #ffd866;
-  --typ-heading4: #ffd866;
-  --typ-heading5: #ffd866;
-  --typ-heading6: #ffd866;
-  --typ-link: #40b8ff;
-  --typ-strong: #ff79c6;
-  --typ-emphasis: #bd93f9;
-  --typ-bracket: #7a7a7a;
-  --typ-escape: #00d7d7;
-  --typ-monospace: #6ef79a;
-  --typ-bool: #ffcc66;
-  --typ-null: #ff6b6b;
-  --typ-atom: #ff6b6b;
-  --typ-keyword: #b889ff;
-  --typ-operator: #c5c5c5;
-  --typ-punctuation: #8c8c8c;
-  --typ-comments: #6b6b6b;
-  --typ-controlKeyword: #ff92df;
-  --typ-definitionKeyword: #b388ff;
-  --typ-selectionMatch: rgba(119, 187, 255, 0.15);
-  --typ-highlightBg: rgba(119, 187, 255, 0.25);
+    --typ-text: #d5d1eb;
+    --typ-variableName: #a8a8ff;
+    --typ-propertyName: #a8a8ff;
+    --typ-function: #9f7aff;
+    --typ-number: #ffb454;
+    --typ-string: #4fc1ff;
+    --typ-heading: #ffd866;
+    --typ-heading1: #ffd866;
+    --typ-heading2: #ffd866;
+    --typ-heading3: #ffd866;
+    --typ-heading4: #ffd866;
+    --typ-heading5: #ffd866;
+    --typ-heading6: #ffd866;
+    --typ-link: #40b8ff;
+    --typ-strong: #ff79c6;
+    --typ-emphasis: #bd93f9;
+    --typ-bracket: #7a7a7a;
+    --typ-escape: #00d7d7;
+    --typ-monospace: #6ef79a;
+    --typ-bool: #ffcc66;
+    --typ-null: #ff6b6b;
+    --typ-atom: #ff6b6b;
+    --typ-keyword: #b889ff;
+    --typ-operator: #c5c5c5;
+    --typ-punctuation: #8c8c8c;
+    --typ-comments: #6b6b6b;
+    --typ-controlKeyword: #ff92df;
+    --typ-definitionKeyword: #b388ff;
+    --typ-selectionMatch: rgba(119, 187, 255, 0.15);
+    --typ-highlightBg: rgba(119, 187, 255, 0.25);
 }
 
 .theme-light {
-  --typ-text: #2c2850;
-  --typ-variableName: #5e5eff;
-  --typ-propertyName: #5e5eff;
-  --typ-function: #7a4eff;
-  --typ-number: #c97a20;
-  --typ-string: #0077cc;
-  --typ-heading: #c6a400;
-  --typ-heading1: #c6a400;
-  --typ-heading2: #c6a400;
-  --typ-heading3: #c6a400;
-  --typ-heading4: #c6a400;
-  --typ-heading5: #c6a400;
-  --typ-heading6: #c6a400;
-  --typ-link: #0070e0;
-  --typ-strong: #d72e84;
-  --typ-emphasis: #8a63e5;
-  --typ-bracket: #888888;
-  --typ-escape: #00a3a3;
-  --typ-monospace: #1d7f4d;
-  --typ-bool: #b38900;
-  --typ-null: #d43c3c;
-  --typ-atom: #d43c3c;
-  --typ-keyword: #8b5cf6;
-  --typ-operator: #5e5e5e;
-  --typ-punctuation: #7a7a7a;
-  --typ-comments: #9b9b9b;
-  --typ-controlKeyword: #d754b8;
-  --typ-definitionKeyword: #8b5cf6;
-  --typ-selectionMatch: rgba(0, 102, 204, 0.15);
-  --typ-highlightBg: rgba(0, 102, 204, 0.25);
+    --typ-text: #2c2850;
+    --typ-variableName: #5e5eff;
+    --typ-propertyName: #5e5eff;
+    --typ-function: #7a4eff;
+    --typ-number: #c97a20;
+    --typ-string: #0077cc;
+    --typ-heading: #c6a400;
+    --typ-heading1: #c6a400;
+    --typ-heading2: #c6a400;
+    --typ-heading3: #c6a400;
+    --typ-heading4: #c6a400;
+    --typ-heading5: #c6a400;
+    --typ-heading6: #c6a400;
+    --typ-link: #0070e0;
+    --typ-strong: #d72e84;
+    --typ-emphasis: #8a63e5;
+    --typ-bracket: #888888;
+    --typ-escape: #00a3a3;
+    --typ-monospace: #1d7f4d;
+    --typ-bool: #b38900;
+    --typ-null: #d43c3c;
+    --typ-atom: #d43c3c;
+    --typ-keyword: #8b5cf6;
+    --typ-operator: #5e5e5e;
+    --typ-punctuation: #7a7a7a;
+    --typ-comments: #9b9b9b;
+    --typ-controlKeyword: #d754b8;
+    --typ-definitionKeyword: #8b5cf6;
+    --typ-selectionMatch: rgba(0, 102, 204, 0.15);
+    --typ-highlightBg: rgba(0, 102, 204, 0.25);
 }
 
 .typst-editor-container .cm-content .typ-variableName {
-  color: var(--typ-variableName);
+    color: var(--typ-variableName);
 }
 
 .typst-editor-container .cm-content .typ-propertyName {
-  color: var(--typ-propertyName);
+    color: var(--typ-propertyName);
 }
 
 .typst-editor-container .cm-content .typ-function {
-  color: var(--typ-function);
+    color: var(--typ-function);
 }
 
 .typst-editor-container .cm-content .typ-number {
-  color: var(--typ-number);
+    color: var(--typ-number);
 }
 
 .typst-editor-container .cm-content .typ-string {
-  color: var(--typ-string);
+    color: var(--typ-string);
 }
 
 .typst-editor-container .cm-content .typ-heading {
-  color: var(--typ-heading);
-  font-weight: bold;
+    color: var(--typ-heading);
+    font-weight: bold;
 }
 
 .typst-editor-container .cm-content .typ-link {
-  color: var(--typ-link);
-  text-decoration: underline;
-  cursor: pointer;
-  text-underline-offset: var(--size-2-1);
+    color: var(--typ-link);
+    text-decoration: underline;
+    cursor: pointer;
+    text-underline-offset: var(--size-2-1);
 }
 
 .typst-editor-container .cm-content .typ-strong {
-  color: var(--typ-strong);
-  font-weight: bold;
+    color: var(--typ-strong);
+    font-weight: bold;
 }
 
 .typst-editor-container .cm-content .typ-emphasis {
-  color: var(--typ-emphasis);
-  font-style: italic;
+    color: var(--typ-emphasis);
+    font-style: italic;
 }
 
 .typst-editor-container .cm-content .typ-bracket {
-  color: var(--typ-bracket);
+    color: var(--typ-bracket);
 }
 
 .typst-editor-container .cm-content .typ-escape {
-  color: var(--typ-escape);
+    color: var(--typ-escape);
 }
 
 .typst-editor-container .cm-content .typ-monospace {
-  color: var(--typ-monospace);
+    color: var(--typ-monospace);
 }
 
 .typst-editor-container .cm-content .typ-bool {
-  color: var(--typ-bool);
+    color: var(--typ-bool);
 }
 
 .typst-editor-container .cm-content .typ-null {
-  color: var(--typ-null);
+    color: var(--typ-null);
 }
 
 .typst-editor-container .cm-content .typ-atom {
-  color: var(--typ-atom);
+    color: var(--typ-atom);
 }
 
 .typst-editor-container .cm-content .typ-definitionKeyword,
 .typst-editor-container .cm-content .typ-controlKeyword,
 .typst-editor-container .cm-content .typ-keyword {
-  color: var(--typ-keyword);
-  font-weight: bold;
+    color: var(--typ-keyword);
+    font-weight: bold;
 }
 
 .typst-editor-container .cm-content .typ-operator {
-  color: var(--typ-operator);
+    color: var(--typ-operator);
 }
 
 .typst-editor-container .cm-content .typ-punctuation {
-  color: var(--typ-punctuation);
+    color: var(--typ-punctuation);
 }
 
 .typst-editor-container .cm-content .typ-lineComment,
 .typst-editor-container .cm-content .typ-blockComment {
-  color: var(--typ-comments);
-  font-style: italic;
+    color: var(--typ-comments);
+    font-style: italic;
 }
 
 /* ========================================================================== */
 /*                                Reading Mode                                */
 /* ========================================================================== */
 .typst-reading-mode {
-  padding: var(--file-margins);
-  margin: 0 auto;
-  width: 100%;
-  background: var(--background-primary);
-  min-height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+    padding: var(--file-margins);
+    margin: 0 auto;
+    width: 100%;
+    background: var(--background-primary);
+    min-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* =========================== PDF Page Container =========================== */
 .typst-pdf-page {
-  margin: 0 auto;
-  --user-unit: 1;
-  --total-scale-factor: calc(var(--scale-factor) * var(--user-unit));
+    margin: 0 auto;
+    --user-unit: 1;
+    --total-scale-factor: calc(var(--scale-factor) * var(--user-unit));
 }
 
 /* ============================= PDF Text Layer ============================= */
 .typst-pdf-page .textLayer {
-  position: absolute;
-  text-align: initial;
-  inset: 0;
-  overflow: hidden;
-  opacity: 1;
-  line-height: 1;
-  -webkit-text-size-adjust: none;
-  -moz-text-size-adjust: none;
-  text-size-adjust: none;
-  forced-color-adjust: none;
-  transform-origin: 0 0;
-  caret-color: CanvasText;
-  user-select: text !important;
-  -webkit-user-select: text !important;
-  -moz-user-select: text !important;
+    position: absolute;
+    text-align: initial;
+    inset: 0;
+    overflow: hidden;
+    opacity: 1;
+    line-height: 1;
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    text-size-adjust: none;
+    forced-color-adjust: none;
+    transform-origin: 0 0;
+    caret-color: CanvasText;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
 }
 
 .typst-pdf-page .textLayer :is(span, br) {
-  color: transparent;
-  position: absolute;
-  white-space: pre;
-  cursor: text;
-  transform-origin: 0% 0%;
-  user-select: text !important;
-  -webkit-user-select: text !important;
-  -moz-user-select: text !important;
-  padding: 8px 0;
-  margin: -8px 0;
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    padding: 8px 0;
+    margin: -8px 0;
 }
 
 .typst-pdf-page .textLayer br {
-  pointer-events: none;
+    pointer-events: none;
 }
 
 /* ============================= Text Selection ============================= */
 .typst-pdf-page .textLayer ::selection {
-  background: rgba(0, 100, 255, 0.3);
+    background: rgba(0, 100, 255, 0.3);
 }
 
 .typst-pdf-page .textLayer br::selection {
-  background: transparent;
+    background: transparent;
 }
 
 .typst-pdf-page .textLayer span.markedContent {
-  top: 0;
-  height: 0;
+    top: 0;
+    height: 0;
 }
 
 .typst-pdf-page .textLayer .highlight {
-  margin: -1px;
-  padding: 1px;
-  background-color: rgba(180, 0, 170, 0.2);
-  border-radius: 4px;
+    margin: -1px;
+    padding: 1px;
+    background-color: rgba(180, 0, 170, 0.2);
+    border-radius: 4px;
 }
 
 .typst-pdf-page .textLayer .highlight.appended {
-  position: initial;
+    position: initial;
 }
 
 .typst-pdf-page .textLayer .highlight.begin {
-  border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
 }
 
 .typst-pdf-page .textLayer .highlight.end {
-  border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
 }
 
 .typst-pdf-page .textLayer .highlight.middle {
-  border-radius: 0;
+    border-radius: 0;
 }
 
 .typst-pdf-page .textLayer .highlight.selected {
-  background-color: rgba(0, 100, 255, 0.3);
+    background-color: rgba(0, 100, 255, 0.3);
 }
 
 .typst-pdf-page .annotationLayer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
 }
 
 .typst-pdf-page .annotationLayer section {
-  position: absolute;
-  text-align: initial;
-  pointer-events: auto;
-  box-sizing: border-box;
-  transform-origin: 0 0;
+    position: absolute;
+    text-align: initial;
+    pointer-events: auto;
+    box-sizing: border-box;
+    transform-origin: 0 0;
 }
 
 /* ============================ Annotation Layer ============================ */
 .typst-pdf-page .annotationLayer .linkAnnotation {
-  outline: none;
+    outline: none;
 }
 
 .typst-pdf-page .annotationLayer .linkAnnotation > a {
-  position: absolute;
-  font-size: 1em;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  border: none;
-  cursor: pointer;
+    position: absolute;
+    font-size: 1em;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .typst-pdf-page .annotationLayer .linkAnnotation > a:hover {
-  opacity: 0.2;
-  background: rgba(255, 255, 0, 1);
+    opacity: 0.2;
+    background: rgba(255, 255, 0, 1);
 }
 
 /* ============================ Popup Annotations =========================== */
 .typst-pdf-page .annotationLayer .popup {
-  position: absolute;
-  max-width: 180px;
-  background-color: rgba(255, 255, 153, 1);
-  box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
-  border-radius: 2px;
-  padding: 6px;
-  cursor: pointer;
-  font: message-box;
-  white-space: normal;
-  word-wrap: break-word;
-  pointer-events: auto;
+    position: absolute;
+    max-width: 180px;
+    background-color: rgba(255, 255, 153, 1);
+    box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
+    border-radius: 2px;
+    padding: 6px;
+    cursor: pointer;
+    font: message-box;
+    white-space: normal;
+    word-wrap: break-word;
+    pointer-events: auto;
 }
 
 .typst-pdf-page .annotationLayer .popup > * {
-  font-size: 9px;
+    font-size: 9px;
 }
 
 .typst-pdf-page .annotationLayer .popup h1 {
-  display: inline-block;
+    display: inline-block;
 }
 
 /* =========================== Annotation Widgets =========================== */
@@ -620,115 +620,100 @@
 .typst-pdf-page .annotationLayer .textWidgetAnnotation textarea,
 .typst-pdf-page .annotationLayer .choiceWidgetAnnotation select,
 .typst-pdf-page .annotationLayer .buttonWidgetAnnotation button {
-  background-image: none;
-  background-color: rgba(0, 54, 255, 0.13);
-  border: 2px solid transparent;
-  box-sizing: border-box;
-  font: message-box;
-  font-size: 9px;
-  height: 100%;
-  margin: 0;
-  vertical-align: top;
-  width: 100%;
+    background-image: none;
+    background-color: rgba(0, 54, 255, 0.13);
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    font: message-box;
+    font-size: 9px;
+    height: 100%;
+    margin: 0;
+    vertical-align: top;
+    width: 100%;
 }
 
 .typst-pdf-page .annotationLayer .textWidgetAnnotation input:required,
 .typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:required,
 .typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:required,
 .typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:required {
-  outline: 1.5px solid red;
+    outline: 1.5px solid red;
 }
 
 .typst-pdf-page .annotationLayer .textWidgetAnnotation input:disabled,
 .typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:disabled,
 .typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:disabled,
 .typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:disabled {
-  background: none;
-  border: 2px solid transparent;
-  cursor: not-allowed;
+    background: none;
+    border: 2px solid transparent;
+    cursor: not-allowed;
 }
 
 .typst-pdf-page .annotationLayer .textWidgetAnnotation input:hover,
 .typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:hover,
 .typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:hover,
 .typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:hover {
-  border: 2px solid rgba(0, 0, 0, 1);
+    border: 2px solid rgba(0, 0, 0, 1);
 }
 
 .typst-pdf-page .annotationLayer .textWidgetAnnotation input:focus,
 .typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:focus,
 .typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:focus {
-  background: none;
-  border: 2px solid transparent;
+    background: none;
+    border: 2px solid transparent;
 }
 
 .typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:focus {
-  background: none;
-  border: 2px solid transparent;
+    background: none;
+    border: 2px solid transparent;
 }
 
 .typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input {
-  appearance: none;
+    appearance: none;
 }
 
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::before,
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::after {
-  background-color: CanvasText;
-  content: "";
-  display: block;
-  position: absolute;
+.typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input:checked::before,
+.typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input:checked::after {
+    background-color: CanvasText;
+    content: "";
+    display: block;
+    position: absolute;
 }
 
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::before {
-  height: 80%;
-  left: 45%;
-  width: 1px;
-  transform: rotate(45deg);
+.typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input:checked::before {
+    height: 80%;
+    left: 45%;
+    width: 1px;
+    transform: rotate(45deg);
 }
 
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::after {
-  height: 1px;
-  left: 20%;
-  top: 50%;
-  width: 50%;
-  transform: rotate(45deg);
+.typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input:checked::after {
+    height: 1px;
+    left: 20%;
+    top: 50%;
+    width: 50%;
+    transform: rotate(45deg);
 }
 
 .typst-pdf-page .annotationLayer .radioButtonWidgetAnnotation input {
-  appearance: none;
+    appearance: none;
 }
 
-.typst-pdf-page
-  .annotationLayer
-  .radioButtonWidgetAnnotation
-  input:checked::before {
-  background-color: CanvasText;
-  content: "";
-  display: block;
-  position: absolute;
-  border-radius: 50%;
-  height: 50%;
-  left: 25%;
-  top: 25%;
-  width: 50%;
+.typst-pdf-page .annotationLayer .radioButtonWidgetAnnotation input:checked::before {
+    background-color: CanvasText;
+    content: "";
+    display: block;
+    position: absolute;
+    border-radius: 50%;
+    height: 50%;
+    left: 25%;
+    top: 25%;
+    width: 50%;
 }
 
 /* ======================= File Attachment Annotations ====================== */
 .typst-pdf-page .annotationLayer .fileAttachmentAnnotation .popupTriggerArea {
-  height: 100%;
-  width: 100%;
+    height: 100%;
+    width: 100%;
 }
 
 /* ========================== Highlight Annotations ========================= */
@@ -736,13 +721,13 @@
 .typst-pdf-page .annotationLayer .underlineAnnotation,
 .typst-pdf-page .annotationLayer .squigglyAnnotation,
 .typst-pdf-page .annotationLayer .strikeoutAnnotation {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 /* ================================ Stacking ================================ */
 .typst-pdf-page .annotationLayer canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }

@@ -1,13 +1,13 @@
 import {
     LRLanguage,
     LanguageSupport,
-    indentNodeProp,
-    foldNodeProp,
-    foldInside,
     delimitedIndent,
+    foldInside,
+    foldNodeProp,
+    indentNodeProp,
 } from "@codemirror/language";
-import { parser } from "./typst-parser";
 import { typstHighlight } from "./typst-highlight";
+import { parser } from "./typst-parser";
 
 export const typstLanguage = LRLanguage.define({
     parser: parser.configure({

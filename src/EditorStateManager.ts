@@ -1,4 +1,4 @@
-import { TypstEditor } from "./TypstEditor";
+import type { TypstEditor } from "./TypstEditor";
 
 export interface EditorState {
     cursorPos: number;
@@ -7,7 +7,7 @@ export interface EditorState {
 
 export class EditorStateManager {
     private savedEditorState: EditorState | null = null;
-    private savedReadingScrollTop: number = 0;
+    private savedReadingScrollTop = 0;
 
     saveEditorState(editor: TypstEditor | null): void {
         if (editor) {

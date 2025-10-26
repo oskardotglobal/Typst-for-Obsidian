@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import TypstForObsidian from "./main";
+import { type App, PluginSettingTab, Setting } from "obsidian";
+import type TypstForObsidian from "./main";
 
 export interface TypstSettings {
     defaultMode: "source" | "reading";
@@ -40,11 +40,11 @@ export const DEFAULT_SETTINGS: TypstSettings = {
     // prettier-ignore
     customLayoutFunctions: `#set page(
   // Normal reading mode width
-  width: %LINEWIDTH%, 
+  width: %LINEWIDTH%,
   // Makes everything on one page
   height: auto,
   // Essentially 0 margin.
-  // Some padding is needed to 
+  // Some padding is needed to
   // make the PDF not cut off
   margin: (x: 0.25em, y: 0.25em),
   // Set the BG color of page to
@@ -66,7 +66,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
 )
 
 // Set colors of elements to theme colors
-// Off by default, turn these on to set 
+// Off by default, turn these on to set
 // most Typst elements to the theme color
 // #show heading: set text(fill: rgb("%HEADINGCOLOR%"))
 // #show math.equation: set text(fill: rgb("%THEMECOLOR%"))
@@ -262,21 +262,18 @@ export class TypstSettingTab extends PluginSettingTab {
         });
 
         new Setting(containerEl).setName("Enable Helix keybindings").addToggle(async (value) => {
-            value
-                .setValue(this.plugin.settings.enableHelix)
-                .onChange(async (value) =>
-                    this.plugin.helix.toggle(value, this.plugin.settings.helixEnableGlobally),
-                );
+            value.setValue(this.plugin.settings.enableHelix).onChange(async (value) => {
+                this.plugin.settings.enableHelix = value;
+                await this.plugin.saveSettings();
+            });
         });
 
         new Setting(containerEl)
             .setName("Enable Helix keybindings for other files")
             .addToggle(async (value) => {
-                value
-                    .setValue(this.plugin.settings.helixEnableGlobally)
-                    .onChange(async (value) =>
-                        this.plugin.helix.toggle(this.plugin.settings.enableHelix, value),
-                    );
+                value.setValue(this.plugin.settings.helixEnableGlobally).onChange(async (value) => {
+                    this.plugin.settings.helixEnableGlobally = value;
+                });
             });
 
         new Setting(containerEl).setName("Helix: Cursor in insert mode").addDropdown((dropdown) => {
@@ -285,10 +282,9 @@ export class TypstSettingTab extends PluginSettingTab {
                 .addOption("bar", "Bar")
                 .setValue(this.plugin.settings.helixCursorInInsertMode)
                 .onChange(async (value) => {
-                    if (value == "block" || value == "bar") {
-                        this.plugin.settings.cursorInInsertMode = value;
+                    if (value === "block" || value === "bar") {
+                        this.plugin.settings.helixCursorInInsertMode = value;
                         await this.plugin.saveSettings();
-                        await this.plugin.reload();
                     }
                 });
         });

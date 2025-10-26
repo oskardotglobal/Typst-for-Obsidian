@@ -1,10 +1,10 @@
 {
   "id": "typst-for-obsidian",
   "name": "Typst for Obsidian",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "minAppVersion": "0.15.0",
   "description": "A Typst editor integrated into Obsidian, enabling you to create and preview Typst documents seamlessly within your notes.",
   "author": "k0src",
   "authorUrl": "https://github.com/k0src",
-  "isDesktopOnly": false
+  "isDesktopOnly": true
 }

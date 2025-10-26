@@ -27,13 +27,13 @@ export class TemplateVariableProvider {
 
         const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
         if (rgbMatch) {
-            const r = parseInt(rgbMatch[1]);
-            const g = parseInt(rgbMatch[2]);
-            const b = parseInt(rgbMatch[3]);
+            const r = Number.parseInt(rgbMatch[1]);
+            const g = Number.parseInt(rgbMatch[2]);
+            const b = Number.parseInt(rgbMatch[3]);
 
             const toHex = (n: number) => {
                 const hex = n.toString(16);
-                return hex.length === 1 ? "0" + hex : hex;
+                return hex.length === 1 ? `0${hex}` : hex;
             };
 
             return toHex(r) + toHex(g) + toHex(b);
@@ -41,12 +41,14 @@ export class TemplateVariableProvider {
 
         const hslMatch = color.match(/hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/);
         if (hslMatch) {
-            const h = parseInt(hslMatch[1]) / 360;
-            const s = parseInt(hslMatch[2]) / 100;
-            const l = parseInt(hslMatch[3]) / 100;
+            const h = Number.parseInt(hslMatch[1]) / 360;
+            const s = Number.parseInt(hslMatch[2]) / 100;
+            const l = Number.parseInt(hslMatch[3]) / 100;
 
             const hslToRgb = (h: number, s: number, l: number) => {
-                let r, g, b;
+                let r;
+                let g;
+                let b;
 
                 if (s === 0) {
                     r = g = b = l;
@@ -69,7 +71,7 @@ export class TemplateVariableProvider {
 
                 const toHex = (x: number) => {
                     const hex = Math.round(x * 255).toString(16);
-                    return hex.length === 1 ? "0" + hex : hex;
+                    return hex.length === 1 ? `0${hex}` : hex;
                 };
 
                 return toHex(r) + toHex(g) + toHex(b);
@@ -92,7 +94,7 @@ export class TemplateVariableProvider {
         }
     }
 
-    private getCssVariable(variableName: string, fallback: string = "000000"): string {
+    private getCssVariable(variableName: string, fallback = "000000"): string {
         const bodyStyle = getComputedStyle(document.body);
         const value = bodyStyle.getPropertyValue(variableName).trim();
 
@@ -126,7 +128,7 @@ export class TemplateVariableProvider {
         const fontSize = bodyStyle.getPropertyValue("--font-text-size").trim();
 
         if (fontSize) {
-            const pxValue = parseFloat(fontSize.replace("px", ""));
+            const pxValue = Number.parseFloat(fontSize.replace("px", ""));
             const ptValue = pxValue * 0.75;
             return `${ptValue}pt`;
         }
@@ -149,7 +151,7 @@ export class TemplateVariableProvider {
         const bodyStyle = getComputedStyle(document.body);
         const fileLineWidth = bodyStyle.getPropertyValue("--file-line-width").trim();
         if (fileLineWidth) {
-            const pxValue = parseFloat(fileLineWidth.replace("px", ""));
+            const pxValue = Number.parseFloat(fileLineWidth.replace("px", ""));
             const ptValue = pxValue / 1.5;
             return `${ptValue}pt`;
         }

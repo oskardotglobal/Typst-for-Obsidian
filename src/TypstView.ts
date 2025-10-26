@@ -1,14 +1,14 @@
-import { TextFileView, WorkspaceLeaf, Notice } from "obsidian";
-import { TypstEditor } from "./TypstEditor";
-import TypstForObsidian from "./main";
-import { PdfRenderer } from "./PdfRenderer";
-import { ViewActionBar } from "./ViewActionBar";
+import { Notice, TextFileView, type WorkspaceLeaf } from "obsidian";
 import { EditorStateManager } from "./EditorStateManager";
+import { PdfRenderer } from "./PdfRenderer";
+import { TypstEditor } from "./TypstEditor";
+import { ViewActionBar } from "./ViewActionBar";
+import type TypstForObsidian from "./main";
 
 export class TypstView extends TextFileView {
     private currentMode: "source" | "reading" = "source";
     private typstEditor: TypstEditor | null = null;
-    private fileContent: string = "";
+    private fileContent = "";
     private plugin: TypstForObsidian;
     private pdfRenderer: PdfRenderer;
     private actionBar: ViewActionBar | null = null;

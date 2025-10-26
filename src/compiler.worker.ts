@@ -1,10 +1,10 @@
 import typstInit, * as typst from "../pkg";
 
-import { CompileImageCommand, CompilePdfCommand, Message } from "src/types";
+import type { CompileImageCommand, CompilePdfCommand, Message } from "src/types";
 
 let canUseSharedArrayBuffer = false;
 
-let decoder = new TextDecoder();
+const decoder = new TextDecoder();
 let basePath: string;
 let packagePath: string;
 let packages: string[] = [];
@@ -19,7 +19,7 @@ function requestData(path: string): string | Uint8Array {
                 }
                 throw 2;
             }
-            path = "http://localhost/_capacitor_file_" + basePath + "/" + path;
+            path = `http://localhost/_capacitor_file_${basePath}/${path}`;
             xhr.open("GET", path, false);
             try {
                 xhr.send();
@@ -27,33 +27,32 @@ function requestData(path: string): string | Uint8Array {
                 console.error(e);
                 throw 3;
             }
-            if (xhr.status == 404) {
+            if (xhr.status === 404) {
                 throw 2;
             }
             return xhr.responseText;
         }
         // prettier-ignore
         // @ts-ignore
-        let buffer = new Int32Array(new SharedArrayBuffer(4, { maxByteLength: 1e8 }));
+        const buffer = new Int32Array(new SharedArrayBuffer(4, { maxByteLength: 1e8 }));
         buffer[0] = 0;
 
         postMessage({ buffer, path });
         const res = Atomics.wait(buffer, 0, 0);
 
-        if (buffer[0] == 0) {
+        if (buffer[0] === 0) {
             const byteLength = buffer[1];
             if (path.endsWith(":binary")) {
                 const sharedView = new Uint8Array(buffer.buffer, 8, byteLength);
                 return new Uint8Array(sharedView);
-            } else {
-                const sharedView = new Uint8Array(buffer.buffer, 8, byteLength);
-                const regularArray = new Uint8Array(sharedView);
-                return decoder.decode(regularArray);
             }
+            const sharedView = new Uint8Array(buffer.buffer, 8, byteLength);
+            const regularArray = new Uint8Array(sharedView);
+            return decoder.decode(regularArray);
         }
         throw buffer[0];
     } catch (e) {
-        if (typeof e != "number") {
+        if (typeof e !== "number") {
             console.error(e);
             throw 1;
         }
@@ -99,7 +98,7 @@ onmessage = (ev: MessageEvent<Message>) => {
                 return;
             }
             try {
-                if (message.data.format == "image") {
+                if (message.data.format === "image") {
                     const data: CompileImageCommand = message.data;
                     const result = compiler.compile_image(
                         data.source,
@@ -110,10 +109,10 @@ onmessage = (ev: MessageEvent<Message>) => {
                         data.display,
                     );
                     postMessage(result);
-                } else if (message.data.format == "svg") {
+                } else if (message.data.format === "svg") {
                     const result = compiler.compile_svg(message.data.source, message.data.path);
                     postMessage(result);
-                } else if (message.data.format == "pdf") {
+                } else if (message.data.format === "pdf") {
                     const data: CompilePdfCommand = message.data;
                     const result = compiler.compile_pdf(data.source, data.path);
                     postMessage(result);
