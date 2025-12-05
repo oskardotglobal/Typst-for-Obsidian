@@ -1,7 +1,7 @@
 import { Plugin, addIcon, Notice, Platform } from "obsidian";
 import { TypstView } from "./TypstView";
 import { registerCommands } from "./commands";
-import { TypstIcon } from "./util";
+import { TypstIcon, pluginId } from "./util/typst.util";
 import { TypstSettings, DEFAULT_SETTINGS, TypstSettingTab } from "./settings";
 import { TemplateVariableProvider } from "./TemplateVariableProvider";
 import { PackageManager } from "./PackageManager";
@@ -9,15 +9,12 @@ import { SnippetManager } from "./SnippetManager";
 // @ts-ignore
 import CompilerWorker from "./compiler.worker.ts";
 import { WorkerRequest } from "./types";
-import { pluginId } from "./util";
 import {
   setPluginInstance,
   resetRegistry,
   setupTypstTokensProvider,
 } from "./grammar/typst-language";
 import "monaco-editor/min/vs/editor/editor.main.css";
-
-declare const PLUGIN_VERSION: string;
 
 export default class TypstForObsidian extends Plugin {
   settings: TypstSettings;

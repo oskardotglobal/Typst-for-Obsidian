@@ -65,31 +65,44 @@ export class TypstView extends TextFileView {
     }
   }
 
-  public executeEditorCommand(commandId: string): void {
+  public toggleBold(): void {
     if (!this.typstEditor) {
       console.warn("Editor not available");
       return;
     }
+    this.typstEditor.toggleFormatting("*", "*");
+  }
 
-    switch (commandId) {
-      case "typst-bold":
-        this.typstEditor.wrapSelection("*", "*");
-        break;
-      case "typst-italic":
-        this.typstEditor.wrapSelection("_", "_");
-        break;
-      case "typst-underline":
-        this.typstEditor.wrapSelection("#underline[", "]");
-        break;
-      case "typst-heading-up":
-        this.typstEditor.increaseHeadingLevel();
-        break;
-      case "typst-heading-down":
-        this.typstEditor.decreaseHeadingLevel();
-        break;
-      default:
-        console.warn(`Unknown editor command: ${commandId}`);
+  public toggleItalic(): void {
+    if (!this.typstEditor) {
+      console.warn("Editor not available");
+      return;
     }
+    this.typstEditor.toggleFormatting("_", "_");
+  }
+
+  public toggleUnderline(): void {
+    if (!this.typstEditor) {
+      console.warn("Editor not available");
+      return;
+    }
+    this.typstEditor.toggleFormatting("#underline[", "]");
+  }
+
+  public increaseHeadingLevel(): void {
+    if (!this.typstEditor) {
+      console.warn("Editor not available");
+      return;
+    }
+    this.typstEditor.increaseHeadingLevel();
+  }
+
+  public decreaseHeadingLevel(): void {
+    if (!this.typstEditor) {
+      console.warn("Editor not available");
+      return;
+    }
+    this.typstEditor.decreaseHeadingLevel();
   }
 
   public async exportToPdf(): Promise<void> {

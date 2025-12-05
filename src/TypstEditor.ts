@@ -3,6 +3,16 @@ import * as monaco from "monaco-editor";
 import type TypstForObsidian from "./main";
 import { ensureLanguageRegistered } from "./grammar/typst-language";
 
+interface MonacoLineEdit {
+  line: number;
+  trimmedFrom: number;
+  trimmedTo: number;
+  trimmedText: string;
+  isFormatted: boolean;
+  originalFrom: number;
+  originalTo: number;
+}
+
 export class TypstEditor {
   private monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
   private container: HTMLElement;
@@ -183,7 +193,145 @@ export class TypstEditor {
     return false;
   }
 
-  public wrapSelection(prefix: string, suffix: string): void {
+  private getWordAtPosition(
+    model: monaco.editor.ITextModel,
+    position: monaco.Position
+  ): monaco.Range | null {
+    const line = model.getLineContent(position.lineNumber);
+    const wordRegex = /\S+/g;
+    let match;
+
+    while ((match = wordRegex.exec(line)) !== null) {
+      const start = match.index + 1;
+      const end = start + match[0].length;
+
+      if (position.column >= start && position.column <= end) {
+        return new monaco.Range(
+          position.lineNumber,
+          start,
+          position.lineNumber,
+          end
+        );
+      }
+    }
+
+    return null;
+  }
+
+  private getLineEdits(
+    model: monaco.editor.ITextModel,
+    from: monaco.Position,
+    to: monaco.Position,
+    prefix: string,
+    suffix: string
+  ): MonacoLineEdit[] {
+    const edits: MonacoLineEdit[] = [];
+
+    for (let line = from.lineNumber; line <= to.lineNumber; line++) {
+      const lineText = model.getLineContent(line);
+
+      const originalStartCol = line === from.lineNumber ? from.column - 1 : 0;
+      const originalEndCol =
+        line === to.lineNumber ? to.column - 1 : lineText.length;
+
+      let startCol = originalStartCol;
+      let endCol = originalEndCol;
+
+      if (line === from.lineNumber) {
+        if (startCol >= prefix.length) {
+          const beforeText = lineText.substring(
+            startCol - prefix.length,
+            startCol
+          );
+          if (beforeText === prefix) {
+            startCol -= prefix.length;
+          }
+        }
+      }
+
+      if (line === to.lineNumber) {
+        if (endCol + suffix.length <= lineText.length) {
+          const afterText = lineText.substring(endCol, endCol + suffix.length);
+          if (afterText === suffix) {
+            endCol += suffix.length;
+          }
+        }
+      }
+
+      const selectedPart = lineText.substring(startCol, endCol);
+      const trimmed = selectedPart.trim();
+
+      if (!trimmed) continue;
+
+      const originalSelectedPart = lineText.substring(
+        originalStartCol,
+        originalEndCol
+      );
+      const originalLeadingSpaces =
+        originalSelectedPart.length - originalSelectedPart.trimStart().length;
+      const originalTrailingSpaces =
+        originalSelectedPart.length - originalSelectedPart.trimEnd().length;
+
+      const originalTrimmedFrom = originalStartCol + originalLeadingSpaces;
+      const originalTrimmedTo = originalEndCol - originalTrailingSpaces;
+
+      const leadingSpaces =
+        selectedPart.length - selectedPart.trimStart().length;
+      const trailingSpaces =
+        selectedPart.length - selectedPart.trimEnd().length;
+      let trimmedFrom = startCol + leadingSpaces;
+      let trimmedTo = endCol - trailingSpaces;
+      let finalTrimmed = trimmed;
+
+      const containsFormatting =
+        trimmed.includes(prefix) || trimmed.includes(suffix);
+      if (containsFormatting) {
+        const formattedRegex = new RegExp(
+          `${prefix.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          )}(.+?)${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+          "g"
+        );
+        let match;
+        let minStart = trimmedFrom;
+        let maxEnd = trimmedTo;
+
+        while ((match = formattedRegex.exec(lineText)) !== null) {
+          const matchStart = match.index;
+          const matchEnd = match.index + match[0].length;
+
+          if (matchStart < trimmedTo && matchEnd > trimmedFrom) {
+            minStart = Math.min(minStart, matchStart);
+            maxEnd = Math.max(maxEnd, matchEnd);
+          }
+        }
+
+        trimmedFrom = minStart;
+        trimmedTo = maxEnd;
+        finalTrimmed = lineText.substring(trimmedFrom, trimmedTo);
+      }
+
+      const isFormatted =
+        finalTrimmed.startsWith(prefix) &&
+        finalTrimmed.endsWith(suffix) &&
+        finalTrimmed.length > prefix.length + suffix.length;
+
+      edits.push({
+        line,
+        trimmedFrom: trimmedFrom + 1,
+        trimmedTo: trimmedTo + 1,
+        trimmedText: finalTrimmed,
+        isFormatted,
+        originalFrom: originalTrimmedFrom + 1,
+        originalTo: originalTrimmedTo + 1,
+      });
+    }
+
+    return edits;
+  }
+
+  public toggleFormatting(prefix: string, suffix: string): void {
     if (!this.monacoEditor) return;
 
     const selection = this.monacoEditor.getSelection();
@@ -192,45 +340,201 @@ export class TypstEditor {
     const model = this.monacoEditor.getModel();
     if (!model) return;
 
+    const position = this.monacoEditor.getPosition();
+    if (!position) return;
+
     const selectedText = model.getValueInRange(selection);
 
-    if (selectedText.startsWith(prefix) && selectedText.endsWith(suffix)) {
-      const unwrappedText = selectedText.substring(
-        prefix.length,
-        selectedText.length - suffix.length
+    if (selectedText) {
+      const from = new monaco.Position(
+        selection.startLineNumber,
+        selection.startColumn
       );
+      const to = new monaco.Position(
+        selection.endLineNumber,
+        selection.endColumn
+      );
+      const edits = this.getLineEdits(model, from, to, prefix, suffix);
 
-      this.monacoEditor.executeEdits("typst-format", [
-        {
-          range: selection,
-          text: unwrappedText,
-        },
-      ]);
+      if (edits.length === 0) return;
+
+      const allFormatted = edits.every((e) => e.isFormatted);
+      const shouldFormat = !allFormatted;
+
+      for (let i = edits.length - 1; i >= 0; i--) {
+        const edit = edits[i];
+        const editRange = new monaco.Range(
+          edit.line,
+          edit.trimmedFrom,
+          edit.line,
+          edit.trimmedTo
+        );
+
+        if (shouldFormat) {
+          if (edit.isFormatted) {
+            continue;
+          } else {
+            let cleanText = edit.trimmedText;
+            const formattedPartRegex = new RegExp(
+              `\\${prefix}(.+?)\\${suffix}`,
+              "g"
+            );
+            cleanText = cleanText.replace(formattedPartRegex, "$1");
+
+            const wrapped = `${prefix}${cleanText}${suffix}`;
+            this.monacoEditor.executeEdits("typst-format", [
+              {
+                range: editRange,
+                text: wrapped,
+              },
+            ]);
+          }
+        } else {
+          if (edit.isFormatted) {
+            const unwrapped = edit.trimmedText.substring(
+              prefix.length,
+              edit.trimmedText.length - suffix.length
+            );
+            this.monacoEditor.executeEdits("typst-format", [
+              {
+                range: editRange,
+                text: unwrapped,
+              },
+            ]);
+          } else {
+            continue;
+          }
+        }
+      }
+
+      const firstEdit = edits[0];
+      const lastEdit = edits[edits.length - 1];
+
+      let newFromColumn: number;
+      let newToColumn: number;
+
+      if (shouldFormat) {
+        if (firstEdit.isFormatted) {
+          newFromColumn = firstEdit.originalFrom;
+        } else {
+          const firstOffset = firstEdit.originalFrom - firstEdit.trimmedFrom;
+          newFromColumn =
+            firstEdit.trimmedFrom + prefix.length + Math.max(0, firstOffset);
+        }
+
+        if (lastEdit.isFormatted) {
+          const lastOffset = lastEdit.originalTo - lastEdit.trimmedFrom;
+          newToColumn =
+            lastEdit.trimmedFrom +
+            Math.min(lastOffset, lastEdit.trimmedText.length - suffix.length);
+        } else {
+          let cleanText = lastEdit.trimmedText;
+          const formattedPartRegex = new RegExp(
+            `\\${prefix}(.+?)\\${suffix}`,
+            "g"
+          );
+          cleanText = cleanText.replace(formattedPartRegex, "$1");
+          const lastOffset = lastEdit.originalTo - lastEdit.trimmedFrom;
+          newToColumn =
+            lastEdit.trimmedFrom +
+            prefix.length +
+            Math.min(lastOffset, cleanText.length);
+        }
+      } else {
+        const firstOffset = firstEdit.originalFrom - firstEdit.trimmedFrom;
+
+        if (firstEdit.isFormatted) {
+          newFromColumn =
+            firstEdit.trimmedFrom + Math.max(0, firstOffset - prefix.length);
+        } else {
+          newFromColumn = firstEdit.originalFrom;
+        }
+
+        if (lastEdit.isFormatted) {
+          const lastOffset = lastEdit.originalTo - lastEdit.trimmedFrom;
+          const cappedOffset = Math.min(
+            lastOffset,
+            lastEdit.trimmedText.length - suffix.length
+          );
+          newToColumn =
+            lastEdit.trimmedFrom + Math.max(0, cappedOffset - prefix.length);
+        } else {
+          newToColumn = lastEdit.originalTo;
+        }
+      }
 
       const newSelection = new monaco.Selection(
-        selection.startLineNumber,
-        selection.startColumn,
-        selection.endLineNumber,
-        selection.endColumn - prefix.length - suffix.length
+        firstEdit.line,
+        newFromColumn,
+        lastEdit.line,
+        newToColumn
       );
+
       this.monacoEditor.setSelection(newSelection);
     } else {
-      const wrappedText = `${prefix}${selectedText}${suffix}`;
+      const wordRange = this.getWordAtPosition(model, position);
 
-      this.monacoEditor.executeEdits("typst-format", [
-        {
-          range: selection,
-          text: wrappedText,
-        },
-      ]);
+      if (wordRange) {
+        const word = model.getValueInRange(wordRange);
 
-      const newSelection = new monaco.Selection(
-        selection.startLineNumber,
-        selection.startColumn,
-        selection.endLineNumber,
-        selection.endColumn + prefix.length + suffix.length
-      );
-      this.monacoEditor.setSelection(newSelection);
+        if (word.startsWith(prefix) && word.endsWith(suffix)) {
+          const unwrapped = word.substring(
+            prefix.length,
+            word.length - suffix.length
+          );
+
+          this.monacoEditor.executeEdits("typst-format", [
+            {
+              range: wordRange,
+              text: unwrapped,
+            },
+          ]);
+
+          const cursorOffset = position.column - wordRange.startColumn;
+          const newColumn =
+            wordRange.startColumn + Math.max(0, cursorOffset - prefix.length);
+
+          this.monacoEditor.setPosition(
+            new monaco.Position(position.lineNumber, newColumn)
+          );
+        } else {
+          const wrapped = `${prefix}${word}${suffix}`;
+
+          this.monacoEditor.executeEdits("typst-format", [
+            {
+              range: wordRange,
+              text: wrapped,
+            },
+          ]);
+
+          const cursorOffset = position.column - wordRange.startColumn;
+          const newColumn =
+            wordRange.startColumn + cursorOffset + prefix.length;
+
+          this.monacoEditor.setPosition(
+            new monaco.Position(position.lineNumber, newColumn)
+          );
+        }
+      } else {
+        this.monacoEditor.executeEdits("typst-format", [
+          {
+            range: new monaco.Range(
+              position.lineNumber,
+              position.column,
+              position.lineNumber,
+              position.column
+            ),
+            text: `${prefix}${suffix}`,
+          },
+        ]);
+
+        this.monacoEditor.setPosition(
+          new monaco.Position(
+            position.lineNumber,
+            position.column + prefix.length
+          )
+        );
+      }
     }
 
     this.monacoEditor.focus();

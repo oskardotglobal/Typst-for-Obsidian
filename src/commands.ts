@@ -1,6 +1,7 @@
-import { Notice, Plugin } from "obsidian";
+import { MarkdownView, Notice, Plugin } from "obsidian";
 import { CreateTypstFileModal } from "./modal";
 import { TypstView } from "./TypstView";
+import { toggleMarkdownFormatting } from "./util/markdown.util";
 
 export function registerCommands(plugin: Plugin) {
   plugin.addCommand({
@@ -10,10 +11,23 @@ export function registerCommands(plugin: Plugin) {
       const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
       if (typstView && typstView.getCurrentMode() === "source") {
         if (!checking) {
-          typstView.executeEditorCommand("typst-bold");
+          typstView.toggleBold();
         }
         return true;
       }
+
+      const markdownView =
+        plugin.app.workspace.getActiveViewOfType(MarkdownView);
+      if (markdownView && !(markdownView instanceof TypstView)) {
+        if (!checking) {
+          const editor = markdownView.editor;
+          if (editor) {
+            toggleMarkdownFormatting(editor, "**", "**");
+          }
+        }
+        return true;
+      }
+
       return false;
     },
   });
@@ -25,10 +39,23 @@ export function registerCommands(plugin: Plugin) {
       const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
       if (typstView && typstView.getCurrentMode() === "source") {
         if (!checking) {
-          typstView.executeEditorCommand("typst-italic");
+          typstView.toggleItalic();
         }
         return true;
       }
+
+      const markdownView =
+        plugin.app.workspace.getActiveViewOfType(MarkdownView);
+      if (markdownView && !(markdownView instanceof TypstView)) {
+        if (!checking) {
+          const editor = markdownView.editor;
+          if (editor) {
+            toggleMarkdownFormatting(editor, "*", "*");
+          }
+        }
+        return true;
+      }
+
       return false;
     },
   });
@@ -40,7 +67,7 @@ export function registerCommands(plugin: Plugin) {
       const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
       if (typstView && typstView.getCurrentMode() === "source") {
         if (!checking) {
-          typstView.executeEditorCommand("typst-underline");
+          typstView.toggleUnderline();
         }
         return true;
       }
@@ -55,7 +82,7 @@ export function registerCommands(plugin: Plugin) {
       const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
       if (typstView && typstView.getCurrentMode() === "source") {
         if (!checking) {
-          typstView.executeEditorCommand("typst-heading-up");
+          typstView.increaseHeadingLevel();
         }
         return true;
       }
@@ -70,7 +97,7 @@ export function registerCommands(plugin: Plugin) {
       const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
       if (typstView && typstView.getCurrentMode() === "source") {
         if (!checking) {
-          typstView.executeEditorCommand("typst-heading-down");
+          typstView.decreaseHeadingLevel();
         }
         return true;
       }
