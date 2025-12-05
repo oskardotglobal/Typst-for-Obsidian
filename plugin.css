@@ -101,8 +101,11 @@
   background-color: var(--background-primary) !important;
 }
 
-.view-content {
-  padding-left: 0 !important;
+.workspace-leaf-content[data-type="typst-view"] .view-content {
+  padding: 0 !important;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 .typst-editor-container::before {
