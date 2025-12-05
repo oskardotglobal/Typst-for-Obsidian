@@ -18,7 +18,7 @@ let combineCssPlugin = {
   setup(build) {
     build.onEnd((result) => {
       try {
-        const customStyles = fs.readFileSync("styles.css", "utf8");
+        const customStyles = fs.readFileSync("plugin.css", "utf8");
         const monacoStyles = fs.readFileSync("main.css", "utf8");
         const combined = customStyles + "\n" + monacoStyles;
         fs.writeFileSync("styles.css", combined, "utf8");

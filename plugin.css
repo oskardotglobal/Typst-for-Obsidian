@@ -1,0 +1,383 @@
+/* ========================================================================== */
+/*                               New File Modal                               */
+/* ========================================================================== */
+.modal-button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--size-4-2);
+  margin-top: var(--size-4-4);
+  padding-top: var(--size-4-2);
+  border-top: var(--border-width) solid var(--background-modifier-border);
+}
+
+.modal-button-container button {
+  padding: var(--size-4-1) var(--size-4-3);
+  border-radius: var(--radius-s);
+  border: var(--border-width) solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+}
+
+.modal-button-container button:hover {
+  background: var(--background-modifier-hover);
+}
+
+.modal-button-container button.mod-cta {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+
+.modal-button-container button.mod-cta:hover {
+  background: var(--interactive-accent-hover);
+}
+
+/* ========================================================================== */
+/*                                  Settings                                  */
+/* ========================================================================== */
+.typst-layout-textarea {
+  width: 50% !important;
+  max-width: 400px !important;
+  min-width: 300px !important;
+  font-family: var(--font-monospace) !important;
+  font-size: var(--font-ui-small) !important;
+  min-height: 100px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ========================================================================== */
+/*                                Typst Editor                                */
+/* ========================================================================== */
+.typst-editor-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Monaco Editor Container - created directly on contentEl */
+.typst-monaco-editor-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Monaco Editor specific styles */
+.typst-monaco-editor-container .monaco-editor,
+.typst-editor-container .monaco-editor {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.typst-monaco-editor-container .monaco-editor .overflow-guard,
+.typst-editor-container .monaco-editor .overflow-guard {
+  position: relative !important;
+}
+
+.view-content {
+  padding-left: 0 !important;
+}
+
+.typst-editor-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ========================================================================== */
+/*                                Reading Mode                                */
+/* ========================================================================== */
+.typst-reading-mode {
+  padding: var(--file-margins);
+  margin: 0 auto;
+  width: 100%;
+  background: var(--background-primary);
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* =========================== PDF Page Container =========================== */
+.typst-pdf-page {
+  margin: 0 auto;
+  --user-unit: 1;
+  --total-scale-factor: calc(var(--scale-factor) * var(--user-unit));
+}
+
+/* ============================= PDF Text Layer ============================= */
+.typst-pdf-page .textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: hidden;
+  opacity: 1;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+}
+
+.typst-pdf-page .textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  padding: 8px 0;
+  margin: -8px 0;
+}
+
+.typst-pdf-page .textLayer br {
+  pointer-events: none;
+}
+
+/* ============================= Text Selection ============================= */
+.typst-pdf-page .textLayer ::selection {
+  background: rgba(0, 100, 255, 0.3);
+}
+
+.typst-pdf-page .textLayer br::selection {
+  background: transparent;
+}
+
+.typst-pdf-page .textLayer span.markedContent {
+  top: 0;
+  height: 0;
+}
+
+.typst-pdf-page .textLayer .highlight {
+  margin: -1px;
+  padding: 1px;
+  background-color: rgba(180, 0, 170, 0.2);
+  border-radius: 4px;
+}
+
+.typst-pdf-page .textLayer .highlight.appended {
+  position: initial;
+}
+
+.typst-pdf-page .textLayer .highlight.begin {
+  border-radius: 4px 0 0 4px;
+}
+
+.typst-pdf-page .textLayer .highlight.end {
+  border-radius: 0 4px 4px 0;
+}
+
+.typst-pdf-page .textLayer .highlight.middle {
+  border-radius: 0;
+}
+
+.typst-pdf-page .textLayer .highlight.selected {
+  background-color: rgba(0, 100, 255, 0.3);
+}
+
+.typst-pdf-page .annotationLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.typst-pdf-page .annotationLayer section {
+  position: absolute;
+  text-align: initial;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+}
+
+/* ============================ Annotation Layer ============================ */
+.typst-pdf-page .annotationLayer .linkAnnotation {
+  outline: none;
+}
+
+.typst-pdf-page .annotationLayer .linkAnnotation > a {
+  position: absolute;
+  font-size: 1em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.typst-pdf-page .annotationLayer .linkAnnotation > a:hover {
+  opacity: 0.2;
+  background: rgba(255, 255, 0, 1);
+}
+
+/* ============================ Popup Annotations =========================== */
+.typst-pdf-page .annotationLayer .popup {
+  position: absolute;
+  max-width: 180px;
+  background-color: rgba(255, 255, 153, 1);
+  box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
+  border-radius: 2px;
+  padding: 6px;
+  cursor: pointer;
+  font: message-box;
+  white-space: normal;
+  word-wrap: break-word;
+  pointer-events: auto;
+}
+
+.typst-pdf-page .annotationLayer .popup > * {
+  font-size: 9px;
+}
+
+.typst-pdf-page .annotationLayer .popup h1 {
+  display: inline-block;
+}
+
+/* =========================== Annotation Widgets =========================== */
+.typst-pdf-page .annotationLayer .textWidgetAnnotation input,
+.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea,
+.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select,
+.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button {
+  background-image: none;
+  background-color: rgba(0, 54, 255, 0.13);
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  font: message-box;
+  font-size: 9px;
+  height: 100%;
+  margin: 0;
+  vertical-align: top;
+  width: 100%;
+}
+
+.typst-pdf-page .annotationLayer .textWidgetAnnotation input:required,
+.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:required,
+.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:required,
+.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:required {
+  outline: 1.5px solid red;
+}
+
+.typst-pdf-page .annotationLayer .textWidgetAnnotation input:disabled,
+.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:disabled,
+.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:disabled,
+.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:disabled {
+  background: none;
+  border: 2px solid transparent;
+  cursor: not-allowed;
+}
+
+.typst-pdf-page .annotationLayer .textWidgetAnnotation input:hover,
+.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:hover,
+.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:hover,
+.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:hover {
+  border: 2px solid rgba(0, 0, 0, 1);
+}
+
+.typst-pdf-page .annotationLayer .textWidgetAnnotation input:focus,
+.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:focus,
+.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:focus {
+  background: none;
+  border: 2px solid transparent;
+}
+
+.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:focus {
+  background: none;
+  border: 2px solid transparent;
+}
+
+.typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input {
+  appearance: none;
+}
+
+.typst-pdf-page
+  .annotationLayer
+  .checkboxWidgetAnnotation
+  input:checked::before,
+.typst-pdf-page
+  .annotationLayer
+  .checkboxWidgetAnnotation
+  input:checked::after {
+  background-color: CanvasText;
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.typst-pdf-page
+  .annotationLayer
+  .checkboxWidgetAnnotation
+  input:checked::before {
+  height: 80%;
+  left: 45%;
+  width: 1px;
+  transform: rotate(45deg);
+}
+
+.typst-pdf-page
+  .annotationLayer
+  .checkboxWidgetAnnotation
+  input:checked::after {
+  height: 1px;
+  left: 20%;
+  top: 50%;
+  width: 50%;
+  transform: rotate(45deg);
+}
+
+.typst-pdf-page .annotationLayer .radioButtonWidgetAnnotation input {
+  appearance: none;
+}
+
+.typst-pdf-page
+  .annotationLayer
+  .radioButtonWidgetAnnotation
+  input:checked::before {
+  background-color: CanvasText;
+  content: "";
+  display: block;
+  position: absolute;
+  border-radius: 50%;
+  height: 50%;
+  left: 25%;
+  top: 25%;
+  width: 50%;
+}
+
+/* ======================= File Attachment Annotations ====================== */
+.typst-pdf-page .annotationLayer .fileAttachmentAnnotation .popupTriggerArea {
+  height: 100%;
+  width: 100%;
+}
+
+/* ========================== Highlight Annotations ========================= */
+.typst-pdf-page .annotationLayer .highlightAnnotation,
+.typst-pdf-page .annotationLayer .underlineAnnotation,
+.typst-pdf-page .annotationLayer .squigglyAnnotation,
+.typst-pdf-page .annotationLayer .strikeoutAnnotation {
+  cursor: pointer;
+}
+
+/* ================================ Stacking ================================ */
+.typst-pdf-page .annotationLayer canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

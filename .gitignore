@@ -3,6 +3,7 @@ tests/
 
 main.js
 main.css
+styles.css
 *.js.map
 *.ttf
 
@@ -12,3 +13,4 @@ compiler/target/
 **/*.rs.bk
 *.pdb
 build.js
+styles.css
