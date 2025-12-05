@@ -4,6 +4,81 @@ import { TypstView } from "./TypstView";
 
 export function registerCommands(plugin: Plugin) {
   plugin.addCommand({
+    id: "typst-bold",
+    name: "Toggle bold",
+    checkCallback: (checking: boolean) => {
+      const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
+      if (typstView && typstView.getCurrentMode() === "source") {
+        if (!checking) {
+          typstView.executeEditorCommand("typst-bold");
+        }
+        return true;
+      }
+      return false;
+    },
+  });
+
+  plugin.addCommand({
+    id: "typst-italic",
+    name: "Toggle italic",
+    checkCallback: (checking: boolean) => {
+      const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
+      if (typstView && typstView.getCurrentMode() === "source") {
+        if (!checking) {
+          typstView.executeEditorCommand("typst-italic");
+        }
+        return true;
+      }
+      return false;
+    },
+  });
+
+  plugin.addCommand({
+    id: "typst-underline",
+    name: "Toggle underline",
+    checkCallback: (checking: boolean) => {
+      const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
+      if (typstView && typstView.getCurrentMode() === "source") {
+        if (!checking) {
+          typstView.executeEditorCommand("typst-underline");
+        }
+        return true;
+      }
+      return false;
+    },
+  });
+
+  plugin.addCommand({
+    id: "typst-heading-up",
+    name: "Increase heading level",
+    checkCallback: (checking: boolean) => {
+      const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
+      if (typstView && typstView.getCurrentMode() === "source") {
+        if (!checking) {
+          typstView.executeEditorCommand("typst-heading-up");
+        }
+        return true;
+      }
+      return false;
+    },
+  });
+
+  plugin.addCommand({
+    id: "typst-heading-down",
+    name: "Decrease heading level",
+    checkCallback: (checking: boolean) => {
+      const typstView = plugin.app.workspace.getActiveViewOfType(TypstView);
+      if (typstView && typstView.getCurrentMode() === "source") {
+        if (!checking) {
+          typstView.executeEditorCommand("typst-heading-down");
+        }
+        return true;
+      }
+      return false;
+    },
+  });
+
+  plugin.addCommand({
     id: "create-typst-file",
     name: "Create new Typst file",
     callback: () => {
@@ -20,7 +95,6 @@ export function registerCommands(plugin: Plugin) {
       if (view instanceof TypstView) {
         if (!inTypstView) {
           view.toggleMode();
-          const mode = view.getCurrentMode();
         }
         return true;
       }

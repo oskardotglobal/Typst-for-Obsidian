@@ -152,4 +152,128 @@ export class TypstEditor {
     }
     return false;
   }
+
+  public wrapSelection(prefix: string, suffix: string): void {
+    if (!this.monacoEditor) return;
+
+    const selection = this.monacoEditor.getSelection();
+    if (!selection) return;
+
+    const model = this.monacoEditor.getModel();
+    if (!model) return;
+
+    const selectedText = model.getValueInRange(selection);
+
+    if (selectedText.startsWith(prefix) && selectedText.endsWith(suffix)) {
+      const unwrappedText = selectedText.substring(
+        prefix.length,
+        selectedText.length - suffix.length
+      );
+
+      this.monacoEditor.executeEdits("typst-format", [
+        {
+          range: selection,
+          text: unwrappedText,
+        },
+      ]);
+
+      const newSelection = new monaco.Selection(
+        selection.startLineNumber,
+        selection.startColumn,
+        selection.endLineNumber,
+        selection.endColumn - prefix.length - suffix.length
+      );
+      this.monacoEditor.setSelection(newSelection);
+    } else {
+      const wrappedText = `${prefix}${selectedText}${suffix}`;
+
+      this.monacoEditor.executeEdits("typst-format", [
+        {
+          range: selection,
+          text: wrappedText,
+        },
+      ]);
+
+      const newSelection = new monaco.Selection(
+        selection.startLineNumber,
+        selection.startColumn,
+        selection.endLineNumber,
+        selection.endColumn + prefix.length + suffix.length
+      );
+      this.monacoEditor.setSelection(newSelection);
+    }
+
+    this.monacoEditor.focus();
+  }
+
+  public increaseHeadingLevel(): void {
+    if (!this.monacoEditor) return;
+
+    const position = this.monacoEditor.getPosition();
+    if (!position) return;
+
+    const model = this.monacoEditor.getModel();
+    if (!model) return;
+
+    const lineNumber = position.lineNumber;
+    const lineContent = model.getLineContent(lineNumber);
+    const match = lineContent.match(/^(=+)\s/);
+
+    if (match && match[1].length > 1) {
+      const newHeading = lineContent.substring(1);
+      const range = new monaco.Range(
+        lineNumber,
+        1,
+        lineNumber,
+        lineContent.length + 1
+      );
+      this.monacoEditor.executeEdits("typst-heading", [
+        {
+          range: range,
+          text: newHeading,
+        },
+      ]);
+      const newColumn = Math.max(1, position.column - 1);
+      this.monacoEditor.setPosition({ lineNumber, column: newColumn });
+    }
+    this.monacoEditor.focus();
+  }
+
+  public decreaseHeadingLevel(): void {
+    if (!this.monacoEditor) return;
+
+    const position = this.monacoEditor.getPosition();
+    if (!position) return;
+
+    const model = this.monacoEditor.getModel();
+    if (!model) return;
+
+    const lineNumber = position.lineNumber;
+    const lineContent = model.getLineContent(lineNumber);
+    const match = lineContent.match(/^(=+)\s/);
+
+    if (match) {
+      const currentLevel = match[1].length;
+      if (currentLevel < 6) {
+        const newHeading = "=" + lineContent;
+        const range = new monaco.Range(
+          lineNumber,
+          1,
+          lineNumber,
+          lineContent.length + 1
+        );
+        this.monacoEditor.executeEdits("typst-heading", [
+          {
+            range: range,
+            text: newHeading,
+          },
+        ]);
+        this.monacoEditor.setPosition({
+          lineNumber,
+          column: position.column + 1,
+        });
+      }
+    }
+    this.monacoEditor.focus();
+  }
 }
