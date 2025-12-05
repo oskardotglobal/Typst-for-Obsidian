@@ -198,7 +198,7 @@ export class TypstEditor {
     position: monaco.Position
   ): monaco.Range | null {
     const line = model.getLineContent(position.lineNumber);
-    const wordRegex = /\S+/g;
+    const wordRegex = /[a-zA-Z0-9]+/g;
     let match;
 
     while ((match = wordRegex.exec(line)) !== null) {
@@ -476,24 +476,38 @@ export class TypstEditor {
 
       if (wordRange) {
         const word = model.getValueInRange(wordRange);
+        const line = model.getLineContent(position.lineNumber);
 
-        if (word.startsWith(prefix) && word.endsWith(suffix)) {
-          const unwrapped = word.substring(
-            prefix.length,
-            word.length - suffix.length
+        const beforeStart = Math.max(1, wordRange.startColumn - prefix.length);
+        const afterEnd = Math.min(
+          line.length + 1,
+          wordRange.endColumn + suffix.length
+        );
+        const before = line.substring(
+          beforeStart - 1,
+          wordRange.startColumn - 1
+        );
+        const after = line.substring(wordRange.endColumn - 1, afterEnd - 1);
+
+        const isFormatted = before === prefix && after === suffix;
+
+        if (isFormatted) {
+          const removeRange = new monaco.Range(
+            position.lineNumber,
+            beforeStart,
+            position.lineNumber,
+            afterEnd
           );
 
           this.monacoEditor.executeEdits("typst-format", [
             {
-              range: wordRange,
-              text: unwrapped,
+              range: removeRange,
+              text: word,
             },
           ]);
 
           const cursorOffset = position.column - wordRange.startColumn;
-          const newColumn =
-            wordRange.startColumn + Math.max(0, cursorOffset - prefix.length);
-
+          const newColumn = beforeStart + cursorOffset;
           this.monacoEditor.setPosition(
             new monaco.Position(position.lineNumber, newColumn)
           );

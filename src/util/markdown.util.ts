@@ -232,7 +232,7 @@ export function toggleMarkdownFormatting(
     );
   } else {
     const line = editor.getLine(from.line);
-    const wordRegex = /\S+/g;
+    const wordRegex = /[a-zA-Z0-9]+/g;
     let match;
     let wordRange: { start: number; end: number } | null = null;
 
@@ -247,22 +247,29 @@ export function toggleMarkdownFormatting(
     }
 
     if (wordRange) {
-      const wordFrom: EditorPosition = { line: from.line, ch: wordRange.start };
-      const wordTo: EditorPosition = { line: from.line, ch: wordRange.end };
-      const word = editor.getRange(wordFrom, wordTo);
+      const word = line.substring(wordRange.start, wordRange.end);
 
-      if (word.startsWith(prefix) && word.endsWith(suffix)) {
-        const unwrapped = word.substring(
-          prefix.length,
-          word.length - suffix.length
-        );
-        editor.replaceRange(unwrapped, wordFrom, wordTo);
+      const beforeStart = Math.max(0, wordRange.start - prefix.length);
+      const afterEnd = Math.min(line.length, wordRange.end + suffix.length);
+      const before = line.substring(beforeStart, wordRange.start);
+      const after = line.substring(wordRange.end, afterEnd);
+
+      const isFormatted = before === prefix && after === suffix;
+
+      if (isFormatted) {
+        const wordFrom: EditorPosition = { line: from.line, ch: beforeStart };
+        const wordTo: EditorPosition = { line: from.line, ch: afterEnd };
+        editor.replaceRange(word, wordFrom, wordTo);
 
         const cursorOffset = from.ch - wordRange.start;
-        const newCh =
-          wordRange.start + Math.max(0, cursorOffset - prefix.length);
+        const newCh = beforeStart + cursorOffset;
         editor.setCursor({ line: from.line, ch: newCh });
       } else {
+        const wordFrom: EditorPosition = {
+          line: from.line,
+          ch: wordRange.start,
+        };
+        const wordTo: EditorPosition = { line: from.line, ch: wordRange.end };
         const wrapped = `${prefix}${word}${suffix}`;
         editor.replaceRange(wrapped, wordFrom, wordTo);
 
