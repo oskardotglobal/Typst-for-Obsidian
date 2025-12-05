@@ -85,6 +85,28 @@ export class TypstEditor {
         }
       }
     });
+
+    this.monacoEditor.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV,
+      async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text && this.monacoEditor) {
+            const selection = this.monacoEditor.getSelection();
+            if (selection) {
+              this.monacoEditor.executeEdits("paste", [
+                {
+                  range: selection,
+                  text: text,
+                },
+              ]);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to read clipboard:", err);
+        }
+      }
+    );
   }
 
   public getContent(): string {
