@@ -58,6 +58,7 @@ export class TypstEditor {
       acceptSuggestionOnEnter: "off",
       wordBasedSuggestions: "off",
       parameterHints: { enabled: false },
+      padding: { top: 16, bottom: 64 },
     };
 
     this.monacoEditor = monaco.editor.create(this.container, editorOptions);
