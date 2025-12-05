@@ -4,6 +4,7 @@ tests/
 main.js
 main.css
 *.js.map
+*.ttf
 
 pkg/
 

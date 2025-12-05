@@ -13,6 +13,22 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = process.argv[2] === "production";
 
+let combineCssPlugin = {
+  name: "combine-css",
+  setup(build) {
+    build.onEnd((result) => {
+      try {
+        const customStyles = fs.readFileSync("styles.css", "utf8");
+        const monacoStyles = fs.readFileSync("main.css", "utf8");
+        const combined = customStyles + "\n" + monacoStyles;
+        fs.writeFileSync("styles.css", combined, "utf8");
+      } catch (e) {
+        console.warn("CSS combination failed:", e.message);
+      }
+    });
+  },
+};
+
 let inlineWorkerPlugin = {
   name: "inline-worker-plugin",
   setup(build) {
@@ -118,6 +134,7 @@ const context = await esbuild.context({
   loader: {
     ".svg": "empty",
     ".gif": "empty",
+    ".ttf": "base64",
   },
   format: "cjs",
   target: "es2018",
@@ -128,7 +145,7 @@ const context = await esbuild.context({
   define: {
     PLUGIN_VERSION: JSON.stringify(process.env.npm_package_version),
   },
-  plugins: [inlineWorkerPlugin, wasmPlugin],
+  plugins: [inlineWorkerPlugin, wasmPlugin, combineCssPlugin],
 });
 
 if (prod) {

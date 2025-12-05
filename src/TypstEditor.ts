@@ -1,110 +1,9 @@
-import {
-  EditorView,
-  keymap,
-  lineNumbers,
-  dropCursor,
-  rectangularSelection,
-  highlightActiveLine,
-} from "@codemirror/view";
-import { EditorState, Extension } from "@codemirror/state";
-import { oneDark } from "@codemirror/theme-one-dark";
-import {
-  defaultKeymap,
-  indentWithTab,
-  insertNewlineAndIndent,
-  history,
-  historyKeymap,
-  undo,
-  redo,
-} from "@codemirror/commands";
-import { bracketMatching } from "@codemirror/language";
-import {
-  closeBrackets,
-  autocompletion,
-  completionKeymap,
-  CompletionContext,
-  acceptCompletion,
-  completionStatus,
-  snippet,
-} from "@codemirror/autocomplete";
-import { typst } from "./grammar/typst";
-import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { App } from "obsidian";
-import { typstKeywords } from "./util";
+import * as monaco from "monaco-editor";
 import type TypstForObsidian from "./main";
 
-function wrapOrInsert(view: EditorView, markers: string): boolean {
-  const { state } = view;
-  const { selection } = state;
-  const changes = selection.ranges.map((range) => {
-    if (range.empty) {
-      return {
-        from: range.from,
-        to: range.to,
-        insert: markers + markers,
-      };
-    } else {
-      const selectedText = state.doc.sliceString(range.from, range.to);
-      return {
-        from: range.from,
-        to: range.to,
-        insert: markers + selectedText + markers,
-      };
-    }
-  });
-
-  view.dispatch({
-    changes,
-    selection: {
-      anchor: selection.main.from + markers.length,
-    },
-  });
-
-  return true;
-}
-
-function createTypstCompletions(plugin: TypstForObsidian) {
-  return (context: CompletionContext) => {
-    const word = context.matchBefore(/\w*/);
-    if (!word || (word.from === word.to && !context.explicit)) {
-      return null;
-    }
-
-    const options = [];
-
-    // Add keyword completions
-    for (const keyword of typstKeywords) {
-      if (keyword.toLowerCase().startsWith(word.text.toLowerCase())) {
-        options.push({
-          label: keyword,
-          type: "keyword",
-        });
-      }
-    }
-
-    // Add snippet completions
-    const snippets = plugin.snippetManager.getSnippets();
-    for (const [name, snippetDef] of snippets) {
-      if (snippetDef.prefix.toLowerCase().startsWith(word.text.toLowerCase())) {
-        const template = snippetDef.body.join("\n");
-
-        options.push({
-          label: snippetDef.prefix,
-          type: "snippet",
-          apply: snippet(template),
-        });
-      }
-    }
-
-    return {
-      from: word.from,
-      options,
-    };
-  };
-}
-
 export class TypstEditor {
-  private editorView: EditorView | null = null;
+  private monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
   private container: HTMLElement;
   private app: App;
   private plugin: TypstForObsidian;
@@ -120,7 +19,6 @@ export class TypstEditor {
     this.container = container;
     this.app = app;
     this.plugin = plugin;
-    this.app = app;
     this.onContentChange = onContentChange;
   }
 
@@ -130,178 +28,126 @@ export class TypstEditor {
   }
 
   public destroy(): void {
-    if (this.editorView) {
-      this.editorView.destroy();
-      this.editorView = null;
+    if (this.monacoEditor) {
+      this.monacoEditor.dispose();
+      this.monacoEditor = null;
     }
   }
 
   private createEditor(): void {
     this.container.empty();
+    this.container.addClass("typst-monaco-editor-container");
 
-    const editorContainer = this.container.createDiv("typst-editor-container");
     const isDarkTheme = document.body.classList.contains("theme-dark");
 
-    const extensions = this.buildExtensions(isDarkTheme);
+    const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+      value: this.content,
+      language: "plaintext",
+      theme: isDarkTheme ? "vs-dark" : "vs",
+      automaticLayout: false,
+      scrollBeyondLastLine: false,
+      wordWrap: "on",
+      minimap: { enabled: false },
+      lineNumbers: "on",
+      fontSize: 14,
+      tabSize: 2,
+      insertSpaces: true,
+      quickSuggestions: false,
+      suggestOnTriggerCharacters: false,
+      acceptSuggestionOnCommitCharacter: false,
+      acceptSuggestionOnEnter: "off",
+      wordBasedSuggestions: "off",
+      parameterHints: { enabled: false },
+    };
 
-    this.editorView = new EditorView({
-      state: EditorState.create({
-        doc: this.content,
-        extensions,
-      }),
-      parent: editorContainer,
+    this.monacoEditor = monaco.editor.create(this.container, editorOptions);
+
+    requestAnimationFrame(() => {
+      if (this.monacoEditor) {
+        this.monacoEditor.layout();
+      }
+    });
+
+    this.monacoEditor.onDidChangeModelContent(() => {
+      if (this.monacoEditor) {
+        this.content = this.monacoEditor.getValue();
+        if (this.onContentChange) {
+          this.onContentChange(this.content);
+        }
+      }
     });
   }
 
-  private buildExtensions(isDarkTheme: boolean): Extension[] {
-    return [
-      // Basic editor features
-      lineNumbers(),
-      dropCursor(),
-      rectangularSelection(),
-      highlightActiveLine(),
-      history(),
-      EditorState.tabSize.of(2),
-      EditorView.lineWrapping,
-
-      // Language features
-      typst(),
-      bracketMatching(),
-      closeBrackets(),
-      highlightSelectionMatches(),
-
-      // Autocomplete
-      autocompletion({
-        override: [createTypstCompletions(this.plugin)],
-        activateOnTyping: true,
-        maxRenderedOptions: 20,
-      }),
-
-      // Multiple selections
-      EditorState.allowMultipleSelections.of(true),
-
-      // Key bindings
-      this.buildKeymap(),
-
-      // Theme
-      ...(isDarkTheme ? [oneDark] : []),
-
-      // Content change listener
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          this.content = update.state.doc.toString();
-          if (this.onContentChange) {
-            this.onContentChange(this.content);
-          }
-        }
-      }),
-    ];
-  }
-
-  private buildKeymap(): Extension {
-    return keymap.of([
-      // Tab: Accept completion if active, otherwise indent
-      {
-        key: "Tab",
-        run: (view) => {
-          if (completionStatus(view.state) === "active") {
-            return acceptCompletion(view);
-          }
-          return false;
-        },
-      },
-      // Bold: Ctrl/Cmd+B
-      {
-        key: "Mod-b",
-        run: (view) => wrapOrInsert(view, "*"),
-        preventDefault: true,
-      },
-      // Italic: Ctrl/Cmd+I
-      {
-        key: "Mod-i",
-        run: (view) => wrapOrInsert(view, "_"),
-        preventDefault: true,
-      },
-      // Indent on new line
-      {
-        key: "Enter",
-        run: insertNewlineAndIndent,
-      },
-      // Keymaps
-      indentWithTab,
-      ...completionKeymap,
-      ...historyKeymap,
-      ...defaultKeymap,
-      ...searchKeymap,
-    ]);
-  }
-
   public getContent(): string {
-    return this.editorView
-      ? this.editorView.state.doc.toString()
-      : this.content;
+    return this.monacoEditor ? this.monacoEditor.getValue() : this.content;
   }
 
   public setContent(content: string): void {
-    if (this.editorView) {
-      const transaction = this.editorView.state.update({
-        changes: {
-          from: 0,
-          to: this.editorView.state.doc.length,
-          insert: content,
-        },
-      });
-      this.editorView.dispatch(transaction);
+    if (this.monacoEditor) {
+      this.monacoEditor.setValue(content);
     }
     this.content = content;
   }
 
-  public getEditorState(): { cursorPos: number; scrollTop: number } | null {
-    if (!this.editorView) return null;
+  public getEditorState(): {
+    lineNumber: number;
+    column: number;
+    scrollTop: number;
+  } | null {
+    if (!this.monacoEditor) return null;
 
-    const state = {
-      cursorPos: this.editorView.state.selection.main.head,
-      scrollTop: this.editorView.scrollDOM.scrollTop,
+    const position = this.monacoEditor.getPosition();
+    const scrollTop = this.monacoEditor.getScrollTop();
+
+    return {
+      lineNumber: position?.lineNumber || 1,
+      column: position?.column || 1,
+      scrollTop: scrollTop,
     };
-    return state;
   }
 
   public restoreEditorState(state: {
-    cursorPos: number;
+    lineNumber: number;
+    column: number;
     scrollTop: number;
   }): void {
-    if (!this.editorView) return;
+    if (!this.monacoEditor) return;
 
-    this.editorView.scrollDOM.scrollTop = state.scrollTop;
-
-    this.editorView.dispatch({
-      selection: { anchor: state.cursorPos },
-      scrollIntoView: false,
+    this.monacoEditor.setPosition({
+      lineNumber: state.lineNumber,
+      column: state.column,
     });
 
-    this.editorView.focus();
+    this.monacoEditor.setScrollTop(state.scrollTop);
+    this.monacoEditor.focus();
 
     setTimeout(() => {
-      if (this.editorView) {
-        this.editorView.scrollDOM.scrollTop = state.scrollTop;
+      if (this.monacoEditor) {
+        this.monacoEditor.setScrollTop(state.scrollTop);
       }
-    }, 50);
+    }, 20);
   }
 
   public focus(): void {
-    this.editorView?.focus();
+    this.monacoEditor?.focus();
+  }
+
+  public onResize(): void {
+    this.monacoEditor?.layout();
   }
 
   public undo(): boolean {
-    if (this.editorView) {
-      return undo(this.editorView);
+    if (this.monacoEditor) {
+      this.monacoEditor.trigger("source", "undo", null);
+      return true;
     }
     return false;
   }
 
   public redo(): boolean {
-    if (this.editorView) {
-      return redo(this.editorView);
+    if (this.monacoEditor) {
+      this.monacoEditor.trigger("source", "redo", null);
+      return true;
     }
     return false;
   }

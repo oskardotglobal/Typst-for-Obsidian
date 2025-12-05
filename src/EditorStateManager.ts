@@ -1,7 +1,8 @@
 import { TypstEditor } from "./TypstEditor";
 
 export interface EditorState {
-  cursorPos: number;
+  lineNumber: number;
+  column: number;
   scrollTop: number;
 }
 

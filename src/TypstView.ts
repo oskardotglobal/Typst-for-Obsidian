@@ -41,6 +41,9 @@ export class TypstView extends TextFileView {
 
   onResize(): void {
     super.onResize();
+    if (this.typstEditor) {
+      this.typstEditor.onResize();
+    }
   }
 
   onClose(): Promise<void> {

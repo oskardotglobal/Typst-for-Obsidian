@@ -10,6 +10,7 @@ import { SnippetManager } from "./SnippetManager";
 import CompilerWorker from "./compiler.worker.ts";
 import { WorkerRequest } from "./types";
 import { pluginId } from "./util";
+import "monaco-editor/min/vs/editor/editor.main.css";
 
 declare const PLUGIN_VERSION: string;
 
@@ -427,7 +428,7 @@ export default class TypstForObsidian extends Plugin {
             wbuffer.buffer,
             8,
             encoded.byteLength
-          ); // Added length parameter
+          );
           dataView.set(encoded);
 
           wbuffer[0] = 0;
