@@ -39,10 +39,13 @@
     "fflate": "^0.8.2",
     "js-untar": "^2.0.0",
     "monaco-editor": "^0.55.1",
+    "monaco-textmate": "^3.0.1",
     "obsidian": "latest",
     "obsidian-typst": "file:pkg",
     "pako": "^2.1.0",
     "svgo": "^3.0.2",
-    "tslib": "^2"
+    "tslib": "^2",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.0"
   }
 }

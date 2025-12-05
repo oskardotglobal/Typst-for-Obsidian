@@ -155,6 +155,12 @@ export class TypstView extends TextFileView {
     }
   }
 
+  public async updateEditorTheme(): Promise<void> {
+    if (this.typstEditor && this.currentMode === "source") {
+      await this.typstEditor.updateTheme();
+    }
+  }
+
   private async switchToReadingMode(): Promise<void> {
     this.saveEditorState();
 
@@ -247,7 +253,9 @@ export class TypstView extends TextFileView {
       }
     );
 
-    this.typstEditor.initialize(this.fileContent);
+    this.typstEditor.initialize(this.fileContent).catch((err) => {
+      console.error("Failed to initialize Typst editor:", err);
+    });
   }
 
   private saveEditorState(): void {

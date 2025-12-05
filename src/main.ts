@@ -10,6 +10,11 @@ import { SnippetManager } from "./SnippetManager";
 import CompilerWorker from "./compiler.worker.ts";
 import { WorkerRequest } from "./types";
 import { pluginId } from "./util";
+import {
+  setPluginInstance,
+  resetRegistry,
+  setupTypstTokensProvider,
+} from "./grammar/typst-language";
 import "monaco-editor/min/vs/editor/editor.main.css";
 
 declare const PLUGIN_VERSION: string;
@@ -37,6 +42,8 @@ export default class TypstForObsidian extends Plugin {
     this.packagePath = this.pluginPath + "packages/";
     this.wasmPath = this.pluginPath + "obsidian_typst_bg.wasm";
 
+    setPluginInstance(this);
+
     this.packageManager = new PackageManager(this);
     this.compilerWorker = new CompilerWorker() as Worker;
 
@@ -48,6 +55,8 @@ export default class TypstForObsidian extends Plugin {
         console.error("Failed to fetch component: " + error);
       }
     }
+
+    await this.fetchOnigWasm();
 
     this.compilerWorker.postMessage({
       type: "startup",
@@ -89,8 +98,8 @@ export default class TypstForObsidian extends Plugin {
     this.addSettingTab(new TypstSettingTab(this.app, this));
 
     this.registerEvent(
-      this.app.workspace.on("css-change", () => {
-        this.onThemeChange();
+      this.app.workspace.on("css-change", async () => {
+        await this.onThemeChange();
       })
     );
   }
@@ -207,7 +216,7 @@ export default class TypstForObsidian extends Plugin {
               }
             }
           } catch (e) {
-            console.log(`Could not read ${dir}:`, e);
+            console.warn(`Could not read ${dir}:`, e);
           }
         }
       } catch (error) {
@@ -266,13 +275,20 @@ export default class TypstForObsidian extends Plugin {
     throw new Error("Cannot determine font directories on unknown platform");
   }
 
-  private onThemeChange() {
+  private async onThemeChange() {
+    const isDark = document.body.classList.contains("theme-dark");
+    resetRegistry();
+    await setupTypstTokensProvider(isDark);
+
+    const updatePromises: Promise<void>[] = [];
     this.app.workspace.iterateAllLeaves((leaf) => {
       if (leaf.view instanceof TypstView) {
         const typstView = leaf.view as TypstView;
-        typstView.recompileIfInReadingMode();
+        updatePromises.push(typstView.updateEditorTheme());
+        updatePromises.push(typstView.recompileIfInReadingMode());
       }
     });
+    await Promise.all(updatePromises);
   }
 
   onunload() {}
@@ -306,6 +322,21 @@ export default class TypstForObsidian extends Plugin {
     } catch (error) {
       console.error("Failed to fetch WASM:", error);
       throw error;
+    }
+  }
+
+  private async fetchOnigWasm() {
+    try {
+      const onigWasmPath = this.pluginPath + "onig.wasm";
+      if (await this.app.vault.adapter.exists(onigWasmPath)) {
+        return;
+      }
+      const onigSourcePath =
+        this.pluginPath + "vscode-oniguruma/release/onig.wasm";
+      const wasmData = await this.app.vault.adapter.readBinary(onigSourcePath);
+      await this.app.vault.adapter.writeBinary(onigWasmPath, wasmData);
+    } catch (error) {
+      console.error("Failed to fetch onig.wasm:", error);
     }
   }
 

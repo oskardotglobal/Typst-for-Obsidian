@@ -1,6 +1,7 @@
 import { App } from "obsidian";
 import * as monaco from "monaco-editor";
 import type TypstForObsidian from "./main";
+import { ensureLanguageRegistered } from "./grammar/typst-language";
 
 export class TypstEditor {
   private monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -22,8 +23,10 @@ export class TypstEditor {
     this.onContentChange = onContentChange;
   }
 
-  public initialize(initialContent: string = ""): void {
+  public async initialize(initialContent: string = ""): Promise<void> {
     this.content = initialContent;
+    const isDarkTheme = document.body.classList.contains("theme-dark");
+    await ensureLanguageRegistered(isDarkTheme);
     this.createEditor();
   }
 
@@ -39,10 +42,14 @@ export class TypstEditor {
     this.container.addClass("typst-monaco-editor-container");
 
     const isDarkTheme = document.body.classList.contains("theme-dark");
+    const fontFamily =
+      getComputedStyle(document.body)
+        .getPropertyValue("--font-monospace")
+        .trim() || "monospace";
 
     const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.content,
-      language: "plaintext",
+      language: "typst",
       theme: isDarkTheme ? "vs-dark" : "vs",
       automaticLayout: false,
       scrollBeyondLastLine: false,
@@ -50,6 +57,7 @@ export class TypstEditor {
       minimap: { enabled: false },
       lineNumbers: "on",
       fontSize: 14,
+      fontFamily: fontFamily,
       tabSize: 2,
       insertSpaces: true,
       quickSuggestions: false,
@@ -275,5 +283,19 @@ export class TypstEditor {
       }
     }
     this.monacoEditor.focus();
+  }
+
+  public async updateTheme(): Promise<void> {
+    if (!this.monacoEditor) return;
+
+    const state = this.getEditorState();
+    const content = this.getContent();
+
+    this.destroy();
+    await this.initialize(content);
+
+    if (state) {
+      this.restoreEditorState(state);
+    }
   }
 }

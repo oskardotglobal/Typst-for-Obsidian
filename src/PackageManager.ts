@@ -57,7 +57,6 @@ export class PackageManager {
     name: string,
     version: string
   ): Promise<void> {
-    console.log("Fetching package:", name, version);
     const url = `https://packages.typst.org/preview/${name}-${version}.tar.gz`;
     const response = await fetch(url);
     if (response.status == 404) {
