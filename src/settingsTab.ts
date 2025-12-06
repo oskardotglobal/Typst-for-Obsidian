@@ -1,7 +1,15 @@
 import { App, PluginSettingTab, Setting, setIcon } from "obsidian";
 import { DEFAULT_SETTINGS, SyntaxHighlightColors } from "./settings";
 import TypstForObsidian from "./main";
-import { ImportColorsModal, ExportColorsModal } from "./colorModal";
+import { SettingsModal } from "./settingsModal";
+import {
+  getCustomLayoutFunctionsConfig,
+  getPdfLayoutFunctionsConfig,
+  getFontFamiliesConfig,
+  getCustomSnippetsConfig,
+  getImportColorsConfig,
+  getExportColorsConfig,
+} from "./settingsModalConfigs";
 
 export class TypstSettingTab extends PluginSettingTab {
   plugin: TypstForObsidian;
@@ -47,44 +55,21 @@ export class TypstSettingTab extends PluginSettingTab {
       );
 
     if (this.plugin.settings.useDefaultLayoutFunctions) {
-      const layoutSetting = new Setting(containerEl)
+      new Setting(containerEl)
         .setName("Custom layout functions")
-        .setDesc("Customize the default layout functions.");
-
-      let textArea: HTMLTextAreaElement;
-
-      layoutSetting.addTextArea((text) => {
-        textArea = text.inputEl;
-        text
-          .setValue(this.plugin.settings.customLayoutFunctions)
-          .onChange(async (value: string) => {
-            this.plugin.settings.customLayoutFunctions = value;
-            await this.plugin.saveSettings();
-          });
-
-        text.inputEl.addClass("typst-layout-textarea");
-        text.inputEl.rows = 10;
-      });
-
-      layoutSetting.addButton((button) =>
-        button
-          .setButtonText("Reset to default")
-          .setIcon("rotate-ccw")
-          .setTooltip("Reset to default layout functions")
-          .onClick(async () => {
-            this.plugin.settings.customLayoutFunctions =
-              DEFAULT_SETTINGS.customLayoutFunctions;
-            await this.plugin.saveSettings();
-            textArea.value = this.plugin.settings.customLayoutFunctions;
+        .addButton((button) =>
+          button.setButtonText("Edit").onClick(() => {
+            new SettingsModal(
+              this.app,
+              getCustomLayoutFunctionsConfig(this.plugin)
+            ).open();
           })
-      );
+        );
     }
 
     new Setting(containerEl)
       .setName("Use PDF export layout functions")
-      .setDesc(
-        "Prepends custom layout functions to PDF exports only (not editor preview)."
-      )
+      .setDesc("Customize layout functions for PDF exports only.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.usePdfLayoutFunctions)
@@ -96,64 +81,29 @@ export class TypstSettingTab extends PluginSettingTab {
       );
 
     if (this.plugin.settings.usePdfLayoutFunctions) {
-      const pdfLayoutSetting = new Setting(containerEl)
+      new Setting(containerEl)
         .setName("PDF export layout functions")
-        .setDesc("Custom layout functions for PDF exports.");
-
-      let pdfTextArea: HTMLTextAreaElement;
-
-      pdfLayoutSetting.addTextArea((text) => {
-        pdfTextArea = text.inputEl;
-        text
-          .setValue(this.plugin.settings.pdfLayoutFunctions)
-          .onChange(async (value: string) => {
-            this.plugin.settings.pdfLayoutFunctions = value;
-            await this.plugin.saveSettings();
-          });
-
-        text.inputEl.addClass("typst-layout-textarea");
-        text.inputEl.rows = 10;
-      });
-
-      pdfLayoutSetting.addButton((button) =>
-        button
-          .setButtonText("Clear")
-          .setIcon("trash")
-          .setTooltip("Clear PDF layout functions")
-          .onClick(async () => {
-            this.plugin.settings.pdfLayoutFunctions = "";
-            await this.plugin.saveSettings();
-            pdfTextArea.value = "";
+        .addButton((button) =>
+          button.setButtonText("Edit").onClick(() => {
+            new SettingsModal(
+              this.app,
+              getPdfLayoutFunctionsConfig(this.plugin)
+            ).open();
           })
-      );
+        );
     }
 
     new Setting(containerEl)
       .setName("Font families")
-      .setDesc(
-        "List of system font families to load for Typst compilation (one per line). Leave empty to use default fonts. Changes require reloading fonts."
-      )
-      .addTextArea((text) => {
-        let debounceTimer: NodeJS.Timeout;
-
-        text
-          .setPlaceholder("Arial\nHelvetica\nTimes New Roman")
-          .setValue(this.plugin.settings.fontFamilies.join("\n"))
-          .onChange(async (value: string) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(async () => {
-              this.plugin.settings.fontFamilies = value
-                .split("\n")
-                .map((font) => font.trim().toLowerCase())
-                .filter((font) => font.length > 0);
-              await this.plugin.saveSettings();
-              await this.plugin.loadFonts();
-            }, 1000);
-          });
-
-        text.inputEl.addClass("typst-layout-textarea");
-        text.inputEl.rows = 10;
-      });
+      .setDesc("System font families to load for Typst compilation.")
+      .addButton((button) =>
+        button.setButtonText("Edit").onClick(() => {
+          new SettingsModal(
+            this.app,
+            getFontFamiliesConfig(this.plugin)
+          ).open();
+        })
+      );
 
     new Setting(containerEl)
       .setName("Enable text layer")
@@ -171,21 +121,15 @@ export class TypstSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Custom snippets")
-      .setDesc(
-        "Define custom snippets in JSON format. Each snippet has a prefix (trigger) and body (lines to insert). Use ${} for tab stops (press Tab to jump between them)."
-      )
-      .addTextArea((text) => {
-        text
-          .setPlaceholder("Enter JSON snippet definitions")
-          .setValue(this.plugin.settings.customSnippets)
-          .onChange(async (value: string) => {
-            this.plugin.settings.customSnippets = value;
-            await this.plugin.saveSettings();
-          });
-
-        text.inputEl.addClass("typst-layout-textarea");
-        text.inputEl.rows = 10;
-      });
+      .setDesc("Define custom snippets in JSON format.")
+      .addButton((button) =>
+        button.setButtonText("Edit").onClick(() => {
+          new SettingsModal(
+            this.app,
+            getCustomSnippetsConfig(this.plugin)
+          ).open();
+        })
+      );
 
     const syntaxHeading = new Setting(containerEl)
       .setHeading()
@@ -198,16 +142,14 @@ export class TypstSettingTab extends PluginSettingTab {
 
     importButton.addEventListener("click", async (e) => {
       e.preventDefault();
-      new ImportColorsModal(this.app, async (colors) => {
-        if (colors.dark) {
-          this.setSyntaxHighlightingColors("dark", colors.dark);
-        }
-        if (colors.light) {
-          this.setSyntaxHighlightingColors("light", colors.light);
-        }
-        await this.plugin.saveSettings();
-        this.display();
-      }).open();
+      new SettingsModal(
+        this.app,
+        getImportColorsConfig(
+          this.plugin,
+          this.setSyntaxHighlightingColors.bind(this),
+          this.display.bind(this)
+        )
+      ).open();
     });
 
     const exportButton = syntaxHeading.controlEl.createEl("button");
@@ -217,10 +159,7 @@ export class TypstSettingTab extends PluginSettingTab {
 
     exportButton.addEventListener("click", async (e) => {
       e.preventDefault();
-      new ExportColorsModal(
-        this.app,
-        this.plugin.settings.syntaxHighlightColors
-      ).open();
+      new SettingsModal(this.app, getExportColorsConfig(this.plugin)).open();
     });
 
     new Setting(containerEl)
