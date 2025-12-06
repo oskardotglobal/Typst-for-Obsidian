@@ -41,28 +41,22 @@ function cssColorToHex(cssColor: string): string {
   return cssColor;
 }
 
-function getObsidianColors(): { foreground: string; background: string } {
+function getObsidianColors(): string {
   const computedStyle = getComputedStyle(document.body);
   const foregroundRaw = computedStyle.getPropertyValue("--text-normal").trim();
-  const backgroundRaw = computedStyle
-    .getPropertyValue("--background-primary")
-    .trim();
-
   const foreground = cssColorToHex(foregroundRaw);
-  const background = cssColorToHex(backgroundRaw);
 
-  return { foreground, background };
+  return foreground;
 }
 
 function applyObsidianColors(theme: IRawTheme): IRawTheme {
-  const { foreground, background } = getObsidianColors();
+  const foreground = getObsidianColors();
   const clonedTheme = JSON.parse(JSON.stringify(theme));
 
   if (clonedTheme.settings[0]?.settings) {
     clonedTheme.settings[0].settings = {
       ...clonedTheme.settings[0].settings,
       foreground,
-      background,
     };
   }
 

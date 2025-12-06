@@ -5,8 +5,7 @@ export const TypstDarkTheme: IRawTheme = {
   settings: [
     {
       settings: {
-        foreground: "#D4D4D4",
-        background: "#1E1E1E",
+        foreground: "text-normal",
       },
     },
     {
@@ -323,8 +322,7 @@ export const TypstLightTheme: IRawTheme = {
   settings: [
     {
       settings: {
-        foreground: "#000000",
-        background: "#ffffff",
+        foreground: "text-normal",
       },
     },
     {
