@@ -309,7 +309,6 @@ export default class TypstForObsidian extends Plugin {
   }
 
   async saveSettings() {
-    console.log("SAVIGN");
     await this.saveData(this.settings);
 
     setThemeColors(this.settings.syntaxHighlightColors);

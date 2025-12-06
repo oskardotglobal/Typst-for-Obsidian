@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting, setIcon } from "obsidian";
 import { DEFAULT_SETTINGS, SyntaxHighlightColors } from "./settings";
 import TypstForObsidian from "./main";
+import { ImportColorsModal, ExportColorsModal } from "./colorModal";
 
 export class TypstSettingTab extends PluginSettingTab {
   plugin: TypstForObsidian;
@@ -186,7 +187,41 @@ export class TypstSettingTab extends PluginSettingTab {
         text.inputEl.rows = 10;
       });
 
-    new Setting(containerEl).setHeading().setName("Syntax Highlighting");
+    const syntaxHeading = new Setting(containerEl)
+      .setHeading()
+      .setName("Syntax Highlighting");
+
+    const importButton = syntaxHeading.controlEl.createEl("button");
+    importButton.addClass("clickable-icon");
+    importButton.setAttribute("aria-label", "Import colors");
+    setIcon(importButton, "folder-up");
+
+    importButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      new ImportColorsModal(this.app, async (colors) => {
+        if (colors.dark) {
+          this.setSyntaxHighlightingColors("dark", colors.dark);
+        }
+        if (colors.light) {
+          this.setSyntaxHighlightingColors("light", colors.light);
+        }
+        await this.plugin.saveSettings();
+        this.display();
+      }).open();
+    });
+
+    const exportButton = syntaxHeading.controlEl.createEl("button");
+    exportButton.addClass("clickable-icon");
+    exportButton.setAttribute("aria-label", "Export colors");
+    setIcon(exportButton, "install");
+
+    exportButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      new ExportColorsModal(
+        this.app,
+        this.plugin.settings.syntaxHighlightColors
+      ).open();
+    });
 
     new Setting(containerEl)
       .setName("Use theme text color")
