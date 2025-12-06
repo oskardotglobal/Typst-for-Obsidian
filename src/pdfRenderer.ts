@@ -1,4 +1,5 @@
 import { init, WrappedPdfiumModule } from "@embedpdf/pdfium";
+import { requestUrl } from "obsidian";
 
 export class PdfRenderer {
   private pdfium: WrappedPdfiumModule | null = null;
@@ -36,8 +37,8 @@ export class PdfRenderer {
     try {
       const pdfiumWasmUrl =
         "https://cdn.jsdelivr.net/npm/@embedpdf/pdfium/dist/pdfium.wasm";
-      const response = await fetch(pdfiumWasmUrl);
-      const wasmBinary = await response.arrayBuffer();
+      const response = await requestUrl({ url: pdfiumWasmUrl });
+      const wasmBinary = response.arrayBuffer;
 
       this.pdfium = await init({
         wasmBinary,

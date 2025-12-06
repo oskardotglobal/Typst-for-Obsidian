@@ -1,4 +1,4 @@
-import { Plugin, addIcon, Notice, Platform } from "obsidian";
+import { Plugin, addIcon, Notice, Platform, requestUrl } from "obsidian";
 import { TypstView } from "./typstView";
 import { registerCommands } from "./settings/commands";
 import { TypstIcon, pluginId } from "./util/typstUtils";
@@ -339,12 +339,25 @@ export default class TypstForObsidian extends Plugin {
       if (await this.app.vault.adapter.exists(onigWasmPath)) {
         return;
       }
+
       const onigSourcePath =
         this.pluginPath + "vscode-oniguruma/release/onig.wasm";
-      const wasmData = await this.app.vault.adapter.readBinary(onigSourcePath);
+      if (await this.app.vault.adapter.exists(onigSourcePath)) {
+        const wasmData = await this.app.vault.adapter.readBinary(
+          onigSourcePath
+        );
+        await this.app.vault.adapter.writeBinary(onigWasmPath, wasmData);
+        return;
+      }
+
+      const response = await requestUrl({
+        url: "https://cdn.jsdelivr.net/npm/vscode-oniguruma@2.0.1/release/onig.wasm",
+      });
+      const wasmData = response.arrayBuffer;
       await this.app.vault.adapter.writeBinary(onigWasmPath, wasmData);
     } catch (error) {
       console.error("Failed to fetch onig.wasm:", error);
+      throw error;
     }
   }
 

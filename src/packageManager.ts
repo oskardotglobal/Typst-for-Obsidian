@@ -1,4 +1,4 @@
-import { Platform, normalizePath } from "obsidian";
+import { Platform, normalizePath, requestUrl } from "obsidian";
 import type TypstPlugin from "./main";
 import { decompressSync } from "fflate";
 // @ts-ignore
@@ -37,7 +37,7 @@ export class PackageManager {
       spec.startsWith("preview") &&
       this.plugin.settings.autoDownloadPackages
     ) {
-      const [namespace, name, version] = spec.split("/");
+      const [_namespace, name, version] = spec.split("/");
       try {
         await this.fetchPackage(folder, name, version);
         return folder;
@@ -58,14 +58,12 @@ export class PackageManager {
     version: string
   ): Promise<void> {
     const url = `https://packages.typst.org/preview/${name}-${version}.tar.gz`;
-    const response = await fetch(url);
+    const response = await requestUrl({ url });
     if (response.status == 404) {
       throw 2;
     }
     await this.plugin.app.vault.adapter.mkdir(folder);
-    const decompressed = decompressSync(
-      new Uint8Array(await response.arrayBuffer())
-    );
+    const decompressed = decompressSync(new Uint8Array(response.arrayBuffer));
     const untarrer = untar(decompressed.buffer as ArrayBuffer);
     await (untarrer as any).progress(async (file: any) => {
       if (file.type == "5" && file.name != ".") {
