@@ -375,7 +375,9 @@ export class PdfRenderer {
     pageHeight: number,
     scale: number,
     dpr: number
-  ): Promise<void> {}
+  ): Promise<void> {
+    /* TODO */
+  }
 
   cleanup(): void {}
 }

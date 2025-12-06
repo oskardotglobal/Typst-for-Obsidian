@@ -2,6 +2,11 @@ import typstInit, * as typst from "../pkg";
 
 import { CompileImageCommand, CompilePdfCommand, Message } from "src/types";
 
+// Error codes for SharedArrayBuffer
+const ERROR_GENERIC = 1;
+const ERROR_NOT_FOUND = 2;
+const ERROR_NETWORK = 3;
+
 let canUseSharedArrayBuffer = false;
 
 let decoder = new TextDecoder();
@@ -17,7 +22,7 @@ function requestData(path: string): string | Uint8Array {
         if (packages.includes(path.slice(1))) {
           return packagePath + path.slice(1);
         }
-        throw 2;
+        throw ERROR_NOT_FOUND;
       }
       path = "http://localhost/_capacitor_file_" + basePath + "/" + path;
       xhr.open("GET", path, false);
@@ -25,10 +30,10 @@ function requestData(path: string): string | Uint8Array {
         xhr.send();
       } catch (e) {
         console.error(e);
-        throw 3;
+        throw ERROR_NETWORK;
       }
       if (xhr.status == 404) {
-        throw 2;
+        throw ERROR_NOT_FOUND;
       }
       return xhr.responseText;
     }
@@ -55,7 +60,7 @@ function requestData(path: string): string | Uint8Array {
   } catch (e) {
     if (typeof e != "number") {
       console.error(e);
-      throw 1;
+      throw ERROR_GENERIC;
     }
     throw e;
   }

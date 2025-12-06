@@ -42,14 +42,11 @@ export class PackageManager {
         await this.fetchPackage(folder, name, version);
         return folder;
       } catch (e) {
-        if (e == 2) {
-          throw e;
-        }
         console.error(e);
-        throw 3;
+        throw new Error(`Failed to download package ${spec}`);
       }
     }
-    throw 2;
+    throw new Error(`Package not found: ${spec}`);
   }
 
   private async fetchPackage(
@@ -60,7 +57,7 @@ export class PackageManager {
     const url = `https://packages.typst.org/preview/${name}-${version}.tar.gz`;
     const response = await requestUrl({ url });
     if (response.status == 404) {
-      throw 2;
+      throw new Error(`Package not found: ${name}-${version}`);
     }
     await this.plugin.app.vault.adapter.mkdir(folder);
     const decompressed = decompressSync(new Uint8Array(response.arrayBuffer));
@@ -87,7 +84,7 @@ export class PackageManager {
       }
     } catch (error) {
       console.error("Failed to read file:", path, error);
-      throw 2;
+      throw new Error(`Failed to read file: ${path}`);
     }
   }
 
@@ -112,7 +109,7 @@ export class PackageManager {
       }
     } catch (error) {
       console.error("Failed to read binary file:", path, error);
-      throw 2;
+      throw new Error(`Failed to read binary file: ${path}`);
     }
   }
 
