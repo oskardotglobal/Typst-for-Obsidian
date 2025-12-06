@@ -3,7 +3,7 @@ import { TypstView } from "./TypstView";
 import { registerCommands } from "./commands";
 import { TypstIcon, pluginId } from "./util/typst.util";
 import { TypstSettingTab } from "./settingsTab";
-import { TypstSettings, DEFAULT_SETTINGS } from "./types/settings";
+import { TypstSettings, DEFAULT_SETTINGS } from "./settings";
 import { TemplateVariableProvider } from "./TemplateVariableProvider";
 import { PackageManager } from "./PackageManager";
 import { SnippetManager } from "./SnippetManager";

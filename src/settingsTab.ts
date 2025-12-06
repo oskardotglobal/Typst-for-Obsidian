@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { DEFAULT_SETTINGS } from "./types/settings";
+import { DEFAULT_SETTINGS } from "./settings";
 import TypstForObsidian from "./main";
 
 export class TypstSettingTab extends PluginSettingTab {
