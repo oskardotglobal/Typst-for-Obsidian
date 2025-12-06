@@ -11,7 +11,7 @@ import {
   createOnigString,
 } from "vscode-oniguruma";
 import type TypstPlugin from "../main";
-import { TypstDarkTheme, TypstLightTheme } from "./typst-theme";
+import { getTypstTheme } from "./typst-theme";
 
 import typstGrammar from "./typst.tmLanguage.json";
 
@@ -81,8 +81,10 @@ async function loadRegistry(isDark: boolean): Promise<Registry> {
     );
     await loadWASM(wasmData);
 
-    const baseTheme = isDark ? TypstDarkTheme : TypstLightTheme;
-    const themeWithObsidianColors = applyObsidianColors(baseTheme);
+    let theme = getTypstTheme(isDark);
+    if (pluginInstance.settings.useObsidianTextColor) {
+      theme = applyObsidianColors(theme);
+    }
 
     const registry = new Registry({
       onigLib: Promise.resolve({
@@ -100,7 +102,7 @@ async function loadRegistry(isDark: boolean): Promise<Registry> {
         return null;
       },
 
-      theme: themeWithObsidianColors,
+      theme: theme,
     });
 
     registryInstance = registry;

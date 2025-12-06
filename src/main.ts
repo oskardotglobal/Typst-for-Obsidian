@@ -15,6 +15,7 @@ import {
   resetRegistry,
   setupTypstTokensProvider,
 } from "./grammar/typst-language";
+import { setThemeColors } from "./grammar/typst-theme";
 import "monaco-editor/min/vs/editor/editor.main.css";
 
 export default class TypstForObsidian extends Plugin {
@@ -294,6 +295,8 @@ export default class TypstForObsidian extends Plugin {
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
+    setThemeColors(this.settings.syntaxHighlightColors);
+
     if (!this.snippetManager.parseSnippets(this.settings.customSnippets)) {
       const error = this.snippetManager.getLastError();
       new Notice(`Snippet configuration error: ${error}`);
@@ -303,6 +306,9 @@ export default class TypstForObsidian extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+
+    setThemeColors(this.settings.syntaxHighlightColors);
+    resetRegistry();
 
     if (!this.snippetManager.parseSnippets(this.settings.customSnippets)) {
       const error = this.snippetManager.getLastError();
