@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import { DEFAULT_SETTINGS } from "./settings";
+import { App, PluginSettingTab, Setting, setIcon } from "obsidian";
+import { DEFAULT_SETTINGS, SyntaxHighlightColors } from "./settings";
 import TypstForObsidian from "./main";
 
 export class TypstSettingTab extends PluginSettingTab {
@@ -185,5 +185,124 @@ export class TypstSettingTab extends PluginSettingTab {
         text.inputEl.addClass("typst-layout-textarea");
         text.inputEl.rows = 10;
       });
+
+    new Setting(containerEl).setHeading().setName("Syntax Highlighting");
+
+    new Setting(containerEl)
+      .setName("Use theme text color")
+      .setDesc(
+        "Use theme's text color for default text instead of custom color"
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.useObsidianTextColor)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.useObsidianTextColor = value;
+            await this.plugin.saveSettings();
+            this.display();
+          })
+      );
+
+    this.addSyntaxColorSection(
+      containerEl,
+      "Dark Theme Colors",
+      "dark",
+      this.plugin.settings.useObsidianTextColor
+    );
+
+    this.addSyntaxColorSection(
+      containerEl,
+      "Light Theme Colors",
+      "light",
+      this.plugin.settings.useObsidianTextColor
+    );
+  }
+
+  private setSyntaxHighlightingColors(
+    theme: "dark" | "light",
+    colors: SyntaxHighlightColors["dark"] | SyntaxHighlightColors["light"]
+  ): void {
+    this.plugin.settings.syntaxHighlightColors[theme] = { ...colors };
+  }
+
+  private addSyntaxColorSection(
+    containerEl: HTMLElement,
+    title: string,
+    theme: "dark" | "light",
+    disableDefaultText: boolean
+  ): void {
+    const details = containerEl.createEl("details");
+    const summary = details.createEl("summary");
+    summary.addClass("typst-syntax-colors-summary");
+
+    const summaryText = summary.createSpan({ text: title });
+    summaryText.addClass("typst-syntax-colors-title");
+
+    const resetButton = summary.createEl("button");
+    resetButton.addClass("clickable-icon");
+    resetButton.setAttribute("aria-label", "Reset to default");
+    setIcon(resetButton, "rotate-ccw");
+
+    resetButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.setSyntaxHighlightingColors(
+        theme,
+        DEFAULT_SETTINGS.syntaxHighlightColors[theme]
+      );
+      await this.plugin.saveSettings();
+      this.display();
+    });
+
+    const colorCategories: {
+      key: keyof SyntaxHighlightColors["dark"];
+      label: string;
+    }[] = [
+      { key: "defaultText", label: "Default Text" },
+      { key: "comments", label: "Comments" },
+      { key: "keywords", label: "Keywords" },
+      { key: "strings", label: "Strings" },
+      { key: "labelsAndReferences", label: "Labels and References" },
+      { key: "escapeSequences", label: "Escape Sequences" },
+      { key: "numbers", label: "Numbers" },
+      { key: "booleans", label: "Booleans" },
+      { key: "symbols", label: "Symbols" },
+      { key: "functions", label: "Functions" },
+      { key: "types", label: "Types" },
+      { key: "variables", label: "Variables" },
+      { key: "constants", label: "Constants" },
+      { key: "operators", label: "Operators" },
+      { key: "headings", label: "Headings" },
+      { key: "bold", label: "Bold" },
+      { key: "italic", label: "Italic" },
+      { key: "links", label: "Links" },
+      { key: "mathText", label: "Math Text" },
+      { key: "mathOperators", label: "Math Operators" },
+      { key: "rawCode", label: "Raw Code" },
+      { key: "codeLanguage", label: "Code Language" },
+      { key: "listMarkers", label: "List Markers" },
+      { key: "punctuation", label: "Punctuation" },
+      { key: "separators", label: "Separators" },
+      { key: "braces", label: "Braces" },
+      { key: "metaExpressions", label: "Meta Expressions" },
+      { key: "generalPunctuation", label: "General Punctuation" },
+    ];
+
+    for (const { key, label } of colorCategories) {
+      const setting = new Setting(details).setName(label);
+
+      setting.addColorPicker((colorPicker) => {
+        colorPicker
+          .setValue(this.plugin.settings.syntaxHighlightColors[theme][key])
+          .onChange(async (value: string) => {
+            this.plugin.settings.syntaxHighlightColors[theme][key] = value;
+            await this.plugin.saveSettings();
+          });
+
+        if (key === "defaultText" && disableDefaultText) {
+          colorPicker.setDisabled(true);
+        }
+      });
+    }
   }
 }

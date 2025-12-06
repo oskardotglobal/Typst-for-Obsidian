@@ -274,10 +274,14 @@ export default class TypstForObsidian extends Plugin {
     throw new Error("Cannot determine font directories on unknown platform");
   }
 
-  private async onThemeChange() {
+  private async resetSyntaxHighlighting() {
     const isDark = document.body.classList.contains("theme-dark");
     resetRegistry();
     await setupTypstTokensProvider(isDark);
+  }
+
+  private async onThemeChange() {
+    await this.resetSyntaxHighlighting();
 
     const updatePromises: Promise<void>[] = [];
     this.app.workspace.iterateAllLeaves((leaf) => {
@@ -305,10 +309,11 @@ export default class TypstForObsidian extends Plugin {
   }
 
   async saveSettings() {
+    console.log("SAVIGN");
     await this.saveData(this.settings);
 
     setThemeColors(this.settings.syntaxHighlightColors);
-    resetRegistry();
+    await this.resetSyntaxHighlighting();
 
     if (!this.snippetManager.parseSnippets(this.settings.customSnippets)) {
       const error = this.snippetManager.getLastError();
