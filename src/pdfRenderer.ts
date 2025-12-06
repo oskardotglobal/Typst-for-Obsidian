@@ -1,5 +1,6 @@
 import { init, WrappedPdfiumModule } from "@embedpdf/pdfium";
 import { requestUrl } from "obsidian";
+import { PDFIUM_WASM_URL } from "./util/constants";
 
 export class PdfRenderer {
   private pdfium: WrappedPdfiumModule | null = null;
@@ -35,16 +36,14 @@ export class PdfRenderer {
 
   private async initializePdfium(): Promise<void> {
     try {
-      const pdfiumWasmUrl =
-        "https://cdn.jsdelivr.net/npm/@embedpdf/pdfium/dist/pdfium.wasm";
-      const response = await requestUrl({ url: pdfiumWasmUrl });
+      const response = await requestUrl({ url: PDFIUM_WASM_URL });
       const wasmBinary = response.arrayBuffer;
 
       this.pdfium = await init({
         wasmBinary,
         locateFile: (path: string, prefix: string) => {
           if (path.endsWith(".wasm")) {
-            return pdfiumWasmUrl;
+            return PDFIUM_WASM_URL;
           }
           return prefix + path;
         },

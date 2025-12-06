@@ -1,6 +1,7 @@
 import { Platform, normalizePath, requestUrl } from "obsidian";
 import type TypstPlugin from "./main";
 import { decompressSync } from "fflate";
+import { TYPST_PACKAGES_URL } from "./util/constants";
 // @ts-ignore
 import untar from "js-untar";
 
@@ -54,7 +55,7 @@ export class PackageManager {
     name: string,
     version: string
   ): Promise<void> {
-    const url = `https://packages.typst.org/preview/${name}-${version}.tar.gz`;
+    const url = `${TYPST_PACKAGES_URL}/${name}-${version}.tar.gz`;
     const response = await requestUrl({ url });
     if (response.status == 404) {
       throw new Error(`Package not found: ${name}-${version}`);

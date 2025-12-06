@@ -68,14 +68,18 @@ export function getFontFamiliesConfig(
     initialValue: plugin.settings.fontFamilies.join("\n"),
     buttons: {
       save: {
-        action: async (value, _showError, close) => {
-          plugin.settings.fontFamilies = value
-            .split("\n")
-            .map((font) => font.trim().toLowerCase())
-            .filter((font) => font.length > 0);
-          await plugin.saveSettings();
-          await plugin.loadFonts();
-          close();
+        action: async (value, showError, close) => {
+          try {
+            plugin.settings.fontFamilies = value
+              .split("\n")
+              .map((font) => font.trim().toLowerCase())
+              .filter((font) => font.length > 0);
+            await plugin.saveSettings();
+            await plugin.reloadFonts();
+            close();
+          } catch (error) {
+            showError(`Failed to load fonts: ${error}`);
+          }
         },
       },
       reset: {
