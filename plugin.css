@@ -116,77 +116,53 @@
 /*                                Typst Editor                                */
 /* ========================================================================== */
 
-.typst-editor-container {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
 .typst-monaco-editor-container {
   width: 100%;
   height: 100%;
   position: relative;
+}
+
+.typst-monaco-editor-container .monaco-editor {
+  height: 100% !important;
+  width: 100% !important;
   overflow: hidden;
 }
 
-.typst-monaco-editor-container .monaco-editor,
-.typst-editor-container .monaco-editor {
-  height: 100% !important;
-  width: 100% !important;
-}
-
-.typst-monaco-editor-container .monaco-editor .monaco-editor-background,
-.typst-editor-container .monaco-editor .monaco-editor-background {
+.typst-monaco-editor-container .monaco-editor .monaco-editor-background {
   background-color: var(--background-primary) !important;
 }
 
-.typst-monaco-editor-container .monaco-editor .overflow-guard,
-.typst-editor-container .monaco-editor .overflow-guard {
+.typst-monaco-editor-container .monaco-editor .overflow-guard {
   position: relative !important;
   background-color: var(--background-primary) !important;
 }
 
-.typst-monaco-editor-container .monaco-editor .line-numbers,
-.typst-editor-container .monaco-editor .line-numbers {
+.typst-monaco-editor-container .monaco-editor .line-numbers {
   color: var(--text-faint) !important;
 }
 
-.typst-monaco-editor-container .monaco-editor .current-line,
-.typst-editor-container .monaco-editor .current-line {
+.typst-monaco-editor-container .monaco-editor .current-line {
   background-color: var(--background-primary-alt) !important;
   border: none !important;
 }
 
-.typst-monaco-editor-container .monaco-editor .margin,
-.typst-editor-container .monaco-editor .margin,
-.sticky-widget-lines,
+.typst-monaco-editor-container .monaco-editor .margin .sticky-widget-lines,
 .sticky-line-number {
   background-color: var(--background-primary) !important;
 }
 
-.workspace-leaf-content[data-type="typst-view"] .view-content {
+.workspace-leaf-content[data-type="typst-view"]
+  .view-content[data-mode="source"] {
   padding: 0 !important;
   height: 100%;
   width: 100%;
   overflow: hidden;
 }
 
-.typst-editor-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
-  pointer-events: none;
-  z-index: 10;
-}
-
 /* ========================================================================== */
 /*                                Reading Mode                                */
 /* ========================================================================== */
+
 .typst-reading-mode {
   padding: var(--file-margins);
   margin: 0 auto;
@@ -205,6 +181,7 @@
 }
 
 /* ============================= PDF Text Layer ============================= */
+
 .typst-pdf-page .textLayer {
   position: absolute;
   text-align: initial;
@@ -241,6 +218,7 @@
 }
 
 /* ============================= Text Selection ============================= */
+
 .typst-pdf-page .textLayer ::selection {
   background: rgba(0, 100, 255, 0.3);
 }
@@ -296,6 +274,7 @@
 }
 
 /* ============================ Annotation Layer ============================ */
+
 .typst-pdf-page .annotationLayer .linkAnnotation {
   outline: none;
 }
@@ -318,6 +297,7 @@
 }
 
 /* ============================ Popup Annotations =========================== */
+
 .typst-pdf-page .annotationLayer .popup {
   position: absolute;
   max-width: 180px;
@@ -341,6 +321,7 @@
 }
 
 /* =========================== Annotation Widgets =========================== */
+
 .typst-pdf-page .annotationLayer .textWidgetAnnotation input,
 .typst-pdf-page .annotationLayer .textWidgetAnnotation textarea,
 .typst-pdf-page .annotationLayer .choiceWidgetAnnotation select,
@@ -451,12 +432,14 @@
 }
 
 /* ======================= File Attachment Annotations ====================== */
+
 .typst-pdf-page .annotationLayer .fileAttachmentAnnotation .popupTriggerArea {
   height: 100%;
   width: 100%;
 }
 
 /* ========================== Highlight Annotations ========================= */
+
 .typst-pdf-page .annotationLayer .highlightAnnotation,
 .typst-pdf-page .annotationLayer .underlineAnnotation,
 .typst-pdf-page .annotationLayer .squigglyAnnotation,
@@ -465,6 +448,7 @@
 }
 
 /* ================================ Stacking ================================ */
+
 .typst-pdf-page .annotationLayer canvas {
   position: absolute;
   width: 100%;

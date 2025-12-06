@@ -37,6 +37,11 @@ export class TypstView extends TextFileView {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.initializeActionBar();
+
+    const viewContent = this.getContentElement();
+    if (viewContent) {
+      viewContent.dataset.mode = this.currentMode;
+    }
   }
 
   onResize(): void {
@@ -195,6 +200,11 @@ export class TypstView extends TextFileView {
   private setMode(mode: "source" | "reading"): void {
     this.currentMode = mode;
     this.actionBar?.setMode(mode);
+
+    const viewContent = this.getContentElement();
+    if (viewContent) {
+      viewContent.dataset.mode = mode;
+    }
   }
 
   private async compile(): Promise<Uint8Array | null> {
