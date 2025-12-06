@@ -1,5 +1,5 @@
 import type { IRawTheme } from "vscode-textmate";
-import type { SyntaxHighlightColors } from "../settings";
+import type { SyntaxHighlightColors } from "../settings/settings";
 
 let currentColors: SyntaxHighlightColors | null = null;
 

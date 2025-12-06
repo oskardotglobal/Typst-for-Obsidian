@@ -1,6 +1,6 @@
 import { DEFAULT_SETTINGS, SyntaxHighlightColors } from "./settings";
 import { SettingsModalConfig } from "./settingsModal";
-import TypstForObsidian from "./main";
+import TypstForObsidian from "../main";
 
 export function getCustomLayoutFunctionsConfig(
   plugin: TypstForObsidian
@@ -8,7 +8,7 @@ export function getCustomLayoutFunctionsConfig(
   return {
     title: "Custom Layout Functions",
     description:
-      "Customize the default layout functions. Use variables (e.g., %THEMECOLOR%, %FONTSIZE%, %BGCOLOR%) to style according to the current theme.",
+      "Customize the default layout functions. Use template variables (e.g., %THEMECOLOR%, %FONTSIZE%, %BGCOLOR%) to style according to the current theme.",
     initialValue: plugin.settings.customLayoutFunctions,
     buttons: {
       save: {
@@ -36,7 +36,7 @@ export function getPdfLayoutFunctionsConfig(
   return {
     title: "PDF Export Layout Functions",
     description:
-      "Customize layout functions for PDF exports only (not editor preview). Use variables (e.g., %THEMECOLOR%, %FONTSIZE%, %BGCOLOR%) to style according to the current theme.",
+      "Customize layout functions for PDF exports only (not editor preview). Use template variables (e.g., %THEMECOLOR%, %FONTSIZE%, %BGCOLOR%) to style according to the current theme.",
     initialValue: plugin.settings.pdfLayoutFunctions,
     buttons: {
       save: {

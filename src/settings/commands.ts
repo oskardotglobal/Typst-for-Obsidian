@@ -1,7 +1,7 @@
 import { MarkdownView, Notice, Plugin } from "obsidian";
-import { CreateTypstFileModal } from "./modal";
-import { TypstView } from "./TypstView";
-import { toggleMarkdownFormatting } from "./util/markdown.util";
+import { CreateTypstFileModal } from "../ui/createTypstFileModal";
+import { TypstView } from "../typstView";
+import { toggleMarkdownFormatting } from "../util/markdownUtils";
 
 export function registerCommands(plugin: Plugin) {
   plugin.addCommand({
@@ -109,7 +109,7 @@ export function registerCommands(plugin: Plugin) {
     id: "create-typst-file",
     name: "Create new Typst file",
     callback: () => {
-      new CreateTypstFileModal(plugin.app, plugin).open();
+      new CreateTypstFileModal(plugin.app).open();
     },
   });
 

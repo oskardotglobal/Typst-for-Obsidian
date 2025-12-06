@@ -1,38 +1,29 @@
-import {
-  App,
-  Modal,
-  Notice,
-  Plugin,
-  Setting,
-  TFile,
-  normalizePath,
-} from "obsidian";
+import { App, Modal, Setting, TFile, normalizePath } from "obsidian";
 
 export class CreateTypstFileModal extends Modal {
   private fileName: string = "";
-  private plugin: Plugin;
+  private errorEl: HTMLElement | null = null;
 
-  constructor(app: App, plugin: Plugin) {
+  constructor(app: App) {
     super(app);
-    this.plugin = plugin;
   }
 
   onOpen() {
-    const { contentEl } = this;
+    const { contentEl, titleEl } = this;
     contentEl.empty();
 
-    contentEl.createEl("h2", { text: "Create New Typst File" });
+    titleEl.createEl("span", {
+      text: "Create new Typst file",
+      cls: "typst-modal-title",
+    });
 
     new Setting(contentEl)
       .setName("File name")
-      .setDesc("Enter the name of the Typst file (without .typ extension)")
+      .setDesc("Name of the Typst file (without .typ extension)")
       .addText((text) => {
-        text
-          .setPlaceholder("note")
-          .setValue(this.fileName)
-          .onChange((value) => {
-            this.fileName = value;
-          });
+        text.setValue(this.fileName).onChange((value) => {
+          this.fileName = value;
+        });
 
         text.inputEl.focus();
         text.inputEl.select();
@@ -42,9 +33,17 @@ export class CreateTypstFileModal extends Modal {
             this.createFile();
           }
         });
+
+        text.inputEl.addEventListener("input", () => {
+          this.clearError();
+        });
       });
 
-    const buttonContainer = contentEl.createDiv("modal-button-container");
+    const modalFooter = contentEl.createDiv("typst-modal-footer");
+    this.errorEl = modalFooter.createDiv("typst-modal-error");
+
+    const buttonContainer = modalFooter.createDiv("typst-modal-buttons");
+
     const cancelButton = buttonContainer.createEl("button", { text: "Cancel" });
     cancelButton.addEventListener("click", () => {
       this.close();
@@ -62,7 +61,7 @@ export class CreateTypstFileModal extends Modal {
 
   async createFile() {
     if (!this.fileName.trim()) {
-      new Notice("Please enter a file name");
+      this.showError("Enter a file name");
       return;
     }
 
@@ -71,7 +70,7 @@ export class CreateTypstFileModal extends Modal {
       const fullPath = normalizePath(`${fileName}.typ`);
       const existingFile = this.app.vault.getAbstractFileByPath(fullPath);
       if (existingFile && existingFile instanceof TFile) {
-        new Notice("File already exists");
+        this.showError("File already exists");
         const leaf = this.app.workspace.getLeaf(true);
         leaf.openFile(existingFile as any);
         this.close();
@@ -85,7 +84,19 @@ export class CreateTypstFileModal extends Modal {
       this.close();
     } catch (error) {
       console.error("Error creating Typst file:", error);
-      new Notice("Error creating file");
+      this.showError("Error creating file");
+    }
+  }
+
+  private showError(message: string) {
+    if (this.errorEl) {
+      this.errorEl.textContent = message;
+    }
+  }
+
+  private clearError() {
+    if (this.errorEl) {
+      this.errorEl.textContent = "";
     }
   }
 

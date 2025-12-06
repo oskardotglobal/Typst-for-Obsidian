@@ -1,7 +1,7 @@
 import { App } from "obsidian";
 import * as monaco from "monaco-editor";
 import type TypstForObsidian from "./main";
-import { ensureLanguageRegistered } from "./grammar/typst-language";
+import { ensureLanguageRegistered } from "./grammar/typstLanguage";
 
 interface MonacoLineEdit {
   line: number;

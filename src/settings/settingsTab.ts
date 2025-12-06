@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting, setIcon } from "obsidian";
 import { DEFAULT_SETTINGS, SyntaxHighlightColors } from "./settings";
-import TypstForObsidian from "./main";
+import TypstForObsidian from "../main";
 import { SettingsModal } from "./settingsModal";
 import {
   getCustomLayoutFunctionsConfig,

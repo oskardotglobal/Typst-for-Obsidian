@@ -1,9 +1,9 @@
 import { TextFileView, WorkspaceLeaf, Notice } from "obsidian";
-import { TypstEditor } from "./TypstEditor";
+import { TypstEditor } from "./typstEditor";
 import TypstForObsidian from "./main";
-import { PdfRenderer } from "./PdfRenderer";
-import { ViewActionBar } from "./ViewActionBar";
-import { EditorStateManager } from "./EditorStateManager";
+import { PdfRenderer } from "./pdfRenderer";
+import { ViewActionBar } from "./ui/viewActionBar";
+import { EditorStateManager } from "./editorStateManager";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";

@@ -1,4 +1,4 @@
-import { TypstEditor } from "./TypstEditor";
+import { TypstEditor } from "./typstEditor";
 
 export interface EditorState {
   lineNumber: number;

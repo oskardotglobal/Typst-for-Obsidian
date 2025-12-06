@@ -11,7 +11,7 @@ import {
   createOnigString,
 } from "vscode-oniguruma";
 import type TypstPlugin from "../main";
-import { getTypstTheme } from "./typst-theme";
+import { getTypstTheme } from "./typstTheme";
 
 import typstGrammar from "./typst.tmLanguage.json";
 

@@ -33,22 +33,22 @@ export class SettingsModal extends Modal {
   onOpen() {
     const { contentEl, titleEl } = this;
     contentEl.empty();
-    contentEl.addClass("typst-settings-modal");
+    contentEl.addClass("typst-modal");
 
     titleEl.createEl("span", {
       text: this.config.title,
-      cls: "typst-settings-modal-title",
+      cls: "typst-modal-title",
     });
 
     if (this.config.description) {
       contentEl.createEl("span", {
         text: this.config.description,
-        cls: "typst-settings-modal-description",
+        cls: "typst-modal-description",
       });
     }
 
     const textArea = contentEl.createEl("textarea", {
-      cls: "typst-settings-modal-textarea",
+      cls: "typst-modal-textarea",
     });
 
     if (this.config.initialValue !== undefined) {
@@ -67,13 +67,10 @@ export class SettingsModal extends Modal {
     }
 
     if (this.config.buttons) {
-      const modalFooter = contentEl.createDiv("typst-settings-modal-footer");
+      const modalFooter = contentEl.createDiv("typst-modal-footer");
+      this.errorEl = modalFooter.createDiv("typst-modal-error");
 
-      this.errorEl = modalFooter.createDiv("typst-settings-modal-error");
-
-      const buttonContainer = modalFooter.createDiv(
-        "typst-settings-modal-buttons"
-      );
+      const buttonContainer = modalFooter.createDiv("typst-modal-buttons");
 
       const cancelButton = buttonContainer.createEl("button", {
         text: "Cancel",
