@@ -23,21 +23,7 @@ export class TypstSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl)
-      .setName("Default file mode")
-      .setDesc(
-        "Choose whether Typst files open in source or reading mode by default"
-      )
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOption("source", "Source mode")
-          .addOption("reading", "Reading mode")
-          .setValue(this.plugin.settings.defaultMode)
-          .onChange(async (value: "source" | "reading") => {
-            this.plugin.settings.defaultMode = value;
-            await this.plugin.saveSettings();
-          })
-      );
+    new Setting(containerEl).setHeading().setName("Typst Settings");
 
     new Setting(containerEl)
       .setName("Use default layout functions")
@@ -116,6 +102,49 @@ export class TypstSettingTab extends PluginSettingTab {
           .onChange(async (value: boolean) => {
             this.plugin.settings.enableTextLayer = value;
             await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl).setHeading().setName("Editor Settings");
+
+    new Setting(containerEl)
+      .setName("Default file mode")
+      .setDesc(
+        "Choose whether Typst files open in source or reading mode by default"
+      )
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("source", "Source mode")
+          .addOption("reading", "Reading mode")
+          .setValue(this.plugin.settings.defaultMode)
+          .onChange(async (value: "source" | "reading") => {
+            this.plugin.settings.defaultMode = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Use Obsidian monospace font")
+      .setDesc(
+        "Use Obsidian theme's monospace font in the editor. Disable to use the editor's default font."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.useObsidianMonospaceFont)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.useObsidianMonospaceFont = value;
+            await this.plugin.saveSettings();
+
+            this.app.workspace.getLeavesOfType("typst-view").forEach((leaf) => {
+              const view = leaf.view as any;
+              if (
+                view &&
+                view.getCurrentMode &&
+                view.getCurrentMode() === "source"
+              ) {
+                view.showSourceMode?.();
+              }
+            });
           })
       );
 

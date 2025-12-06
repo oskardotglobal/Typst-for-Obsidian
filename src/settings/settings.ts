@@ -73,6 +73,7 @@ export interface TypstSettings {
   customSnippets: string;
   syntaxHighlightColors: SyntaxHighlightColors;
   useObsidianTextColor: boolean;
+  useObsidianMonospaceFont: boolean;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
@@ -84,6 +85,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   pdfLayoutFunctions: "",
   enableTextLayer: true,
   useObsidianTextColor: false,
+  useObsidianMonospaceFont: true,
   syntaxHighlightColors: {
     dark: {
       defaultText: "#D4D4D4",

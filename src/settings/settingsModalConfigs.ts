@@ -115,11 +115,11 @@ export function getCustomSnippetsConfig(
         },
       },
       reset: {
-        label: "Clear",
+        label: "Reset",
         action: async (_value, _showError, _close, updateValue) => {
-          plugin.settings.customSnippets = "";
+          plugin.settings.customSnippets = DEFAULT_SETTINGS.customSnippets;
           await plugin.saveSettings();
-          updateValue("");
+          updateValue(DEFAULT_SETTINGS.customSnippets);
         },
       },
     },

@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
 import { ensureLanguageRegistered } from "./grammar/typstLanguage";
+import TypstForObsidian from "./main";
 
 interface MonacoLineEdit {
   line: number;
@@ -16,12 +17,15 @@ export class TypstEditor {
   private container: HTMLElement;
   private content: string = "";
   private onContentChange?: (content: string) => void;
+  private plugin: TypstForObsidian;
 
   constructor(
     container: HTMLElement,
+    plugin: TypstForObsidian,
     onContentChange?: (content: string) => void
   ) {
     this.container = container;
+    this.plugin = plugin;
     this.onContentChange = onContentChange;
   }
 
@@ -44,10 +48,16 @@ export class TypstEditor {
     this.container.addClass("typst-monaco-editor-container");
 
     const isDarkTheme = document.body.classList.contains("theme-dark");
-    const obsidianFontFamily =
-      getComputedStyle(document.body)
-        .getPropertyValue("--font-monospace")
-        .trim() || "monospace";
+
+    let fontFamily: string;
+    if (this.plugin.settings.useObsidianMonospaceFont) {
+      fontFamily =
+        getComputedStyle(document.body)
+          .getPropertyValue("--font-monospace")
+          .trim() || "monospace";
+    } else {
+      fontFamily = "Consolas, 'Courier New', monospace";
+    }
 
     const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.content,
@@ -59,7 +69,7 @@ export class TypstEditor {
       minimap: { enabled: false },
       lineNumbers: "on",
       fontSize: 14,
-      fontFamily: obsidianFontFamily,
+      fontFamily: fontFamily,
       tabSize: 2,
       insertSpaces: true,
       quickSuggestions: false,

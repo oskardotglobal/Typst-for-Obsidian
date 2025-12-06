@@ -259,17 +259,21 @@ export class TypstView extends TextFileView {
     }
   }
 
-  private showSourceMode(): void {
+  public showSourceMode(): void {
     const contentEl = this.getContentElement();
     if (!contentEl) return;
 
     contentEl.empty();
     this.cleanupEditor();
 
-    this.typstEditor = new TypstEditor(contentEl, (content: string) => {
-      this.fileContent = content;
-      this.requestSave();
-    });
+    this.typstEditor = new TypstEditor(
+      contentEl,
+      this.plugin,
+      (content: string) => {
+        this.fileContent = content;
+        this.requestSave();
+      }
+    );
 
     this.typstEditor.initialize(this.fileContent).catch((err) => {
       console.error("Failed to initialize Typst editor:", err);
