@@ -18,7 +18,13 @@
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   margin-bottom: var(--size-4-4);
+  line-height: var(--line-height-normal);
   display: block;
+}
+
+.typst-modal-description code {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
 }
 
 .typst-modal-textarea {

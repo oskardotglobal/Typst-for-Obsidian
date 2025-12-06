@@ -41,10 +41,16 @@ export class SettingsModal extends Modal {
     });
 
     if (this.config.description) {
-      contentEl.createEl("span", {
-        text: this.config.description,
+      const descriptionEl = contentEl.createEl("span", {
         cls: "typst-modal-description",
       });
+      this.config.description
+        .split(/(`[^`]+`)/g)
+        .forEach((part) =>
+          part.startsWith("`") && part.endsWith("`")
+            ? descriptionEl.createEl("code", { text: part.slice(1, -1) })
+            : part && descriptionEl.appendText(part)
+        );
     }
 
     const textArea = contentEl.createEl("textarea", {

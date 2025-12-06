@@ -155,8 +155,8 @@ export const DEFAULT_SETTINGS: TypstSettings = {
         body: [
           "#align(center,",
           "\ttable(",
-          "\t\tcolumns: ${},",
-          "\t\t[${}],",
+          "\t\tcolumns: $1,",
+          "\t\t[$2],",
           "\t)",
           ")",
         ],

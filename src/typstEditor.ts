@@ -1,6 +1,7 @@
 import * as monaco from "monaco-editor";
 import { ensureLanguageRegistered } from "./grammar/typstLanguage";
 import TypstForObsidian from "./main";
+import { SnippetManager } from "./snippetManager";
 
 interface MonacoLineEdit {
   line: number;
@@ -18,6 +19,8 @@ export class TypstEditor {
   private content: string = "";
   private onContentChange?: (content: string) => void;
   private plugin: TypstForObsidian;
+  private snippetManager: SnippetManager;
+  private completionDisposable: monaco.IDisposable | null = null;
 
   constructor(
     container: HTMLElement,
@@ -27,6 +30,7 @@ export class TypstEditor {
     this.container = container;
     this.plugin = plugin;
     this.onContentChange = onContentChange;
+    this.snippetManager = new SnippetManager();
   }
 
   public async initialize(initialContent: string = ""): Promise<void> {
@@ -37,6 +41,10 @@ export class TypstEditor {
   }
 
   public destroy(): void {
+    if (this.completionDisposable) {
+      this.completionDisposable.dispose();
+      this.completionDisposable = null;
+    }
     if (this.monacoEditor) {
       this.monacoEditor.dispose();
       this.monacoEditor = null;
@@ -72,10 +80,10 @@ export class TypstEditor {
       fontFamily: fontFamily,
       tabSize: 2,
       insertSpaces: true,
-      quickSuggestions: false,
-      suggestOnTriggerCharacters: false,
-      acceptSuggestionOnCommitCharacter: false,
-      acceptSuggestionOnEnter: "off",
+      quickSuggestions: true,
+      suggestOnTriggerCharacters: true,
+      acceptSuggestionOnCommitCharacter: true,
+      acceptSuggestionOnEnter: "on",
       wordBasedSuggestions: "off",
       parameterHints: { enabled: false },
       padding: { top: 16, bottom: 64 },
@@ -88,6 +96,8 @@ export class TypstEditor {
         this.monacoEditor.layout();
       }
     });
+
+    this.registerSnippets();
 
     this.monacoEditor.onDidChangeModelContent(() => {
       if (this.monacoEditor) {
@@ -117,6 +127,47 @@ export class TypstEditor {
         } catch (err) {
           console.error("Failed to read clipboard:", err);
         }
+      }
+    );
+  }
+
+  private registerSnippets(): void {
+    this.snippetManager.parseSnippets(this.plugin.settings.customSnippets);
+
+    this.completionDisposable = monaco.languages.registerCompletionItemProvider(
+      "typst",
+      {
+        provideCompletionItems: (model, position) => {
+          const suggestions: monaco.languages.CompletionItem[] = [];
+
+          const wordInfo = model.getWordUntilPosition(position);
+          const word = wordInfo.word.toLowerCase();
+
+          const range = {
+            startLineNumber: position.lineNumber,
+            startColumn: wordInfo.startColumn,
+            endLineNumber: position.lineNumber,
+            endColumn: wordInfo.endColumn,
+          };
+
+          this.snippetManager.getSnippets().forEach((snippet, name) => {
+            if (snippet.prefix.toLowerCase().startsWith(word)) {
+              const insertText = snippet.body.join("\n");
+
+              suggestions.push({
+                label: snippet.prefix,
+                kind: monaco.languages.CompletionItemKind.Snippet,
+                documentation: name,
+                insertText: insertText,
+                insertTextRules:
+                  monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range: range,
+              });
+            }
+          });
+
+          return { suggestions };
+        },
       }
     );
   }

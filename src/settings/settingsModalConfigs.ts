@@ -8,7 +8,7 @@ export function getCustomLayoutFunctionsConfig(
   return {
     title: "Custom Layout Functions",
     description:
-      "Customize the default layout functions. Use template variables (e.g., %THEMECOLOR%, %FONTSIZE%, %BGCOLOR%) to style according to the current theme.",
+      "Customize the default layout functions. Use template variables (e.g., `%THEMECOLOR%`, `%FONTSIZE%`, `%BGCOLOR%`) to style according to the current theme.",
     initialValue: plugin.settings.customLayoutFunctions,
     buttons: {
       save: {
@@ -36,7 +36,7 @@ export function getPdfLayoutFunctionsConfig(
   return {
     title: "PDF Export Layout Functions",
     description:
-      "Customize layout functions for PDF exports only (not editor preview). Use template variables (e.g., %THEMECOLOR%, %FONTSIZE%, %BGCOLOR%) to style according to the current theme.",
+      "Customize layout functions for PDF exports only (not editor preview). Use template variables (e.g., `%THEMECOLOR%`, `%FONTSIZE%`, `%BGCOLOR%`) to style according to the current theme.",
     initialValue: plugin.settings.pdfLayoutFunctions,
     buttons: {
       save: {
@@ -96,7 +96,7 @@ export function getCustomSnippetsConfig(
   return {
     title: "Custom Snippets",
     description:
-      'Define custom snippets in JSON format. Each snippet has a "prefix" (trigger text) and "body" (text to insert).',
+      'Define custom snippets in JSON format (VSCode style). Each snippet has a "prefix" (trigger) and "body" (array of lines). Use `$1`, `$2` for tab stops, `$1` for placeholders, and `$0` for final cursor position. Example: `{"mysnippet": {"prefix": "hello", "body": ["Hello $1!", "$0"]}}`',
     initialValue: plugin.settings.customSnippets,
     buttons: {
       save: {
@@ -105,7 +105,7 @@ export function getCustomSnippetsConfig(
             try {
               JSON.parse(value);
             } catch (error) {
-              showError("Invalid JSON format. Please check your input.");
+              showError("Invalid JSON format.");
               return;
             }
           }
