@@ -9,7 +9,8 @@ Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly in
 ## Features
 
 - Open `.typ` files in Obsidian
-- Typst editor with syntax highlighting
+- VSCode-Like editor with Typst syntax highlighting
+- Customizable syntax highlighting colors for dark and light themes
 - Toggle between source and PDF preview modes
 - PDF export to vault
 - Theme integration - rendered PDFs adapt to Obsidian themes
@@ -55,7 +56,7 @@ Configure default page layouts in settings:
 
 ### Custom Snippets
 
-You can add custom Typst snippets as JSON for autocomplete in settings. Each snippet has a prefix (trigger) and body (lines to insert). Use `${}` for tab stops, and press `Tab` to jump between them.
+You can add custom Typst snippets as JSON for autocomplete in settings. Each snippet has a prefix (trigger) and body (lines to insert). Use `$1`, `$2`, etc., for tab stops.
 
 Example (inserting a table aligned to the center):
 
@@ -66,14 +67,39 @@ Example (inserting a table aligned to the center):
     "body": [
       "#align(center,",
       "\ttable(",
-      "\t\tcolumns: ${},",
-      "\t\t[${}],",
+      "\t\tcolumns: $1,",
+      "\t\t[$2],",
       "\t)",
       ")"
     ]
   }
 }
 ```
+
+## Settings
+
+- **Default Mode** - Open files in source or reading mode
+- **Auto-download Packages** - Automatically fetch packages from Typst registry
+- **Font Families** - System fonts to load (desktop only)
+- **Layout Functions** - Custom Typst preambles for formatting
+- **Enable Text Layer** - Enable text selection in PDF preview. Disabling this setting may improve performance
+- **Custom Snippets** - Add custom Typst snippets for autocomplete
+- **Syntax Highlighting** - Customize colors for 28 different syntax categories, separately for dark and light themes. Import/export color configurations as JSON
+
+## Commands
+
+- **Create new Typst file** - Create `.typ` file at specified path
+- **Toggle source/reading mode** - Switch between editing and preview
+- **Export to PDF** - Export current document to PDF file
+- **Toggle bold** - Wrap selection with `*text*`
+- **Toggle italic** - Wrap selection with `_text_`
+- **Toggle underline** - Wrap selection with `#underline[text]`
+- **Increase heading level** - Add one `=` to heading (max 6 levels)
+- **Decrease heading level** - Remove one `=` from heading (min 2 levels)
+
+> [!NOTE]
+>
+> Since Obsidian doesn't let you use the same hotkeys for different views, to use `Ctrl+B` and `Ctrl+I` in both Typst files and Markdown files, unbind the default bold and italic hotkeys, and bind `Toggle bold` and `Toggle italic` to `Ctrl+B` and `Ctrl+I`. It will work for both Typst files and Markdown files. Alternatively, you can just use two different hotkeys.
 
 ## Official Template
 
@@ -92,14 +118,13 @@ To get started, import the template at the top of your Typst file:
   theme: "dark",
   title: "My Document",
   course: "CS4999",
-  standalone: false // Removes template page functions
+  standalone: false
 )
 ```
 
 This template is an Obsidian-like theme for Typst, with support for light/dark modes, titles, headers, and some useful functions for displaying notes.
 
-> [!NOTE]
-> When using this template, I recommend setting the custom layout function in the settings to:
+When using this template, I recommend setting the custom layout function in the settings to:
 
 ```typst
 #set page(
@@ -116,28 +141,6 @@ Make sure to set `standalone: false`. This will prevent the template from adding
 - [GeistMono NFP](https://github.com/ryanoasis/nerd-fonts/releases/)
 - [Fira Math](https://github.com/firamath/firamath/releases/)
 
-## Settings
-
-- **Default Mode** - Open files in source or reading mode
-- **Auto-download Packages** - Automatically fetch packages from Typst registry
-- **Font Families** - System fonts to load (desktop only)
-- **Layout Functions** - Custom Typst preambles for formatting
-- **Enable Text Layer** - Enable text selection in PDF preview. Disabling this setting may improve performance
-- **Custom Snippets** - Add custom Typst snippets for autocomplete
-
-## Commands
-
-- **Create new Typst file** - Create `.typ` file at specified path
-- **Toggle source/reading mode** - Switch between editing and preview
-
-## Keyboard Shortcuts
-
-- `Ctrl+B` - Bold (`*text*`)
-- `Ctrl+I` - Italic (`_text_`)
-- `Tab` - Accept autocomplete suggestion
-
-_Currently, keyboard shortcuts only work when Obsidian hotkeys for the same hotkey are disabled._
-
 ## Installation
 
 1. Download the latest release from the [Releases](https://github.com/k0src/Typst-for-Obsidian/releases) page
@@ -145,11 +148,6 @@ _Currently, keyboard shortcuts only work when Obsidian hotkeys for the same hotk
 3. Enable the plugin in Obsidian settings
 
 ## How it Works
-
-- The plugin integrates the Typst compiler directly into Obsidian using WebAssembly, allowing it to run in the browser.
-- It manages two modes: source mode (for editing) and reading mode (for PDF preview).
-- The editor view uses CodeMirror 6 Typst editor with syntax highlighting, autocomplete, and keybindings.
-- The viewer renders PDFs using PDFium, with support for text selection and links.
 
 ### Compilation Process
 
@@ -186,32 +184,27 @@ npm run build
 
 ## Future Plans
 
-Due to grammar limitations and other reasons, the next step is replacing the CodeMirror6 editor view with [Monaco Editor](https://microsoft.github.io/monaco-editor/) (the editor used by VSCode). In short, CodeMirror6 uses a parser grammar system called [Lezer](https://lezer.codemirror.net/), which is what the first version of the [Typst grammar](src/grammar/typst.grammar) was implemented with. The problem is, Typst is a pretty tricky language to parse. It has a 3 modes (code, plain text, and math), and sometimes, keywords or variables can mean different things in different contexts. Due to this, it's very hard to write a [declarative grammar](https://lezer.codemirror.net/docs/guide/#writing-a-grammar) that can be used to parse Typst markup. Instead, the [Monarch](https://microsoft.github.io/monaco-editor/monarch.html) tokenizer can be used to parse Typst (the [Tinymist LSP](https://myriad-dreamin.github.io/tinymist/) can possibly be used too).
-
-Getting syntax highligting working properly is the first step. Next is implementing incremental PDF rendering, and a proper editor-preview split view. This basically requires a whole rewrite of the compiler, making it stateful and memoizing the PDF.
-
-### Other Goals
-
+- [ ] **Implement incremental PDF rendering and proper editor-preview split view**
 - [ ] **Improve performance of PDF rendering**
 - [ ] **Polish PDF viewer, fix text layers, add annotation layers**
-- [ ] **Polish editor UI**
-- [ ] Add more keyboard shortcuts, more robust editor features
+- [ ] Finish Monaco snippet integration for autocomplete
 - [ ] Formatter for Typst code
 - [ ] Add support for jumping from PDF to source by clicking on text
 - [ ] Add backlink support in PDF preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
 - [ ] Support Typst packages that use WebAssembly modules
-- [ ] Add more settings for customization
 
 ## Known Issues
 
-- Packages that import WebAssembly modules (like CeTZ) do not work, because WASM modules cannot be imported into other WASM modules in the browser
-- Returning to scroll position when switching between source and preview modes is jittery
+- Packages that import WebAssembly modules (like CeTZ) don't work - WASM can't import WASM in browsers
+- Scroll position restoration when toggling modes is jittery
 
 ## Credits
 
 Compiler implementation inspired by [fenjalien/obsidian-typst](https://github.com/fenjalien/obsidian-typst).
+
+[Tinymist TextMate grammar](https://github.com/Myriad-Dreamin/tinymist/tree/main/syntaxes/textmate)
 
 ## License
 
