@@ -376,7 +376,10 @@ export class TypstEditor {
           } else {
             let cleanText = edit.trimmedText;
             const formattedPartRegex = new RegExp(
-              `\\${prefix}(.+?)\\${suffix}`,
+              `${prefix.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&"
+              )}(.+?)${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
               "g"
             );
             cleanText = cleanText.replace(formattedPartRegex, "$1");
@@ -430,7 +433,10 @@ export class TypstEditor {
         } else {
           let cleanText = lastEdit.trimmedText;
           const formattedPartRegex = new RegExp(
-            `\\${prefix}(.+?)\\${suffix}`,
+            `${prefix.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              "\\$&"
+            )}(.+?)${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
             "g"
           );
           cleanText = cleanText.replace(formattedPartRegex, "$1");
