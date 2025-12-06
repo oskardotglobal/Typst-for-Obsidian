@@ -256,15 +256,10 @@ export class TypstView extends TextFileView {
     contentEl.empty();
     this.cleanupEditor();
 
-    this.typstEditor = new TypstEditor(
-      contentEl,
-      this.app,
-      this.plugin,
-      (content: string) => {
-        this.fileContent = content;
-        this.requestSave();
-      }
-    );
+    this.typstEditor = new TypstEditor(contentEl, (content: string) => {
+      this.fileContent = content;
+      this.requestSave();
+    });
 
     this.typstEditor.initialize(this.fileContent).catch((err) => {
       console.error("Failed to initialize Typst editor:", err);
