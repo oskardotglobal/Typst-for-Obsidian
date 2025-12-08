@@ -193,11 +193,11 @@ npm run build
 - [ ] Add backlink support in PDF preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
-- [ ] Support Typst packages that use WebAssembly modules
+- [ ] Support Typst packages that use WebAssembly modules 
 
 ## Known Issues
 
-- Packages that import WebAssembly modules (like CeTZ) don't work - WASM can't import WASM in browsers
+- Packages that import WebAssembly modules (like CeTZ) don't work
 - Scroll position restoration when toggling modes is jittery
 
 ## Credits
