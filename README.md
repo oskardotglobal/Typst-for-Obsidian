@@ -173,7 +173,7 @@ npm run build
 For easier deployment during development:
 
 1. Install the [Hot Reload](https://github.com/pjeby/hot-reload) plugin and create a `.hotreload` file in the root directory of the plugin in your vault.
-2. Create a `.env` file in the root directory with the following content:
+2. Create a `.env` file in the root directory of the repo with the following content:
 
 ```
 SOURCE_DIR="path/to/the/source/directory"
