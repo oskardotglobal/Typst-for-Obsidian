@@ -12,5 +12,6 @@ pkg/
 compiler/target/
 **/*.rs.bk
 *.pdb
-build.js
 styles.css
+
+.env

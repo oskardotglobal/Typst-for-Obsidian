@@ -147,31 +147,15 @@ Make sure to set `standalone: false`. This will prevent the template from adding
 2. Extract `main.js`, `manifest.json`, `styles.css`, and `obsidian_typst_bg.wasm` to your Obsidian plugins folder (`.obsidian/plugins/typst-for-obsidian`)
 3. Enable the plugin in Obsidian settings
 
-## How it Works
+## Contributing
 
-### Compilation Process
+Feel free to open issues or submit pull requests for bug fixes and new features.
 
-When compiling a document, the plugin first processes the source code through several stages:
+### Development
 
-1. If enabled, custom layout functions are prepended to the source. These can be different for internal previews vs PDF exports, allowing different formatting for each use case.
-2. Before compilation, all template variables (like `%THEMECOLOR%`, `%FONTSIZE%`) are replaced with values extracted from the current Obsidian theme.
-3. The processed source is then sent to a Web Worker running the Typst compiler.
-
-### WebAssembly Compiler
-
-- The core compiler is written in Rust and compiled to WebAssembly.
-- The compiler uses the official Typst library to parse and compile documents to a PDF.
-- On desktop, system fonts are loaded into the WASM module via the Local Font Access API and are registered with Typst's font system.
-- The plugin fetches Typst packages from the official repository and caches them locally, and gets packages from the Typst data directory on desktop.
-
-### PDF Rendering
-
-- Each page is rendered to a canvas with scaling for high-DPI displays, using PDFium.
-- Text layers are overlaid for selection and annotation layers are rendered for interactive elements like links.
-
-## Development
-
-### Build
+1. Since the plugin uses a Rust WebAssembly module for the Typst compiler, you'll need to have Rust and `wasm-pack` installed.
+2. Clone the repository and navigate to the project directory.
+3. Install the necessary npm packages and build the WebAssembly module:
 
 ```bash
 npm install
@@ -180,6 +164,26 @@ cargo build --release
 wasm-pack build --target web --out-dir ../pkg
 cd ..
 npm run build
+```
+
+4. Create a folder for the plugin in your Obsidian vault's plugins directory: `.obsidian/plugins/typst-for-obsidian`.
+5. Copy the built files (`main.js`, `manifest.json`, `styles.css`, and the `pkg` folder) to the plugin folder you created.
+6. Restart Obsidian and enable the plugin in settings.
+
+For easier deployment during development:
+
+1. Install the [Hot Reload](https://github.com/pjeby/hot-reload) plugin and create `.hotreload` file in the root directory of the plugin in your vault.
+2. Create a `.env` file in the root directory with the following content:
+
+```
+SOURCE_DIR="path/to/the/source/directory"
+TARGET_DIR="path/to/your-vault/.obsidian/plugins/typst-for-obsidian"
+```
+
+3. Run the build script to copy files to your Obsidian plugins folder:
+
+```bash
+npm run build:deploy
 ```
 
 ## Future Plans
@@ -193,7 +197,7 @@ npm run build
 - [ ] Add backlink support in PDF preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
-- [ ] Support Typst packages that use WebAssembly modules 
+- [ ] Support Typst packages that use WebAssembly modules
 
 ## Known Issues
 
