@@ -1,21 +1,25 @@
-use std::{ borrow::Borrow, collections::HashMap, path::{ Path, PathBuf }, sync::OnceLock };
+use std::{
+    borrow::Borrow,
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::OnceLock,
+};
 
-use chrono::{ DateTime, Datelike, Local };
+use chrono::{DateTime, Datelike, Local};
 use parking_lot::Mutex;
 use send_wrapper::SendWrapper;
 use typst::{
-    diag::{ EcoString, FileError, FileResult, PackageError, PackageResult },
-    foundations::{ Bytes, Datetime },
+    diag::{EcoString, FileError, FileResult, PackageError, PackageResult},
+    foundations::{Bytes, Datetime},
     layout::PagedDocument,
-    syntax::{ package::PackageSpec, FileId, Source, VirtualPath },
-    text::{ Font, FontBook },
+    syntax::{package::PackageSpec, FileId, Source, VirtualPath},
+    text::{Font, FontBook},
     utils::LazyHash,
-    Library,
-    World,
+    Library, LibraryExt, World,
 };
 use wasm_bindgen::JsValue;
 
-use crate::{ diagnostic::format_diagnostic, file_entry::FileEntry };
+use crate::{diagnostic::format_diagnostic, file_entry::FileEntry};
 
 pub struct SystemWorld {
     root: PathBuf,
@@ -50,12 +54,12 @@ impl SystemWorld {
         self.reset();
 
         self.main = FileId::new(None, VirtualPath::new(path));
-        self.files.get_mut().insert(self.main, FileEntry::new(self.main, text));
-        typst
-            ::compile(self)
-            .output.map_err(|errors|
-                format_diagnostic(self.files.get_mut().borrow(), &errors).into()
-            )
+        self.files
+            .get_mut()
+            .insert(self.main, FileEntry::new(self.main, text));
+        typst::compile(self)
+            .output
+            .map_err(|errors| format_diagnostic(self.files.get_mut().borrow(), &errors).into())
     }
 
     pub fn add_font(&mut self, data: Vec<u8>) {
@@ -100,7 +104,9 @@ impl SystemWorld {
             FileError::Other(e.as_string().map(EcoString::from))
         };
 
-        let result = self.request_data(path.to_str().unwrap().to_owned()).map_err(f)?;
+        let result = self
+            .request_data(path.to_str().unwrap().to_owned())
+            .map_err(f)?;
         Ok(result.as_string().unwrap())
     }
 
@@ -130,20 +136,20 @@ impl SystemWorld {
             let ext_lower = ext.to_string_lossy().to_lowercase();
             matches!(
                 ext_lower.as_str(),
-                "jpg" |
-                    "jpeg" |
-                    "png" |
-                    "gif" |
-                    "bmp" |
-                    "webp" |
-                    "svg" |
-                    "pdf" |
-                    "zip" |
-                    "wasm" |
-                    "ttf" |
-                    "otf" |
-                    "woff" |
-                    "woff2"
+                "jpg"
+                    | "jpeg"
+                    | "png"
+                    | "gif"
+                    | "bmp"
+                    | "webp"
+                    | "svg"
+                    | "pdf"
+                    | "zip"
+                    | "wasm"
+                    | "ttf"
+                    | "otf"
+                    | "woff"
+                    | "woff2"
             )
         } else {
             false
@@ -164,20 +170,22 @@ impl SystemWorld {
             .lock()
             .entry(spec.clone())
             .or_insert_with(|| {
-                Ok(
-                    self
-                        .request_data(format!("@{}/{}/{}", spec.namespace, spec.name, spec.version))
-                        .map_err(f)?
-                        .as_string()
-                        .unwrap()
-                        .into()
-                )
+                Ok(self
+                    .request_data(format!(
+                        "@{}/{}/{}",
+                        spec.namespace, spec.name, spec.version
+                    ))
+                    .map_err(f)?
+                    .as_string()
+                    .unwrap()
+                    .into())
             })
             .clone()
     }
 
     fn file_entry<F, T>(&self, id: FileId, f: F) -> FileResult<T>
-        where F: FnOnce(&mut FileEntry) -> T
+    where
+        F: FnOnce(&mut FileEntry) -> T,
     {
         let mut map = self.files.lock();
         if !map.contains_key(&id) {
@@ -253,7 +261,7 @@ impl World for SystemWorld {
         Datetime::from_ymd(
             naive.year(),
             naive.month().try_into().ok()?,
-            naive.day().try_into().ok()?
+            naive.day().try_into().ok()?,
         )
     }
 }

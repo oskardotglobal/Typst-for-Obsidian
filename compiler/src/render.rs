@@ -1,4 +1,4 @@
-use fast_image_resize::{ self as fr, images::Image };
+use fast_image_resize::{self as fr, images::Image};
 use fr::Resizer;
 use typst::layout::PagedDocument;
 use wasm_bindgen::Clamped;
@@ -10,7 +10,7 @@ pub fn to_image(
     pixel_per_pt: f32,
     fill: String,
     size: u32,
-    display: bool
+    display: bool,
 ) -> Result<ImageData, wasm_bindgen::JsValue> {
     let mut pixmap = typst_render::render(&document.pages[0], pixel_per_pt);
     if !fill.is_empty() {
@@ -34,15 +34,13 @@ pub fn to_image(
     let width = pixmap.width();
     let height = pixmap.height();
 
-    let mut src_image = Image::from_slice_u8(
-        width,
-        height,
-        pixmap.data_mut(),
-        fr::PixelType::U8x4
-    ).unwrap();
+    let mut src_image =
+        Image::from_slice_u8(width, height, pixmap.data_mut(), fr::PixelType::U8x4).unwrap();
 
     let alpha_mul_div = fr::MulDiv::default();
-    alpha_mul_div.multiply_alpha_inplace(&mut src_image).unwrap();
+    alpha_mul_div
+        .multiply_alpha_inplace(&mut src_image)
+        .unwrap();
 
     let dst_width = if display {
         size
@@ -64,7 +62,7 @@ pub fn to_image(
     return ImageData::new_with_u8_clamped_array_and_sh(
         Clamped(dst_image.buffer()),
         dst_width,
-        dst_height
+        dst_height,
     );
 }
 
@@ -77,6 +75,9 @@ pub fn to_pdf(document: PagedDocument) -> Result<Vec<u8>, wasm_bindgen::JsValue>
 
     match typst_pdf::pdf(&document, &pdf_options) {
         Ok(pdf_bytes) => Ok(pdf_bytes),
-        Err(e) => Err(wasm_bindgen::JsValue::from_str(&format!("PDF compilation failed: {:?}", e))),
+        Err(e) => Err(wasm_bindgen::JsValue::from_str(&format!(
+            "PDF compilation failed: {:?}",
+            e
+        ))),
     }
 }
