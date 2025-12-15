@@ -112,7 +112,7 @@ You can use the [official template](https://github.com/k0src/Typsidian) designed
 To get started, import the template at the top of your Typst file:
 
 ```typst
-#import "@preview/typsidian:0.0.1": *;
+#import "@preview/typsidian:0.0.2": *;
 
 #show: typsidian.with(
   theme: "dark",
