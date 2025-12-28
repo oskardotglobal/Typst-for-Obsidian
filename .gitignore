@@ -1,9 +1,8 @@
 node_modules
 tests/
 
-main.js
-main.css
-styles.css
+dist/*
+!dist/manifest.json
 *.js.map
 *.ttf
 
@@ -19,3 +18,4 @@ styles.css
 .idea
 .helix
 .direnv
+.DS_Store

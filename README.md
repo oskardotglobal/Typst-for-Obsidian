@@ -3,7 +3,7 @@
 Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly into [Obsidian](https://obsidian.md), enabling you to create and preview Typst documents seamlessly within your notes. Create `.typ` files, edit with syntax highlighting, and render PDFs that adapt to your Obsidian theme.
 
 <p align="center">
-  <img src="assets/tfo-ss.png" width="700">
+  <img src=".github/assets/tfo-ss.png" width="700">
 </p>
 
 ## Features
@@ -18,7 +18,7 @@ Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly in
 - Package support - use local packages from data directory or auto-download from preview namespace
 - System font support (desktop only)
 
-![Screenshot](assets/tfo-full-screen.png)
+![Screenshot](.github/assets/tfo-full-screen.png)
 
 ## Usage
 
@@ -106,7 +106,7 @@ Example (inserting a table aligned to the center):
 You can use the [official template](https://github.com/k0src/Typsidian) designed for Typst in Obsidian. It includes support for light/dark modes, titles, headers, and useful functions for displaying notes.
 
 <p align="center">
-  <img src="assets/tfo-template.png" width="700">
+  <img src=".github/assets/tfo-template.png" width="700">
 </p>
 
 To get started, import the template at the top of your Typst file:
